@@ -1,4 +1,17 @@
 # Python
+Backend/venv/
+__pycache__/
+*.pyc
+
+# Environment variables
+.env
+
+# Mac
+.DS_Store
+
+# Ollama
+ollama
+# Python
 venv/
 __pycache__/
 *.pyc

@@ -5,8 +5,18 @@ from pydantic import BaseModel
 from app.db import get_db, engine
 from app import models
 from app.schemas import RecipeCreate, RecipeResponse
-from app.ai import generate_recipe
+from app.ai import generate_recipe, fetch_recipe_image
 from typing import Optional
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+import logging
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+
+logger = logging.getLogger(__name__)
 
 class RecipeSearchRequest(BaseModel):
     ingredients: list[str]
@@ -37,64 +47,64 @@ def assistant_logic(user_ingredients: list[str], db: Session):
     user_set = set(i.lower() for i in user_ingredients)
 
     for recipe in recipes:
-        recipe_set = set(i.lower() for i in recipe.ingredients)
+        recipe_set = set(item["name"].lower() for item in recipe.ingredients)
+
+        if not recipe_set:
+            continue
+
+        # Primary ingredient check
+        primary = recipe.ingredients[0]["name"].lower()
+        if primary not in user_set:
+            continue
 
         matched = user_set.intersection(recipe_set)
         match_score = len(matched) / len(recipe_set)
 
         if match_score > 0:
-            missing = list(recipe_set - user_set)
+            ranked_recipes.append((match_score, recipe))
 
-            # Substitution logic
-            substitutions = {}
-            for item in missing:
-                if item in SUBSTITUTIONS:
-                    substitutions[item] = SUBSTITUTIONS[item]
-
-            explanation = f"You match {len(matched)} out of {len(recipe_set)} ingredients."
-
-            if missing:
-                explanation += f" You are missing: {', '.join(missing)}."
-
-                if substitutions:
-                    explanation += " Possible substitutions: "
-                    for k, v in substitutions.items():
-                        explanation += f"For {k}, try {', '.join(v)}. "
-
-            ranked_recipes.append({
-                "id": recipe.id,
-                "name": recipe.name,
-                "ingredients": recipe.ingredients,
-                "steps": recipe.steps,
-                "estimated_calories": recipe.estimated_calories,
-                "match_score": round(match_score, 2),
-                "matched_ingredients": list(matched),
-                "missing_ingredients": missing,
-                "substitutions": substitutions,
-                "explanation": explanation
-            })
-
+    # If no DB match → call AI
     if not ranked_recipes:
+        logger.info("Recipe source: AI")
         recipe_data = generate_recipe(user_ingredients)
+
+        # Attach image
+        image_url = fetch_recipe_image(recipe_data["name"])
+        recipe_data["image_url"] = image_url
+
+
+
+        # Save to DB
+        db_recipe = models.Recipe(
+            name=recipe_data["name"],
+            servings=recipe_data["servings"],
+            time=recipe_data["time"],
+            calories=recipe_data["calories"],
+            ingredients=recipe_data["ingredients"],
+            instructions=recipe_data["instructions"],
+            notes=recipe_data["notes"],
+            image_url=recipe_data.get("image_url")
+        )
+
+        db.add(db_recipe)
+        db.commit()
+        db.refresh(db_recipe)
+        
         return {
             "source": "ai",
-            "results": [recipe_data]
+            "results": [db_recipe]
         }
 
-    ranked_recipes.sort(key=lambda x: x["match_score"], reverse=True)
-    top_results = ranked_recipes[:3]
-
-    if top_results[0]["match_score"] < THRESHOLD:
-        recipe_data = generate_recipe(user_ingredients)
-        return {
-            "source": "ai",
-            "results": [recipe_data]
-        }
-
+    # Sort by match score
+    ranked_recipes.sort(key=lambda x: x[0], reverse=True)
+    best_recipe = ranked_recipes[0][1]
+    logger.info("Recipe source: DATABASE")
     return {
         "source": "database",
-        "results": top_results
+        "results": [best_recipe]
     }
+
+
 
 
 def find_best_match(user_ingredients: list[str], db: Session):
@@ -118,7 +128,19 @@ def find_best_match(user_ingredients: list[str], db: Session):
     return best_match, best_score
 
 
+
+
 app = FastAPI()
+
+# 🔥 ADD CORS RIGHT HERE
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 
 
 # =========================
@@ -154,7 +176,8 @@ def create_recipe(
         name=recipe.name,
         ingredients=recipe.ingredients,
         steps=recipe.steps,
-        estimated_calories=recipe.estimated_calories
+        estimated_calories=recipe.estimated_calories,
+        image_url=recipe_data.get("image_url")
     )
 
     db.add(db_recipe)
@@ -180,13 +203,21 @@ def ai_generate_recipe(
     # 1️⃣ Call AI
     recipe_data = generate_recipe(data.ingredients)
 
-    # 2️⃣ Persist to DB
+    # 2️⃣ Generate dynamic image URL
+    image_query = recipe_data["name"].replace(" ", "+")
+    recipe_data["image_url"] = f"https://source.unsplash.com/1200x800/?{image_query},food"
+
+    # 3️⃣ Save to DB
     db_recipe = models.Recipe(
-        name=recipe_data["name"],
-        ingredients=recipe_data["ingredients"],
-        steps=recipe_data["steps"],
-        estimated_calories=recipe_data["estimated_calories"]
-    )
+    name=recipe_data["name"],
+    servings=recipe_data["servings"],
+    time=recipe_data["time"],
+    calories=recipe_data["calories"],
+    ingredients=recipe_data["ingredients"],
+    instructions=recipe_data["instructions"],
+    notes=recipe_data["notes"],
+    image_url=recipe_data.get("image_url")
+)
 
     db.add(db_recipe)
     db.commit()
@@ -200,14 +231,14 @@ def search_recipes(
     data: RecipeSearchRequest,
     db: Session = Depends(get_db)
 ):
-    user_set = set(i.strip().lower() for i in data.ingredients if i.strip())
+    user_set = set(i.lower() for i in user_ingredients)
 
     recipes = db.query(models.Recipe).all()
     scored = []
 
     for r in recipes:
         recipe_ings = [x.strip().lower() for x in (r.ingredients or [])]
-        recipe_set = set(recipe_ings)
+        recipe_set = set(item["name"].lower() for item in recipe.ingredients)
 
         if not recipe_set:
             continue

@@ -5,3 +5,5 @@ brew install ollama
 pip install --upgrade mlx mlx-lm
 
 
+pip install fastapi uvicorn sqlalchemy psycopg2-binary requests pydantic
+pip install python-dotenv

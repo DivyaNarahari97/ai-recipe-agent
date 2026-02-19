@@ -2,6 +2,33 @@
 import requests
 import json
 import re
+import os
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+
+UNSPLASH_ACCESS_KEY = os.getenv("UNSPLASH_ACCESS_KEY")
+
+
+def fetch_recipe_image(recipe_name: str):
+    url = "https://api.unsplash.com/search/photos"
+
+    params = {
+        "query": recipe_name + " food",
+        "per_page": 1,
+        "client_id": UNSPLASH_ACCESS_KEY
+    }
+
+    response = requests.get(url, params=params)
+
+    if response.status_code == 200:
+        data = response.json()
+        if data["results"]:
+            return data["results"][0]["urls"]["regular"]
+
+    return None
+
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 MODEL_NAME = "mistral"
@@ -16,10 +43,11 @@ def _extract_json(text: str) -> dict:
 
 def _call_model(prompt: str) -> str:
     payload = {
-        "model": MODEL_NAME,
-        "prompt": prompt,
-        "stream": False
-    }
+    "model": "mistral",
+    "prompt": prompt,
+    "stream": False,
+    "format": "json"
+}
     response = requests.post(OLLAMA_URL, json=payload, timeout=120)
     response.raise_for_status()
     return response.json()["response"]
@@ -27,32 +55,34 @@ def _call_model(prompt: str) -> str:
 
 def generate_recipe(ingredients: list[str]) -> dict:
     prompt = f"""
-You are a JSON API.
+You are a professional chef.
 
-You MUST respond with valid JSON ONLY.
-DO NOT add any text before or after JSON.
+Return ONLY valid JSON in this structure:
 
-If you cannot comply, return an EMPTY JSON object: {{}}.
-
-JSON schema:
 {{
   "name": string,
-  "ingredients": list of strings,
-  "steps": list of strings,
-  "estimated_calories": number
+  "servings": 2-4,
+  "time": string,
+  "calories": string,
+  "ingredients": [
+    {{"quantity": string, "name": string}}
+  ],
+  "instructions": [
+    {{
+      "section": string,
+      "steps": [string]
+    }}
+  ],
+  "notes": string
 }}
 
-Rules:
-- Use ONLY the provided ingredients
-- Steps must be short, clear actions
-- DO NOT number steps
-- One action per step
-- Do NOT include cooking tips or explanations
-- Calories must be a realistic estimate
+Generate realistic values based on the ingredients.
 
 Ingredients:
-{", ".join(ingredients)}
+{ingredients}
 """
+
+
 
     # First attempt
     raw_output = _call_model(prompt)

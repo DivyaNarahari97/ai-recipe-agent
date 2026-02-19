@@ -1,11 +1,19 @@
-from typing import List
+from typing import List, Optional, Dict, Any
 from pydantic import BaseModel
+
 
 class RecipeCreate(BaseModel):
     name: str
-    ingredients: List[str]
-    steps: List[str]
-    estimated_calories: int
+    servings: Optional[str] = None
+    time: Optional[str] = None
+    calories: Optional[str] = None
+
+    ingredients: List[Dict[str, Any]]
+    instructions: List[Dict[str, Any]]
+
+    notes: Optional[str] = None
+    image_url: Optional[str] = None
+
 
 class RecipeResponse(RecipeCreate):
     id: int

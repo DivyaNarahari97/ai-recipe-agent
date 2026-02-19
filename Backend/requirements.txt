@@ -1,9 +1,8 @@
-psycopg2-binary python-dotenv
-openai python-dotenv
-torch transformers accelerate sentencepiece
-brew install ollama
-pip install --upgrade mlx mlx-lm
-
-
-pip install fastapi uvicorn sqlalchemy psycopg2-binary requests pydantic
-pip install python-dotenv
+fastapi==0.110.0
+uvicorn[standard]==0.27.1
+sqlalchemy==2.0.27
+psycopg2-binary==2.9.9
+pydantic==2.6.1
+python-dotenv==1.0.1
+requests==2.31.0
+openai==1.12.0

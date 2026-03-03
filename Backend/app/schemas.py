@@ -1,6 +1,10 @@
+import logging
 from typing import List, Optional, Dict, Any
+
 from pydantic import BaseModel
 
+logger = logging.getLogger(__name__)
+logger.debug("Schemas module loaded")
 
 class RecipeCreate(BaseModel):
     name: str

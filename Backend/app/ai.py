@@ -67,7 +67,10 @@ def _call_model(prompt: str) -> str:
 
 
 def generate_recipe(ingredients: list[str]) -> dict:
-    logger.info("Generating recipe with AI", extra={"ingredient_count": len(ingredients)})
+    logger.info(
+        "Generating recipe with AI",
+        extra={"ingredient_count": len(ingredients)}
+    )
     prompt = f"""
 You are a professional chef.
 

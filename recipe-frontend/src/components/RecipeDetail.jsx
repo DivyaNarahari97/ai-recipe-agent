@@ -1,115 +1,74 @@
 function RecipeDetail({ recipe }) {
   if (!recipe) return null;
 
-  return (
-    <div
-      style={{
-        maxWidth: "1000px",
-        margin: "0 auto",
-        paddingBottom: "60px"
-      }}
-    >
+  const meta = [
+    recipe.servings
+      ? { icon: "🍴", label: `${recipe.servings} servings` }
+      : null,
+    recipe.time ? { icon: "◷", label: recipe.time } : null,
+    recipe.calories ? { icon: "•", label: recipe.calories } : null,
+  ].filter(Boolean);
 
-      {/* 🖼️ Image Section */}
+  const allSteps =
+    recipe.instructions?.flatMap((section) =>
+      section.steps?.map((step) => ({
+        section: section.section,
+        step,
+      })) || []
+    ) || [];
+
+  return (
+    <article className="recipe-layout">
+      <header className="recipe-hero-head">
+        <div>
+          <h1 className="recipe-title">{recipe.name}</h1>
+          <p className="recipe-subtitle">
+            {recipe.description || "FAST AND DELICIOUS RECIPE FOR THE WHOLE FAMILY"}
+          </p>
+        </div>
+
+        {meta.length > 0 && (
+          <ul className="recipe-meta-list">
+            {meta.map((item) => (
+              <li key={item.label} className="recipe-meta-item">
+                <span className="recipe-meta-icon">{item.icon}</span>
+                {item.label}
+              </li>
+            ))}
+          </ul>
+        )}
+      </header>
+
       {recipe.image_url && (
-        <img
-          src={recipe.image_url}
-          alt={recipe.name}
-          style={{
-            width: "100%",
-            maxHeight: "450px",
-            objectFit: "cover",
-            borderRadius: "24px",
-            marginBottom: "40px"
-          }}
-        />
+        <img src={recipe.image_url} alt={recipe.name} className="recipe-hero-image" />
       )}
 
-      {/* Title */}
-      <h1
-        style={{
-          fontSize: "42px",
-          fontWeight: "700",
-          marginBottom: "10px"
-        }}
-      >
-        {recipe.name}
-      </h1>
+      <section className="recipe-content-block">
+        <section className="recipe-ingredients-col">
+          <h2 className="recipe-section-title">INGREDIENTS</h2>
+          <ul className="recipe-ingredient-list">
+            {recipe.ingredients?.map((item, i) => (
+              <li key={`${item.name}-${i}`}>
+                {item.quantity} {item.name}
+              </li>
+            ))}
+          </ul>
+        </section>
 
-      {/* Meta Info */}
-      <p
-        style={{
-          color: "#777",
-          marginBottom: "40px",
-          fontSize: "16px"
-        }}
-      >
-        {recipe.servings && `${recipe.servings} servings`}
-        {recipe.time && ` • ${recipe.time}`}
-        {recipe.calories && ` • ${recipe.calories}`}
-      </p>
+        <section className="recipe-directions-col">
+          <h2 className="recipe-section-title">DIRECTIONS</h2>
+          <ol className="recipe-step-list">
+            {allSteps.map((entry, i) => (
+              <li key={`${entry.section || "step"}-${i}`}>
+                {entry.step}
+              </li>
+            ))}
+          </ol>
 
-      {/* Main Content Layout */}
-      <div
-        style={{
-          display: "flex",
-          gap: "60px",
-          alignItems: "flex-start"
-        }}
-      >
-
-        {/* Ingredients Section */}
-        <div style={{ width: "40%" }}>
-          <h2 style={{ marginBottom: "20px" }}>Ingredients</h2>
-
-          {recipe.ingredients?.map((item, i) => (
-            <div
-              key={i}
-              style={{
-                marginBottom: "12px",
-                lineHeight: "1.6"
-              }}
-            >
-              ▢ {item.quantity} {item.name}
-            </div>
-          ))}
-        </div>
-
-        {/* Instructions Section */}
-        <div style={{ width: "60%" }}>
-          <h2 style={{ marginBottom: "20px" }}>Instructions</h2>
-
-          {recipe.instructions?.map((section, i) => (
-            <div key={i} style={{ marginBottom: "35px" }}>
-              <h3 style={{ marginBottom: "10px" }}>
-                {section.section}
-              </h3>
-
-              {section.steps?.map((step, j) => (
-                <p
-                  key={j}
-                  style={{
-                    marginBottom: "12px",
-                    lineHeight: "1.8"
-                  }}
-                >
-                  {step}
-                </p>
-              ))}
-            </div>
-          ))}
-
-          {recipe.notes && (
-            <div style={{ marginTop: "30px" }}>
-              <h3>Notes</h3>
-              <p style={{ lineHeight: "1.7" }}>{recipe.notes}</p>
-            </div>
-          )}
-        </div>
-
-      </div>
-
-    </div>
+          {recipe.notes && <p className="recipe-notes">Note: {recipe.notes}</p>}
+        </section>
+      </section>
+    </article>
   );
 }
 

@@ -1,7 +1,7 @@
 import logging
 
 from sqlalchemy import Column, Integer, String
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB
 from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
@@ -18,6 +18,9 @@ class Recipe(Base):
     servings = Column(String)
     time = Column(String)
     calories = Column(String)
+
+    cuisine = Column(String)
+    ingredient_tokens = Column(ARRAY(String))
 
     ingredients = Column(JSONB, nullable=False)
     instructions = Column(JSONB, nullable=False)

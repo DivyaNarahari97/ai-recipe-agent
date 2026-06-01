@@ -177,6 +177,7 @@ http://localhost:8000
 ## 4️⃣ Setup Frontend
 
 ```bash
+frr
 cd recipe-frontend
 npm install
 npm run dev

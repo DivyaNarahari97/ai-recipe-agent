@@ -5,15 +5,16 @@ import time
 from typing import Optional
 
 import requests
-from fastapi import Depends, FastAPI
+from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from app import models
-from app.ai import fetch_recipe_image, generate_recipe
+from app.ai import RecipeGenerationError, fetch_recipe_image, generate_recipe
 from app.db import engine, get_db
+from app.ingredients import extract_normalized_ingredient_tokens
 from app.schemas import RecipeCreate, RecipeResponse
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -55,49 +56,6 @@ def _extract_ingredient_names(ingredients: list) -> set[str]:
     return names
 
 
-_IGNORED_INGREDIENT_WORDS = {
-    "fresh",
-    "small",
-    "medium",
-    "large",
-    "chopped",
-    "diced",
-    "sliced",
-    "minced",
-    "ground",
-    "to",
-    "taste",
-    "cup",
-    "cups",
-    "tbsp",
-    "tsp",
-    "tablespoon",
-    "tablespoons",
-    "teaspoon",
-    "teaspoons",
-    "gram",
-    "grams",
-    "ml",
-    "kg",
-    "g",
-    "oz",
-    "of",
-}
-
-
-def _normalize_word(word: str) -> str:
-    token = word.strip().lower()
-    if not token:
-        return ""
-    if token.endswith("ies") and len(token) > 4:
-        return token[:-3] + "y"
-    if token.endswith("es") and len(token) > 4:
-        return token[:-2]
-    if token.endswith("s") and len(token) > 3:
-        return token[:-1]
-    return token
-
-
 def _cache_key(ingredients: list[str]) -> tuple:
     cleaned = sorted({str(i).strip().lower() for i in ingredients if str(i).strip()})
     return (tuple(cleaned),)
@@ -105,30 +63,6 @@ def _cache_key(ingredients: list[str]) -> tuple:
 
 _RECIPES_CACHE: dict[tuple, tuple[float, list[int]]] = {}
 _CACHE_TTL_SECONDS = 300
-
-
-def _ingredient_tokens(name: str) -> set[str]:
-    words = re.findall(r"[a-zA-Z]+", name.lower())
-    tokens: set[str] = set()
-    for word in words:
-        if word in _IGNORED_INGREDIENT_WORDS:
-            continue
-        normalized = _normalize_word(word)
-        if normalized and normalized not in _IGNORED_INGREDIENT_WORDS:
-            tokens.add(normalized)
-    return tokens
-
-
-def _extract_normalized_ingredient_tokens(ingredients: list) -> set[str]:
-    tokens: set[str] = set()
-    for item in ingredients or []:
-        if isinstance(item, dict):
-            raw_name = str(item.get("name", "")).strip()
-        else:
-            raw_name = str(item).strip()
-        if raw_name:
-            tokens.update(_ingredient_tokens(raw_name))
-    return tokens
 
 
 def _normalize_tokens_for_storage(tokens: set[str]) -> list[str]:
@@ -171,24 +105,14 @@ def _create_and_store_ai_recipe(
     user_ingredients: list[str],
     db: Session
 ) -> models.Recipe:
-    recipe_data = generate_recipe(user_ingredients)
-    image_url = fetch_recipe_image(recipe_data["name"])
-    recipe_data["image_url"] = image_url
+    recipe = generate_recipe(user_ingredients)
+    recipe.image_url = fetch_recipe_image(recipe.name)
+    recipe_data = recipe.model_dump()
     ingredient_tokens = _normalize_tokens_for_storage(
-        _extract_normalized_ingredient_tokens(recipe_data.get("ingredients", []))
+        extract_normalized_ingredient_tokens(recipe_data["ingredients"])
     )
 
-    db_recipe = models.Recipe(
-        name=recipe_data["name"],
-        servings=recipe_data["servings"],
-        time=recipe_data["time"],
-        calories=recipe_data["calories"],
-        ingredient_tokens=ingredient_tokens,
-        ingredients=recipe_data["ingredients"],
-        instructions=recipe_data["instructions"],
-        notes=recipe_data["notes"],
-        image_url=recipe_data.get("image_url")
-    )
+    db_recipe = models.Recipe(**recipe_data, ingredient_tokens=ingredient_tokens)
     db.add(db_recipe)
     db.commit()
     db.refresh(db_recipe)
@@ -203,7 +127,7 @@ def assistant_logic(user_ingredients: list[str], db: Session):
     )
     target_count = 3
 
-    user_set = _extract_normalized_ingredient_tokens(user_ingredients)
+    user_set = extract_normalized_ingredient_tokens(user_ingredients)
 
     cache_key = _cache_key(user_ingredients)
     cached = _RECIPES_CACHE.get(cache_key)
@@ -224,7 +148,7 @@ def assistant_logic(user_ingredients: list[str], db: Session):
         query = query.filter(models.Recipe.ingredient_tokens.contains(list(user_set)))
 
     for recipe in query.limit(target_count * 3).all():
-        recipe_set = _extract_normalized_ingredient_tokens(recipe.ingredients)
+        recipe_set = extract_normalized_ingredient_tokens(recipe.ingredients)
         if user_set.issubset(recipe_set):
             results.append(recipe)
             existing_keys.add(_recipe_key(recipe))
@@ -269,10 +193,10 @@ def find_best_match(user_ingredients: list[str], db: Session):
     best_match = None
     best_score = 0
 
-    user_set = _extract_normalized_ingredient_tokens(user_ingredients)
+    user_set = extract_normalized_ingredient_tokens(user_ingredients)
 
     for recipe in recipes:
-        recipe_set = _extract_normalized_ingredient_tokens(recipe.ingredients)
+        recipe_set = extract_normalized_ingredient_tokens(recipe.ingredients)
         if not recipe_set:
             continue
 
@@ -331,7 +255,7 @@ def startup_event():
         updated = 0
         for recipe in recipes:
             tokens = _normalize_tokens_for_storage(
-                _extract_normalized_ingredient_tokens(recipe.ingredients)
+                extract_normalized_ingredient_tokens(recipe.ingredients)
             )
             recipe.ingredient_tokens = tokens
             updated += 1
@@ -368,7 +292,7 @@ def create_recipe(
 ):
     logger.info("Creating manual recipe", extra={"name": recipe.name})
     ingredient_tokens = _normalize_tokens_for_storage(
-        _extract_normalized_ingredient_tokens(recipe.ingredients)
+        extract_normalized_ingredient_tokens(recipe.ingredients)
     )
     db_recipe = models.Recipe(
         name=recipe.name,
@@ -407,37 +331,11 @@ def ai_generate_recipe(
     db: Session = Depends(get_db)
 ):
     logger.info("AI recipe generation endpoint called", extra={"ingredient_count": len(data.ingredients)})
-    # 1️⃣ Call AI
-    recipe_data = generate_recipe(data.ingredients)
-
-    # 2️⃣ Generate dynamic image URL
-    image_query = recipe_data["name"].replace(" ", "+")
-    recipe_data["image_url"] = f"https://source.unsplash.com/1200x800/?{image_query},food"
-
-    # 3️⃣ Save to DB
-    ingredient_tokens = _normalize_tokens_for_storage(
-        _extract_normalized_ingredient_tokens(recipe_data.get("ingredients", []))
-    )
-    db_recipe = models.Recipe(
-    name=recipe_data["name"],
-    servings=recipe_data["servings"],
-    time=recipe_data["time"],
-    calories=recipe_data["calories"],
-    cuisine=None,
-    ingredient_tokens=ingredient_tokens,
-    ingredients=recipe_data["ingredients"],
-    instructions=recipe_data["instructions"],
-    notes=recipe_data["notes"],
-    image_url=recipe_data.get("image_url")
-)
-
-    db.add(db_recipe)
-    db.commit()
-    db.refresh(db_recipe)
-    logger.info("AI recipe stored", extra={"recipe_id": db_recipe.id})
-
-    # 3️⃣ Return stored recipe
-    return db_recipe
+    try:
+        return _create_and_store_ai_recipe(data.ingredients, db)
+    except RecipeGenerationError as exc:
+        logger.exception("AI recipe generation failed")
+        raise HTTPException(status_code=502, detail="Recipe generation failed") from exc
 
 @app.post("/recipes/search", response_model=list[RecipeResponse])
 def search_recipes(
@@ -452,7 +350,7 @@ def search_recipes(
             "limit": data.limit
         }
     )
-    user_set = _extract_normalized_ingredient_tokens(data.ingredients)
+    user_set = extract_normalized_ingredient_tokens(data.ingredients)
 
     query = db.query(models.Recipe)
     if user_set:
@@ -461,7 +359,7 @@ def search_recipes(
     scored = []
 
     for r in recipes:
-        recipe_set = _extract_normalized_ingredient_tokens(r.ingredients)
+        recipe_set = extract_normalized_ingredient_tokens(r.ingredients)
 
         if not recipe_set:
             continue

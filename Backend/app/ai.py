@@ -1,11 +1,13 @@
 # app/ai.py
-import json
 import logging
 import os
-import re
+from typing import Callable
 
 import requests
 from dotenv import load_dotenv
+from pydantic import ValidationError
+
+from app.schemas import GeneratedRecipe
 
 load_dotenv()
 
@@ -42,19 +44,16 @@ def fetch_recipe_image(recipe_name: str):
 
 OLLAMA_URL = "http://localhost:11434/api/generate"
 MODEL_NAME = "mistral"
+MAX_ATTEMPTS = 2
 
 
-def _extract_json(text: str) -> dict:
-    match = re.search(r"\{[\s\S]*\}", text)
-    if not match:
-        logger.error("Model output did not contain JSON")
-        raise ValueError("No JSON found in model output")
-    return json.loads(match.group())
+class RecipeGenerationError(Exception):
+    """The model was unreachable or never produced a recipe matching the schema."""
 
 
 def _call_model(prompt: str) -> str:
     payload = {
-    "model": "mistral",
+    "model": MODEL_NAME,
     "prompt": prompt,
     "stream": False,
     "format": "json"
@@ -66,7 +65,10 @@ def _call_model(prompt: str) -> str:
     return response.json()["response"]
 
 
-def generate_recipe(ingredients: list[str]) -> dict:
+def generate_recipe(
+    ingredients: list[str],
+    call_model: Callable[[str], str] = _call_model,
+) -> GeneratedRecipe:
     logger.info(
         "Generating recipe with AI",
         extra={"ingredient_count": len(ingredients)}
@@ -99,18 +101,30 @@ Ingredients:
 {ingredients}
 """
 
-    # First attempt
-    raw_output = _call_model(prompt)
+    reminder = "\nREMINDER: OUTPUT JSON ONLY. NO TEXT."
+    last_error = None
 
-    try:
-        recipe = _extract_json(raw_output)
-        logger.info("Recipe JSON parsed on first attempt")
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        attempt_prompt = prompt if attempt == 1 else prompt + reminder
+        try:
+            raw_output = call_model(attempt_prompt)
+        except requests.RequestException as exc:
+            # A model outage won't be fixed by a stricter prompt, so don't retry.
+            raise RecipeGenerationError("Model request failed") from exc
+
+        try:
+            recipe = GeneratedRecipe.model_validate_json(raw_output)
+        except ValidationError as exc:
+            last_error = exc
+            logger.warning(
+                "Model output failed validation",
+                extra={"attempt": attempt, "error_count": exc.error_count()},
+            )
+            continue
+
+        logger.info("Recipe validated", extra={"attempt": attempt})
         return recipe
-    except Exception:
-        logger.warning("First JSON parsing attempt failed, retrying with stricter prompt")
-        # Retry once with stricter reminder
-        retry_prompt = prompt + "\nREMINDER: OUTPUT JSON ONLY. NO TEXT."
-        raw_output = _call_model(retry_prompt)
-        recipe = _extract_json(raw_output)
-        logger.info("Recipe JSON parsed on retry")
-        return recipe
+
+    raise RecipeGenerationError(
+        f"Model output failed validation after {MAX_ATTEMPTS} attempts"
+    ) from last_error

@@ -39,6 +39,37 @@ This project combines deterministic rule-based matching with LLM-powered recipe 
 
 ---
 
+# 📊 Evaluation
+
+20 fixed ingredient sets ([cases.json](Backend/evals/cases.json)) run through recipe generation on `mistral` via Ollama (Apple M3, 16 GB).
+
+| Metric | Run 1 | Run 2 |
+|--------|-------|-------|
+| Valid JSON, first attempt | 95% | 100% |
+| Passes schema, first attempt | 95% | 100% |
+| Passes schema, with one retry | 100% | 100% |
+| Mean ingredient coverage | 97% | 99% |
+| Recipes using every requested ingredient | 90% | 95% |
+| Latency p50 per case | 26.6s | 33.6s |
+| Latency p95 per case | 38.6s | 48.7s |
+
+**How to read this**
+
+- **Coverage** is the share of requested ingredients found in the recipe's ingredient list, using the app's own token matching. It does not check that the instructions use them, or whether the recipe is any good.
+- **The matcher undercounts plurals ending in `-es`.** Run 2's only miss was a false negative: the recipe listed `oranges`, which normalizes to `orang` and doesn't match `orange`. A manual review of Run 2's 20 ingredient lists found no false matches.
+- **Run 1 is not auditable.** It reported misses for feta and lime, but ingredient lists weren't recorded until Run 2, so they can't be confirmed as real misses.
+- **The sample is small.** With 20 cases, each one moves a rate by 5 points, and the model isn't seeded, so results vary between runs. Latency includes retries and excludes the model's cold start.
+
+Per-case detail for Run 2, including each recipe's ingredients, is in [results.json](Backend/evals/results.json). To reproduce, with Ollama running:
+
+```bash
+cd Backend
+python -m evals.recipe_eval   # overwrites evals/results.json
+python -m unittest discover -s tests -t .   # offline tests, no Ollama or database
+```
+
+---
+
 # 🧠 Decision Engine
 
 ```
@@ -82,7 +113,10 @@ ai-recipe-assistant/
 │   │   ├── ai.py
 │   │   ├── models.py
 │   │   ├── schemas.py
+│   │   ├── ingredients.py
 │   │   └── db.py
+│   ├── evals/
+│   ├── tests/
 │   ├── requirements.txt
 │   └── .env
 │

@@ -1,0 +1,490 @@
+{
+  "model": "mistral",
+  "machine": "arm64",
+  "summary": {
+    "cases": 20,
+    "first_attempt_json_rate": 1.0,
+    "first_attempt_valid_rate": 1.0,
+    "success_rate_with_retry": 1.0,
+    "mean_coverage": 0.99,
+    "full_coverage_rate": 0.95,
+    "latency_p50_seconds": 33.6,
+    "latency_p95_seconds": 48.66
+  },
+  "results": [
+    {
+      "requested": [
+        "chicken",
+        "rice",
+        "broccoli"
+      ],
+      "attempts": 1,
+      "first_attempt_json": true,
+      "first_attempt_valid": true,
+      "success": true,
+      "coverage": 1.0,
+      "missing": [],
+      "latency_seconds": 21.11,
+      "error": null,
+      "recipe_name": "Chicken and Broccoli Stir Fry with Rice",
+      "recipe_ingredients": [
+        "chicken",
+        "rice, cooked",
+        "broccoli florets"
+      ],
+      "rejected_outputs": []
+    },
+    {
+      "requested": [
+        "eggs",
+        "spinach",
+        "feta"
+      ],
+      "attempts": 1,
+      "first_attempt_json": true,
+      "first_attempt_valid": true,
+      "success": true,
+      "coverage": 1.0,
+      "missing": [],
+      "latency_seconds": 16.79,
+      "error": null,
+      "recipe_name": "Spinach and Feta Frittata",
+      "recipe_ingredients": [
+        "eggs",
+        "spinach",
+        "feta"
+      ],
+      "rejected_outputs": []
+    },
+    {
+      "requested": [
+        "salmon",
+        "lemon",
+        "asparagus"
+      ],
+      "attempts": 1,
+      "first_attempt_json": true,
+      "first_attempt_valid": true,
+      "success": true,
+      "coverage": 1.0,
+      "missing": [],
+      "latency_seconds": 25.57,
+      "error": null,
+      "recipe_name": "Grilled Salmon with Lemon Asparagus",
+      "recipe_ingredients": [
+        "Salmon fillet",
+        "Lemon",
+        "Asparagus"
+      ],
+      "rejected_outputs": []
+    },
+    {
+      "requested": [
+        "ground beef",
+        "onion",
+        "tomatoes",
+        "kidney beans"
+      ],
+      "attempts": 1,
+      "first_attempt_json": true,
+      "first_attempt_valid": true,
+      "success": true,
+      "coverage": 1.0,
+      "missing": [],
+      "latency_seconds": 32.78,
+      "error": null,
+      "recipe_name": "Ground Beef and Kidney Bean Chili",
+      "recipe_ingredients": [
+        "ground beef",
+        "onion",
+        "tomatoes",
+        "kidney beans"
+      ],
+      "rejected_outputs": []
+    },
+    {
+      "requested": [
+        "tofu",
+        "soy sauce",
+        "ginger",
+        "scallions"
+      ],
+      "attempts": 1,
+      "first_attempt_json": true,
+      "first_attempt_valid": true,
+      "success": true,
+      "coverage": 1.0,
+      "missing": [],
+      "latency_seconds": 35.19,
+      "error": null,
+      "recipe_name": "Ginger Soy Tofu with Scallions",
+      "recipe_ingredients": [
+        "tofu",
+        "soy sauce",
+        "ginger",
+        "scallions"
+      ],
+      "rejected_outputs": []
+    },
+    {
+      "requested": [
+        "pasta",
+        "garlic",
+        "olive oil",
+        "parmesan"
+      ],
+      "attempts": 1,
+      "first_attempt_json": true,
+      "first_attempt_valid": true,
+      "success": true,
+      "coverage": 1.0,
+      "missing": [],
+      "latency_seconds": 25.22,
+      "error": null,
+      "recipe_name": "Garlic Parmesan Pasta",
+      "recipe_ingredients": [
+        "pasta",
+        "garlic",
+        "olive oil",
+        "parmesan"
+      ],
+      "rejected_outputs": []
+    },
+    {
+      "requested": [
+        "potatoes",
+        "leeks",
+        "cream"
+      ],
+      "attempts": 1,
+      "first_attempt_json": true,
+      "first_attempt_valid": true,
+      "success": true,
+      "coverage": 1.0,
+      "missing": [],
+      "latency_seconds": 30.11,
+      "error": null,
+      "recipe_name": "Leek and Cream Mashed Potatoes",
+      "recipe_ingredients": [
+        "potatoes",
+        "leeks",
+        "cream"
+      ],
+      "rejected_outputs": []
+    },
+    {
+      "requested": [
+        "chickpeas",
+        "coconut milk",
+        "curry powder",
+        "spinach"
+      ],
+      "attempts": 1,
+      "first_attempt_json": true,
+      "first_attempt_valid": true,
+      "success": true,
+      "coverage": 1.0,
+      "missing": [],
+      "latency_seconds": 28.12,
+      "error": null,
+      "recipe_name": "Creamy Curried Chickpea and Spinach",
+      "recipe_ingredients": [
+        "chickpeas",
+        "coconut milk",
+        "curry powder",
+        "spinach"
+      ],
+      "rejected_outputs": []
+    },
+    {
+      "requested": [
+        "shrimp",
+        "garlic",
+        "butter",
+        "parsley"
+      ],
+      "attempts": 1,
+      "first_attempt_json": true,
+      "first_attempt_valid": true,
+      "success": true,
+      "coverage": 1.0,
+      "missing": [],
+      "latency_seconds": 33.65,
+      "error": null,
+      "recipe_name": "Garlic Shrimp with Butter and Parsley",
+      "recipe_ingredients": [
+        "shrimp",
+        "garlic",
+        "butter",
+        "fresh parsley, chopped"
+      ],
+      "rejected_outputs": []
+    },
+    {
+      "requested": [
+        "lentils",
+        "carrots",
+        "celery",
+        "cumin"
+      ],
+      "attempts": 1,
+      "first_attempt_json": true,
+      "first_attempt_valid": true,
+      "success": true,
+      "coverage": 1.0,
+      "missing": [],
+      "latency_seconds": 35.11,
+      "error": null,
+      "recipe_name": "Lentil and Vegetable Stew",
+      "recipe_ingredients": [
+        "lentils",
+        "carrots",
+        "celery",
+        "cumin"
+      ],
+      "rejected_outputs": []
+    },
+    {
+      "requested": [
+        "flour",
+        "milk",
+        "eggs",
+        "blueberries"
+      ],
+      "attempts": 1,
+      "first_attempt_json": true,
+      "first_attempt_valid": true,
+      "success": true,
+      "coverage": 1.0,
+      "missing": [],
+      "latency_seconds": 36.68,
+      "error": null,
+      "recipe_name": "Blueberry Muffins",
+      "recipe_ingredients": [
+        "flour",
+        "milk",
+        "eggs",
+        "blueberries"
+      ],
+      "rejected_outputs": []
+    },
+    {
+      "requested": [
+        "pork chops",
+        "apples",
+        "mustard"
+      ],
+      "attempts": 1,
+      "first_attempt_json": true,
+      "first_attempt_valid": true,
+      "success": true,
+      "coverage": 1.0,
+      "missing": [],
+      "latency_seconds": 41.73,
+      "error": null,
+      "recipe_name": "Pork Chops with Apple Mustard Sauce",
+      "recipe_ingredients": [
+        "pork chops",
+        "apples",
+        "cup mustard"
+      ],
+      "rejected_outputs": []
+    },
+    {
+      "requested": [
+        "quinoa",
+        "black beans",
+        "corn",
+        "avocado",
+        "lime"
+      ],
+      "attempts": 1,
+      "first_attempt_json": true,
+      "first_attempt_valid": true,
+      "success": true,
+      "coverage": 1.0,
+      "missing": [],
+      "latency_seconds": 39.61,
+      "error": null,
+      "recipe_name": "Quinoa and Black Bean Salad with Corn, Avocado, and Lime",
+      "recipe_ingredients": [
+        "quinoa",
+        "black beans",
+        "corn",
+        "avocados",
+        "lime"
+      ],
+      "rejected_outputs": []
+    },
+    {
+      "requested": [
+        "mushrooms",
+        "barley",
+        "thyme"
+      ],
+      "attempts": 1,
+      "first_attempt_json": true,
+      "first_attempt_valid": true,
+      "success": true,
+      "coverage": 1.0,
+      "missing": [],
+      "latency_seconds": 33.44,
+      "error": null,
+      "recipe_name": "Barley and Mushroom Stew with Thyme",
+      "recipe_ingredients": [
+        "mushrooms",
+        "barley",
+        "fresh thyme leaves"
+      ],
+      "rejected_outputs": []
+    },
+    {
+      "requested": [
+        "cauliflower",
+        "tahini",
+        "paprika"
+      ],
+      "attempts": 1,
+      "first_attempt_json": true,
+      "first_attempt_valid": true,
+      "success": true,
+      "coverage": 1.0,
+      "missing": [],
+      "latency_seconds": 33.6,
+      "error": null,
+      "recipe_name": "Roasted Cauliflower with Tahini and Paprika",
+      "recipe_ingredients": [
+        "cauliflower",
+        "tahini",
+        "paprika"
+      ],
+      "rejected_outputs": []
+    },
+    {
+      "requested": [
+        "bananas",
+        "oats",
+        "peanut butter"
+      ],
+      "attempts": 1,
+      "first_attempt_json": true,
+      "first_attempt_valid": true,
+      "success": true,
+      "coverage": 1.0,
+      "missing": [],
+      "latency_seconds": 32.96,
+      "error": null,
+      "recipe_name": "Peanut Butter Banana Oatmeal",
+      "recipe_ingredients": [
+        "bananas",
+        "oats",
+        "peanut butter"
+      ],
+      "rejected_outputs": []
+    },
+    {
+      "requested": [
+        "lamb",
+        "yogurt",
+        "mint",
+        "cucumber"
+      ],
+      "attempts": 1,
+      "first_attempt_json": true,
+      "first_attempt_valid": true,
+      "success": true,
+      "coverage": 1.0,
+      "missing": [],
+      "latency_seconds": 38.74,
+      "error": null,
+      "recipe_name": "Mint Lamb Yogurt Cucumber Salad",
+      "recipe_ingredients": [
+        "lamb",
+        "yogurt",
+        "mint leaves, finely chopped",
+        "cucumber"
+      ],
+      "rejected_outputs": []
+    },
+    {
+      "requested": [
+        "sweet potato",
+        "kale",
+        "pecans",
+        "maple syrup"
+      ],
+      "attempts": 1,
+      "first_attempt_json": true,
+      "first_attempt_valid": true,
+      "success": true,
+      "coverage": 1.0,
+      "missing": [],
+      "latency_seconds": 56.52,
+      "error": null,
+      "recipe_name": "Maple Glazed Sweet Potato and Kale Salad with Pecans",
+      "recipe_ingredients": [
+        "large sweet potatoes",
+        "cups kale",
+        "cup pecans",
+        "cup maple syrup"
+      ],
+      "rejected_outputs": []
+    },
+    {
+      "requested": [
+        "cod",
+        "fennel",
+        "orange",
+        "capers",
+        "white wine"
+      ],
+      "attempts": 1,
+      "first_attempt_json": true,
+      "first_attempt_valid": true,
+      "success": true,
+      "coverage": 0.8,
+      "missing": [
+        "orange"
+      ],
+      "latency_seconds": 48.66,
+      "error": null,
+      "recipe_name": "Braised Cod with Fennel, Orange and Capers",
+      "recipe_ingredients": [
+        "cod fillets",
+        "fennel bulb",
+        "oranges",
+        "capers",
+        "white wine"
+      ],
+      "rejected_outputs": []
+    },
+    {
+      "requested": [
+        "paneer",
+        "bell pepper",
+        "turmeric",
+        "tomato paste",
+        "cilantro",
+        "rice"
+      ],
+      "attempts": 1,
+      "first_attempt_json": true,
+      "first_attempt_valid": true,
+      "success": true,
+      "coverage": 1.0,
+      "missing": [],
+      "latency_seconds": 48.14,
+      "error": null,
+      "recipe_name": "Paneer and Bell Pepper Rice",
+      "recipe_ingredients": [
+        "paneer",
+        "bell pepper",
+        "turmeric",
+        "tomato paste",
+        "cilantro",
+        "rice"
+      ],
+      "rejected_outputs": []
+    }
+  ]
+}

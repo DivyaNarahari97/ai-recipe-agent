@@ -1,22 +1,54 @@
 import logging
 from typing import List, Optional, Dict, Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 logger = logging.getLogger(__name__)
 logger.debug("Schemas module loaded")
+
+# Fixed list so the browse filter doesn't split "Italian" / "italian" / "Italian-American".
+CUISINES = (
+    "American",
+    "Chinese",
+    "French",
+    "Greek",
+    "Indian",
+    "Italian",
+    "Japanese",
+    "Korean",
+    "Mediterranean",
+    "Mexican",
+    "Middle Eastern",
+    "Thai",
+    "Other",
+)
+_CUISINE_LOOKUP = {c.lower(): c for c in CUISINES}
+
+
+def normalize_cuisine(value: Any) -> Optional[str]:
+    """Map to a canonical cuisine; unknown labels become "Other" rather than failing."""
+    if not isinstance(value, str) or not value.strip():
+        return None
+    return _CUISINE_LOOKUP.get(value.strip().lower(), "Other")
+
 
 class RecipeCreate(BaseModel):
     name: str
     servings: Optional[str] = None
     time: Optional[str] = None
     calories: Optional[str] = None
+    cuisine: Optional[str] = None
 
     ingredients: List[Dict[str, Any]]
     instructions: List[Dict[str, Any]]
 
     notes: Optional[str] = None
     image_url: Optional[str] = None
+
+    @field_validator("cuisine", mode="before")
+    @classmethod
+    def _normalize_cuisine(cls, value):
+        return normalize_cuisine(value)
 
 
 class GeneratedIngredient(BaseModel):
@@ -42,6 +74,35 @@ class GeneratedRecipe(RecipeCreate):
     name: str = Field(min_length=1)
     ingredients: List[GeneratedIngredient] = Field(min_length=1)
     instructions: List[GeneratedInstructionSection] = Field(min_length=1)
+
+
+class GeneratedSubstitutes(BaseModel):
+    """LLM output contract for ingredient swaps."""
+
+    substitutes: List[str] = Field(min_length=1)
+
+    @field_validator("substitutes")
+    @classmethod
+    def _clean(cls, values: List[str]) -> List[str]:
+        cleaned: List[str] = []
+        for value in values:
+            value = value.strip()
+            if value and value.lower() not in {c.lower() for c in cleaned}:
+                cleaned.append(value)
+        if not cleaned:
+            raise ValueError("no usable substitutes")
+        return cleaned[:3]
+
+
+class SubstitutionResponse(BaseModel):
+    ingredient: str
+    substitutes: List[str]
+    source: str  # "dict", "cache" or "ai"
+
+
+class CuisineCount(BaseModel):
+    cuisine: str
+    count: int
 
 
 class RecipeResponse(RecipeCreate):

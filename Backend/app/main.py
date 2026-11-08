@@ -8,14 +8,22 @@ import requests
 from fastapi import Depends, FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from sqlalchemy import text
+from sqlalchemy import func, text
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app import models
-from app.ai import RecipeGenerationError, fetch_recipe_image, generate_recipe
+from app.ai import RecipeGenerationError, fetch_recipe_image, generate_recipe, suggest_substitutes
 from app.db import engine, get_db
 from app.ingredients import extract_normalized_ingredient_tokens
-from app.schemas import RecipeCreate, RecipeResponse
+from app.schemas import (
+    CuisineCount,
+    RecipeCreate,
+    RecipeResponse,
+    SubstitutionResponse,
+    normalize_cuisine,
+)
+from app.substitutions import lookup_substitutes, substitution_key
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
@@ -27,14 +35,6 @@ class RecipeSearchRequest(BaseModel):
     ingredients: list[str]
     min_match: Optional[float] = 0.5   # 50% match by default
     limit: Optional[int] = 10
-
-SUBSTITUTIONS = {
-    "tomato": ["yogurt", "lemon juice", "tomato paste"],
-    "milk": ["cream", "yogurt"],
-    "butter": ["oil", "ghee"],
-    "onion": ["shallots"],
-    "potato": ["sweet potato"]
-}
 
 
 # =========================
@@ -290,7 +290,8 @@ def create_recipe(
     recipe: RecipeCreate,
     db: Session = Depends(get_db)
 ):
-    logger.info("Creating manual recipe", extra={"name": recipe.name})
+    # "name" is a reserved LogRecord attribute; passing it in `extra` raises KeyError.
+    logger.info("Creating manual recipe", extra={"recipe_name": recipe.name})
     ingredient_tokens = _normalize_tokens_for_storage(
         extract_normalized_ingredient_tokens(recipe.ingredients)
     )
@@ -299,6 +300,7 @@ def create_recipe(
         servings=recipe.servings,
         time=recipe.time,
         calories=recipe.calories,
+        cuisine=recipe.cuisine,
         ingredient_tokens=ingredient_tokens,
         ingredients=recipe.ingredients,
         instructions=recipe.instructions,
@@ -315,11 +317,39 @@ def create_recipe(
 
 
 @app.get("/recipes", response_model=list[RecipeResponse])
-def get_recipes(db: Session = Depends(get_db)):
-    logger.info("Listing recipes")
-    recipes = db.query(models.Recipe).all()
+def get_recipes(cuisine: Optional[str] = None, db: Session = Depends(get_db)):
+    logger.info("Listing recipes", extra={"cuisine": cuisine})
+    query = db.query(models.Recipe)
+    if cuisine:
+        wanted = normalize_cuisine(cuisine)
+        stored = [raw for raw, _ in _stored_cuisine_counts(db) if normalize_cuisine(raw) == wanted]
+        query = query.filter(models.Recipe.cuisine.in_(stored))
+    recipes = query.order_by(models.Recipe.id.desc()).all()
     logger.info("Recipes listed", extra={"count": len(recipes)})
     return recipes
+
+
+def _stored_cuisine_counts(db: Session) -> list[tuple[str, int]]:
+    # Older rows hold non-canonical values ("italian"), so callers group by
+    # normalize_cuisine() rather than trusting the stored spelling.
+    return (
+        db.query(models.Recipe.cuisine, func.count(models.Recipe.id))
+        .filter(models.Recipe.cuisine.isnot(None))
+        .group_by(models.Recipe.cuisine)
+        .all()
+    )
+
+
+@app.get("/cuisines", response_model=list[CuisineCount])
+def get_cuisines(db: Session = Depends(get_db)):
+    """Cuisines that have at least one recipe, most recipes first."""
+    counts: dict[str, int] = {}
+    for raw, n in _stored_cuisine_counts(db):
+        canonical = normalize_cuisine(raw)
+        if canonical:
+            counts[canonical] = counts.get(canonical, 0) + n
+    ordered = sorted(counts.items(), key=lambda item: (-item[1], item[0]))
+    return [CuisineCount(cuisine=cuisine, count=n) for cuisine, n in ordered]
 
 
 # =========================
@@ -416,3 +446,36 @@ def get_ingredient_image(name: str, db: Session = Depends(get_db)):
     logger.info("Ingredient image cached", extra={"ingredient": name})
 
     return {"image_url": image_url}
+
+
+@app.get("/substitutions", response_model=SubstitutionResponse)
+def get_substitutions(ingredient: str, db: Session = Depends(get_db)):
+    logger.info("Substitutions requested", extra={"ingredient": ingredient})
+    key = substitution_key(ingredient)
+    if not key:
+        raise HTTPException(status_code=400, detail="Ingredient name is empty")
+
+    # 1️⃣ Hand-picked list
+    substitutes = lookup_substitutes(ingredient)
+    if substitutes:
+        return SubstitutionResponse(ingredient=ingredient, substitutes=substitutes, source="dict")
+
+    # 2️⃣ Previously generated
+    cached = db.query(models.IngredientSubstitution).filter_by(ingredient_key=key).first()
+    if cached:
+        return SubstitutionResponse(ingredient=ingredient, substitutes=cached.substitutes, source="cache")
+
+    # 3️⃣ Ask the LLM and cache the answer
+    try:
+        substitutes = suggest_substitutes(ingredient)
+    except RecipeGenerationError as exc:
+        logger.exception("AI substitution failed")
+        raise HTTPException(status_code=502, detail="Could not suggest substitutes") from exc
+
+    db.add(models.IngredientSubstitution(ingredient_key=key, substitutes=substitutes))
+    try:
+        db.commit()
+    except IntegrityError:
+        # A concurrent request cached the same ingredient first; this answer is still valid.
+        db.rollback()
+    return SubstitutionResponse(ingredient=ingredient, substitutes=substitutes, source="ai")

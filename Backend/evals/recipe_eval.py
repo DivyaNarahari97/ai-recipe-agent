@@ -70,6 +70,7 @@ def run_case(requested: list[str], call_model=_call_model) -> dict:
         "latency_seconds": round(latency, 2),
         "error": error,
         "recipe_name": recipe.name if recipe else None,
+        "cuisine": recipe.cuisine if recipe else None,
         "recipe_ingredients": [i.name for i in recipe.ingredients] if recipe else None,
         "rejected_outputs": [raw for raw in raw_outputs if not _is_valid_recipe(raw)],
     }
@@ -95,6 +96,11 @@ def summarize(results: list[dict]) -> dict:
         "full_coverage_rate": (
             sum(r["coverage"] == 1 for r in succeeded) / len(succeeded) if succeeded else None
         ),
+        # Tagged = one of the named cuisines, not missing and not the "Other" fallback.
+        "cuisine_tagged_rate": (
+            sum(r["cuisine"] not in (None, "Other") for r in succeeded) / len(succeeded)
+            if succeeded else None
+        ),
         "latency_p50_seconds": _percentile(latencies, 0.5),
         "latency_p95_seconds": _percentile(latencies, 0.95),
     }
@@ -112,6 +118,7 @@ def to_markdown(summary: dict) -> str:
         ("Passes schema, with one retry", _pct(summary["success_rate_with_retry"])),
         ("Mean ingredient coverage", _pct(summary["mean_coverage"])),
         ("Recipes using every requested ingredient", _pct(summary["full_coverage_rate"])),
+        ("Tagged with a named cuisine", _pct(summary["cuisine_tagged_rate"])),
         ("Latency p50 per case", f"{summary['latency_p50_seconds']:.1f}s"),
         ("Latency p95 per case", f"{summary['latency_p95_seconds']:.1f}s"),
     ]

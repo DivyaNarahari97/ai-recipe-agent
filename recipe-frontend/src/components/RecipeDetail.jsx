@@ -1,7 +1,68 @@
+import { useState } from "react";
+import { API_BASE_URL } from "../config";
+
+function IngredientItem({ item }) {
+  const [open, setOpen] = useState(false);
+  const [status, setStatus] = useState("idle"); // idle | loading | done | error
+  const [substitutes, setSubstitutes] = useState([]);
+
+  const toggleSwaps = async () => {
+    const nextOpen = !open;
+    setOpen(nextOpen);
+    if (!nextOpen || status === "done" || status === "loading") {
+      return;
+    }
+
+    setStatus("loading");
+    try {
+      const res = await fetch(
+        `${API_BASE_URL}/substitutions?ingredient=${encodeURIComponent(item.name)}`
+      );
+      if (!res.ok) {
+        throw new Error(`Substitutions request failed: ${res.status}`);
+      }
+      const data = await res.json();
+      setSubstitutes(data.substitutes || []);
+      setStatus("done");
+    } catch (err) {
+      console.error(err);
+      setStatus("error");
+    }
+  };
+
+  return (
+    <li>
+      <div className="recipe-ingredient-row">
+        <span>
+          {item.quantity} {item.name}
+        </span>
+        <button
+          type="button"
+          className="swap-button"
+          onClick={toggleSwaps}
+          aria-expanded={open}
+        >
+          {open ? "Hide" : "Missing this?"}
+        </button>
+      </div>
+      {open && (
+        <p className="swap-text" aria-live="polite">
+          {status === "loading" && "Finding swaps…"}
+          {status === "done" && `Use instead: ${substitutes.join(", ")}`}
+          {status === "error" && "Couldn't find swaps right now. Try again."}
+        </p>
+      )}
+    </li>
+  );
+}
+
 function RecipeDetail({ recipe }) {
   if (!recipe) return null;
 
   const meta = [
+    recipe.cuisine && recipe.cuisine !== "Other"
+      ? { icon: "🌍", label: recipe.cuisine }
+      : null,
     recipe.servings
       ? { icon: "🍴", label: `${recipe.servings} servings` }
       : null,
@@ -48,9 +109,7 @@ function RecipeDetail({ recipe }) {
           <h2 className="recipe-section-title">INGREDIENTS</h2>
           <ul className="recipe-ingredient-list">
             {recipe.ingredients?.map((item, i) => (
-              <li key={`${item.name}-${i}`}>
-                {item.quantity} {item.name}
-              </li>
+              <IngredientItem key={`${item.name}-${i}`} item={item} />
             ))}
           </ul>
         </section>

@@ -1,13 +1,15 @@
 # app/ai.py
 import logging
 import os
-from typing import Callable
+from typing import Callable, TypeVar
 
 import requests
 from dotenv import load_dotenv
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 
-from app.schemas import GeneratedRecipe
+from app.schemas import CUISINES, GeneratedRecipe, GeneratedSubstitutes
+
+ModelT = TypeVar("ModelT", bound=BaseModel)
 
 load_dotenv()
 
@@ -48,7 +50,7 @@ MAX_ATTEMPTS = 2
 
 
 class RecipeGenerationError(Exception):
-    """The model was unreachable or never produced a recipe matching the schema."""
+    """The model was unreachable or never produced output matching the schema."""
 
 
 def _call_model(prompt: str) -> str:
@@ -65,6 +67,61 @@ def _call_model(prompt: str) -> str:
     return response.json()["response"]
 
 
+def _generate_validated(
+    prompt: str,
+    schema: type[ModelT],
+    call_model: Callable[[str], str],
+) -> ModelT:
+    """Call the model and validate against `schema`, retrying once with a stricter prompt."""
+    reminder = "\nREMINDER: OUTPUT JSON ONLY. NO TEXT."
+    last_error = None
+
+    for attempt in range(1, MAX_ATTEMPTS + 1):
+        attempt_prompt = prompt if attempt == 1 else prompt + reminder
+        try:
+            raw_output = call_model(attempt_prompt)
+        except requests.RequestException as exc:
+            # A model outage won't be fixed by a stricter prompt, so don't retry.
+            raise RecipeGenerationError("Model request failed") from exc
+
+        try:
+            result = schema.model_validate_json(raw_output)
+        except ValidationError as exc:
+            last_error = exc
+            logger.warning(
+                "Model output failed validation",
+                extra={"schema": schema.__name__, "attempt": attempt, "error_count": exc.error_count()},
+            )
+            continue
+
+        logger.info("Model output validated", extra={"schema": schema.__name__, "attempt": attempt})
+        return result
+
+    raise RecipeGenerationError(
+        f"Model output failed validation after {MAX_ATTEMPTS} attempts"
+    ) from last_error
+
+
+def suggest_substitutes(
+    ingredient: str,
+    call_model: Callable[[str], str] = _call_model,
+) -> list[str]:
+    logger.info("Suggesting substitutes with AI", extra={"ingredient": ingredient})
+    prompt = f"""
+You are a professional chef.
+
+Suggest up to 3 common ingredients a home cook could use instead of: {ingredient}
+Give each as a plain ingredient name, with no explanations or notes in parentheses.
+
+Return ONLY valid JSON in this structure:
+
+{{"substitutes": [string]}}
+"""
+    result = _generate_validated(prompt, GeneratedSubstitutes, call_model)
+    # The model sometimes "substitutes" the ingredient with itself.
+    return [s for s in result.substitutes if s.lower() != ingredient.strip().lower()] or result.substitutes
+
+
 def generate_recipe(
     ingredients: list[str],
     call_model: Callable[[str], str] = _call_model,
@@ -73,6 +130,7 @@ def generate_recipe(
         "Generating recipe with AI",
         extra={"ingredient_count": len(ingredients)}
     )
+    cuisines = ", ".join(f'"{c}"' for c in CUISINES)
     prompt = f"""
 You are a professional chef.
 
@@ -80,6 +138,7 @@ Return ONLY valid JSON in this structure:
 
 {{
   "name": string,
+  "cuisine": one of [{cuisines}],
   "servings": 2-4,
   "time": string,
   "calories": string,
@@ -100,31 +159,4 @@ Generate realistic values based on the ingredients.
 Ingredients:
 {ingredients}
 """
-
-    reminder = "\nREMINDER: OUTPUT JSON ONLY. NO TEXT."
-    last_error = None
-
-    for attempt in range(1, MAX_ATTEMPTS + 1):
-        attempt_prompt = prompt if attempt == 1 else prompt + reminder
-        try:
-            raw_output = call_model(attempt_prompt)
-        except requests.RequestException as exc:
-            # A model outage won't be fixed by a stricter prompt, so don't retry.
-            raise RecipeGenerationError("Model request failed") from exc
-
-        try:
-            recipe = GeneratedRecipe.model_validate_json(raw_output)
-        except ValidationError as exc:
-            last_error = exc
-            logger.warning(
-                "Model output failed validation",
-                extra={"attempt": attempt, "error_count": exc.error_count()},
-            )
-            continue
-
-        logger.info("Recipe validated", extra={"attempt": attempt})
-        return recipe
-
-    raise RecipeGenerationError(
-        f"Model output failed validation after {MAX_ATTEMPTS} attempts"
-    ) from last_error
+    return _generate_validated(prompt, GeneratedRecipe, call_model)

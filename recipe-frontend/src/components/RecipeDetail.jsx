@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { API_BASE_URL } from "../config";
+import { DIET_LABELS } from "../dietary";
+import ShoppingList from "./ShoppingList";
 
 function IngredientItem({ item }) {
   const [open, setOpen] = useState(false);
@@ -56,7 +58,7 @@ function IngredientItem({ item }) {
   );
 }
 
-function RecipeDetail({ recipe }) {
+function RecipeDetail({ recipe, pantry = [] }) {
   if (!recipe) return null;
 
   const meta = [
@@ -86,6 +88,13 @@ function RecipeDetail({ recipe }) {
           <p className="recipe-subtitle">
             {recipe.description || "FAST AND DELICIOUS RECIPE FOR THE WHOLE FAMILY"}
           </p>
+          {recipe.dietary_tags?.length > 0 && (
+            <ul className="recipe-diet-tags" aria-label="Dietary">
+              {recipe.dietary_tags.map((tag) => (
+                <li key={tag}>{DIET_LABELS[tag] || tag}</li>
+              ))}
+            </ul>
+          )}
         </div>
 
         {meta.length > 0 && (
@@ -112,6 +121,7 @@ function RecipeDetail({ recipe }) {
               <IngredientItem key={`${item.name}-${i}`} item={item} />
             ))}
           </ul>
+          {recipe.id && <ShoppingList recipe={recipe} pantry={pantry} />}
         </section>
 
         <section className="recipe-directions-col">

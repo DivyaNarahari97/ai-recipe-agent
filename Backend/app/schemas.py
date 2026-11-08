@@ -1,7 +1,9 @@
 import logging
 from typing import List, Optional, Dict, Any
 
-from pydantic import BaseModel, ConfigDict, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, computed_field, field_validator
+
+from app.dietary import dietary_tags
 
 logger = logging.getLogger(__name__)
 logger.debug("Schemas module loaded")
@@ -110,3 +112,23 @@ class RecipeResponse(RecipeCreate):
 
     class Config:
         from_attributes = True
+
+    @computed_field
+    @property
+    def dietary_tags(self) -> List[str]:
+        return sorted(dietary_tags(self.ingredients))
+
+
+class AssistantResponse(BaseModel):
+    source: str
+    results: List[RecipeResponse]
+
+
+class ShoppingListRequest(BaseModel):
+    have: List[str] = []
+
+
+class ShoppingListResponse(BaseModel):
+    need: List[Dict[str, Any]]
+    have: List[Dict[str, Any]]
+    staples: List[Dict[str, Any]]

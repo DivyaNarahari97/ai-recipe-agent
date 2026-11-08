@@ -15,14 +15,19 @@ from sqlalchemy.orm import Session
 from app import models
 from app.ai import RecipeGenerationError, fetch_recipe_image, generate_recipe, suggest_substitutes
 from app.db import engine, get_db
+from app.dietary import DietaryFilters
 from app.ingredients import extract_normalized_ingredient_tokens
 from app.schemas import (
+    AssistantResponse,
     CuisineCount,
     RecipeCreate,
     RecipeResponse,
+    ShoppingListRequest,
+    ShoppingListResponse,
     SubstitutionResponse,
     normalize_cuisine,
 )
+from app.shopping import build_shopping_list
 from app.substitutions import lookup_substitutes, substitution_key
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -35,6 +40,7 @@ class RecipeSearchRequest(BaseModel):
     ingredients: list[str]
     min_match: Optional[float] = 0.5   # 50% match by default
     limit: Optional[int] = 10
+    filters: DietaryFilters = DietaryFilters()
 
 
 # =========================
@@ -42,6 +48,7 @@ class RecipeSearchRequest(BaseModel):
 # =========================
 class IngredientsRequest(BaseModel):
     ingredients: list[str]
+    filters: DietaryFilters = DietaryFilters()
 
 
 def _extract_ingredient_names(ingredients: list) -> set[str]:
@@ -56,9 +63,9 @@ def _extract_ingredient_names(ingredients: list) -> set[str]:
     return names
 
 
-def _cache_key(ingredients: list[str]) -> tuple:
+def _cache_key(ingredients: list[str], filters: DietaryFilters) -> tuple:
     cleaned = sorted({str(i).strip().lower() for i in ingredients if str(i).strip()})
-    return (tuple(cleaned),)
+    return (tuple(cleaned), filters.model_dump_json())
 
 
 _RECIPES_CACHE: dict[tuple, tuple[float, list[int]]] = {}
@@ -103,9 +110,10 @@ def _recipe_key(recipe: models.Recipe) -> str:
 
 def _create_and_store_ai_recipe(
     user_ingredients: list[str],
-    db: Session
+    db: Session,
+    filters: Optional[DietaryFilters] = None,
 ) -> models.Recipe:
-    recipe = generate_recipe(user_ingredients)
+    recipe = generate_recipe(user_ingredients, filters=filters)
     recipe.image_url = fetch_recipe_image(recipe.name)
     recipe_data = recipe.model_dump()
     ingredient_tokens = _normalize_tokens_for_storage(
@@ -120,16 +128,21 @@ def _create_and_store_ai_recipe(
     return db_recipe
 
 
-def assistant_logic(user_ingredients: list[str], db: Session):
+def assistant_logic(
+    user_ingredients: list[str],
+    db: Session,
+    filters: Optional[DietaryFilters] = None,
+):
+    filters = filters or DietaryFilters()
     logger.info(
         "Assistant flow started",
-        extra={"ingredient_count": len(user_ingredients)}
+        extra={"ingredient_count": len(user_ingredients), "filters": filters.model_dump()}
     )
     target_count = 3
 
     user_set = extract_normalized_ingredient_tokens(user_ingredients)
 
-    cache_key = _cache_key(user_ingredients)
+    cache_key = _cache_key(user_ingredients, filters)
     cached = _RECIPES_CACHE.get(cache_key)
     if cached:
         cached_at, cached_ids = cached
@@ -147,9 +160,11 @@ def assistant_logic(user_ingredients: list[str], db: Session):
     if user_set:
         query = query.filter(models.Recipe.ingredient_tokens.contains(list(user_set)))
 
-    for recipe in query.limit(target_count * 3).all():
+    # Filters reject candidates after the query, so only cap the scan when none are set.
+    candidates = query.all() if filters.is_active() else query.limit(target_count * 3).all()
+    for recipe in candidates:
         recipe_set = extract_normalized_ingredient_tokens(recipe.ingredients)
-        if user_set.issubset(recipe_set):
+        if user_set.issubset(recipe_set) and filters.matches(recipe):
             results.append(recipe)
             existing_keys.add(_recipe_key(recipe))
         if len(results) >= target_count:
@@ -165,10 +180,18 @@ def assistant_logic(user_ingredients: list[str], db: Session):
             extra={"remaining": target_count - len(results), "attempt": attempts}
         )
         try:
-            new_recipe = _create_and_store_ai_recipe(user_ingredients, db)
+            new_recipe = _create_and_store_ai_recipe(user_ingredients, db, filters)
         except Exception:
             logger.exception("AI generation failed")
             break
+        problems = filters.violations(new_recipe.ingredients, new_recipe.time, new_recipe.calories)
+        if problems:
+            # Still saved (it's a valid recipe for other searches), just not shown here.
+            logger.info(
+                "Generated recipe ignored dietary filters",
+                extra={"recipe_id": new_recipe.id, "problems": problems},
+            )
+            continue
         new_key = _recipe_key(new_recipe)
         if new_key in existing_keys:
             continue
@@ -362,7 +385,7 @@ def ai_generate_recipe(
 ):
     logger.info("AI recipe generation endpoint called", extra={"ingredient_count": len(data.ingredients)})
     try:
-        return _create_and_store_ai_recipe(data.ingredients, db)
+        return _create_and_store_ai_recipe(data.ingredients, db, data.filters)
     except RecipeGenerationError as exc:
         logger.exception("AI recipe generation failed")
         raise HTTPException(status_code=502, detail="Recipe generation failed") from exc
@@ -391,7 +414,7 @@ def search_recipes(
     for r in recipes:
         recipe_set = extract_normalized_ingredient_tokens(r.ingredients)
 
-        if not recipe_set:
+        if not recipe_set or not data.filters.matches(r):
             continue
 
         matched = user_set.intersection(recipe_set)
@@ -408,10 +431,10 @@ def search_recipes(
     logger.info("Recipe search completed", extra={"result_count": len(results)})
     return results
 
-@app.post("/assistant")
+@app.post("/assistant", response_model=AssistantResponse)
 def assistant(data: IngredientsRequest, db: Session = Depends(get_db)):
     logger.info("Assistant endpoint called", extra={"ingredient_count": len(data.ingredients)})
-    result = assistant_logic(data.ingredients, db)
+    result = assistant_logic(data.ingredients, db, data.filters)
     logger.info("Assistant endpoint completed", extra={"source": result.get("source")})
     return result
 
@@ -479,3 +502,12 @@ def get_substitutions(ingredient: str, db: Session = Depends(get_db)):
         # A concurrent request cached the same ingredient first; this answer is still valid.
         db.rollback()
     return SubstitutionResponse(ingredient=ingredient, substitutes=substitutes, source="ai")
+
+
+@app.post("/recipes/{recipe_id}/shopping-list", response_model=ShoppingListResponse)
+def get_shopping_list(recipe_id: int, data: ShoppingListRequest, db: Session = Depends(get_db)):
+    recipe = db.get(models.Recipe, recipe_id)
+    if recipe is None:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+    logger.info("Shopping list requested", extra={"recipe_id": recipe_id, "have_count": len(data.have)})
+    return build_shopping_list(recipe.ingredients, data.have)

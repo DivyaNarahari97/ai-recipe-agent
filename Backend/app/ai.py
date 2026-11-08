@@ -1,12 +1,13 @@
 # app/ai.py
 import logging
 import os
-from typing import Callable, TypeVar
+from typing import Callable, Optional, TypeVar
 
 import requests
 from dotenv import load_dotenv
 from pydantic import BaseModel, ValidationError
 
+from app.dietary import DietaryFilters
 from app.schemas import CUISINES, GeneratedRecipe, GeneratedSubstitutes
 
 ModelT = TypeVar("ModelT", bound=BaseModel)
@@ -125,6 +126,7 @@ Return ONLY valid JSON in this structure:
 def generate_recipe(
     ingredients: list[str],
     call_model: Callable[[str], str] = _call_model,
+    filters: Optional[DietaryFilters] = None,
 ) -> GeneratedRecipe:
     logger.info(
         "Generating recipe with AI",
@@ -159,4 +161,6 @@ Generate realistic values based on the ingredients.
 Ingredients:
 {ingredients}
 """
+    if filters:
+        prompt += filters.prompt_constraints()
     return _generate_validated(prompt, GeneratedRecipe, call_model)

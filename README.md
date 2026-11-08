@@ -32,6 +32,25 @@ This project combines deterministic rule-based matching with LLM-powered recipe 
 - Image cached in database
 - Fallback image support
 
+## 🥗 Dietary Filters
+- Vegetarian, vegan and gluten-free, plus max time and max calories
+- Applied to stored recipes during matching and added to the generation prompt
+- Generated recipes that break a filter are saved but not shown for that search
+- Rule-based checks on ingredient names (`app/dietary.py`), so they work on recipes saved before filters existed. They only see the ingredient list, so a recipe that leaves out an ingredient (such as a taco recipe with no tortilla) can be mis-tagged.
+
+## 🛒 Shopping List
+- Builds a list from a recipe, leaving out the ingredients you picked
+- Salt, pepper and water are listed separately as pantry staples
+- Tick items off and copy the list
+
+## 🔁 Substitutions & Cuisine
+- "Missing this?" on each ingredient: hand-picked swaps, with an LLM fallback that's cached
+- Recipes are tagged with a cuisine and can be browsed by it
+
+## ❤️ Favorites & History
+- Save recipes and see recently viewed ones
+- Stored in the browser (no account needed), so they don't sync across devices
+
 ## 🗄 Database Caching
 - Recipes stored in PostgreSQL
 - No repeated AI calls
@@ -233,8 +252,11 @@ http://localhost:5173
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/assistant` | Intelligent recipe endpoint |
-| GET | `/recipes` | Fetch stored recipes |
+| POST | `/assistant` | Intelligent recipe endpoint (optional `filters`) |
+| GET | `/recipes` | Fetch stored recipes (optional `?cuisine=`) |
+| GET | `/cuisines` | Cuisines with recipe counts |
+| GET | `/substitutions?ingredient=` | Substitutes for an ingredient |
+| POST | `/recipes/{id}/shopping-list` | Split ingredients into need / have / staples |
 | POST | `/ai/generate-recipe` | Force AI generation |
 | GET | `/health` | Health check |
 

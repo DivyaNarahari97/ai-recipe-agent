@@ -218,9 +218,15 @@ body {
   color: #1e4d39;
 }
 
+.landing-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  margin-top: 14px;
+}
+
 .link-button {
   display: block;
-  margin-top: 14px;
   padding: 0;
   border: none;
   background: none;
@@ -280,9 +286,27 @@ body {
   color: #1b2321;
 }
 
+.recipe-card-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.recipe-card-diet {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: #f3e2b8;
+  color: #6b4a07;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+}
+
 .recipe-card-cuisine {
   display: inline-block;
-  margin-bottom: 8px;
   padding: 2px 8px;
   border-radius: 999px;
   background: #d8e8de;
@@ -548,6 +572,188 @@ body {
   margin-top: 10px;
   font-family: "Trebuchet MS", "Gill Sans", sans-serif;
   font-size: 0.9rem;
+}
+
+.diet-filters {
+  margin: 12px 0 4px;
+  padding: 0;
+  border: none;
+  color: #bfc6cb;
+}
+
+.diet-filters legend {
+  padding: 0;
+  margin-bottom: 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #f6f6f6;
+}
+
+.diet-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.diet-chip {
+  border: 1px solid #4f555e;
+  border-radius: 999px;
+  padding: 5px 11px;
+  background: rgba(15, 18, 24, 0.75);
+  color: #f2f2f2;
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.diet-chip.is-active {
+  background: #4fae6f;
+  border-color: #4fae6f;
+  color: #ffffff;
+}
+
+.diet-limits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 10px;
+}
+
+.diet-limit {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.82rem;
+}
+
+.diet-limit select {
+  padding: 4px 6px;
+  border: 1px solid #70757d;
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.95);
+  font: inherit;
+  font-size: 0.82rem;
+}
+
+.recipe-page-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.favorite-button {
+  border: 1px solid #d8e8de;
+  border-radius: 8px;
+  padding: 9px 12px;
+  background: transparent;
+  color: #d8e8de;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.favorite-button.is-active {
+  background: #d8e8de;
+  color: #1e4d39;
+}
+
+.recipe-diet-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.recipe-diet-tags li {
+  padding: 2px 9px;
+  border: 1px solid #8e8b89;
+  border-radius: 999px;
+  font-family: "Trebuchet MS", "Gill Sans", sans-serif;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.shopping-list {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid #c3bfbd;
+  font-family: "Trebuchet MS", "Gill Sans", sans-serif;
+}
+
+.shopping-heading {
+  margin: 0 0 6px;
+  font-size: 0.95rem;
+}
+
+.shopping-items {
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+  font-size: 0.88rem;
+}
+
+.shopping-items li {
+  margin-bottom: 5px;
+}
+
+.shopping-items label {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.shopping-items.is-have {
+  color: #6b6866;
+  text-decoration: line-through;
+}
+
+.shopping-staple {
+  font-size: 0.78rem;
+}
+
+.shopping-button {
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: #1e4d39;
+  color: #ffffff;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.shopping-button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.shopping-hint {
+  margin: 6px 0 0;
+  font-size: 0.8rem;
+  color: #4a4a4a;
+}
+
+.saved-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.saved-empty {
+  width: min(1140px, 100%);
+  margin: 0 auto;
+}
+
+.saved-empty p {
+  margin: 0;
 }
 
 @media (max-width: 680px) {

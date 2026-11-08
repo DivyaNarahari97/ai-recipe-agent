@@ -1,6 +1,16 @@
 import { useEffect, useState } from "react";
+import DietaryFilters from "./components/DietaryFilters";
 import RecipeDetail from "./components/RecipeDetail";
 import { API_BASE_URL } from "./config";
+import { DIET_LABELS, NO_FILTERS } from "./dietary";
+import {
+  addToHistory,
+  clearHistory,
+  isFavorite,
+  loadFavorites,
+  loadHistory,
+  toggleFavorite,
+} from "./savedRecipes";
 import "./App.css";
 
 function IngredientImage({ name }) {
@@ -54,6 +64,9 @@ function IngredientPage({
   onRemoveIngredient,
   onGetRecipe,
   onBrowse,
+  onOpenSaved,
+  filters,
+  onFiltersChange,
   errorMessage,
 }) {
   return (
@@ -113,6 +126,8 @@ function IngredientPage({
                 </div>
               )}
 
+              <DietaryFilters filters={filters} onChange={onFiltersChange} />
+
               <button
                 onClick={onGetRecipe}
                 className="primary-button"
@@ -124,9 +139,14 @@ function IngredientPage({
 
               {errorMessage && <p className="error-text">{errorMessage}</p>}
 
-              <button type="button" className="link-button" onClick={onBrowse}>
-                Browse saved recipes by cuisine
-              </button>
+              <div className="landing-links">
+                <button type="button" className="link-button" onClick={onBrowse}>
+                  Browse all recipes by cuisine
+                </button>
+                <button type="button" className="link-button" onClick={onOpenSaved}>
+                  Favorites &amp; history
+                </button>
+              </div>
             </section>
 
             <div className="landing-image-wrap">
@@ -143,17 +163,27 @@ function IngredientPage({
   );
 }
 
-function RecipePage({ recipe, onBack }) {
+function RecipePage({ recipe, onBack, pantry, favorite, onToggleFavorite }) {
   return (
     <main className="recipe-page">
       <div className="recipe-page-header">
         <button type="button" className="secondary-button" onClick={onBack}>
           Back to Recipes
         </button>
+        {recipe && (
+          <button
+            type="button"
+            className={`favorite-button${favorite ? " is-active" : ""}`}
+            aria-pressed={favorite}
+            onClick={onToggleFavorite}
+          >
+            {favorite ? "♥ Saved" : "♡ Save recipe"}
+          </button>
+        )}
       </div>
 
       {recipe ? (
-        <RecipeDetail recipe={recipe} />
+        <RecipeDetail recipe={recipe} pantry={pantry} />
       ) : (
         <section className="empty-state">
           <h2>No recipe loaded</h2>
@@ -190,7 +220,14 @@ function RecipeCardGrid({ recipes, onSelectRecipe }) {
             className="recipe-card-image"
           />
           <div className="recipe-card-body">
-            {recipe.cuisine && <span className="recipe-card-cuisine">{recipe.cuisine}</span>}
+            <div className="recipe-card-badges">
+              {recipe.cuisine && <span className="recipe-card-cuisine">{recipe.cuisine}</span>}
+              {recipe.dietary_tags?.map((tag) => (
+                <span key={tag} className="recipe-card-diet">
+                  {DIET_LABELS[tag] || tag}
+                </span>
+              ))}
+            </div>
             <h3>{recipe.name}</h3>
             <p>{recipe.notes || "Tap to open full recipe details."}</p>
             <div className="recipe-card-meta">
@@ -308,6 +345,42 @@ function BrowsePage({ cuisine, onCuisineChange, onSelectRecipe, onBackToIngredie
   );
 }
 
+function SavedPage({ favorites, history, onSelectRecipe, onClearHistory, onBackToIngredients }) {
+  return (
+    <main className="recipes-list-page">
+      <div className="recipes-list-header">
+        <button type="button" className="secondary-button" onClick={onBackToIngredients}>
+          Back to Ingredients
+        </button>
+        <h1 className="browse-title">Favorites</h1>
+      </div>
+      {favorites.length > 0 ? (
+        <RecipeCardGrid recipes={favorites} onSelectRecipe={onSelectRecipe} />
+      ) : (
+        <section className="empty-state saved-empty">
+          <p>No favorites yet. Open a recipe and tap “Save recipe”.</p>
+        </section>
+      )}
+
+      <div className="recipes-list-header saved-section-header">
+        <h2 className="browse-title">Recently viewed</h2>
+        {history.length > 0 && (
+          <button type="button" className="secondary-button" onClick={onClearHistory}>
+            Clear history
+          </button>
+        )}
+      </div>
+      {history.length > 0 ? (
+        <RecipeCardGrid recipes={history} onSelectRecipe={onSelectRecipe} />
+      ) : (
+        <section className="empty-state saved-empty">
+          <p>Recipes you open will show up here.</p>
+        </section>
+      )}
+    </main>
+  );
+}
+
 function App() {
   const [path, setPath] = useState(window.location.pathname);
   const [ingredientsInput, setIngredientsInput] = useState("");
@@ -319,6 +392,9 @@ function App() {
   const [errorMessage, setErrorMessage] = useState("");
   const [browseCuisine, setBrowseCuisine] = useState("");
   const [detailBackPath, setDetailBackPath] = useState("/");
+  const [filters, setFilters] = useState(NO_FILTERS);
+  const [favorites, setFavorites] = useState(loadFavorites);
+  const [history, setHistory] = useState(loadHistory);
 
   useEffect(() => {
     const handlePopState = () => {
@@ -339,7 +415,7 @@ function App() {
   };
 
   useEffect(() => {
-    if (!["/", "/recipes", "/recipe", "/browse"].includes(path)) {
+    if (!["/", "/recipes", "/recipe", "/browse", "/saved"].includes(path)) {
       navigate("/", true);
     }
   }, [path]);
@@ -414,6 +490,7 @@ function App() {
         },
         body: JSON.stringify({
           ingredients: selectedIngredients,
+          filters,
         }),
       });
 
@@ -426,7 +503,11 @@ function App() {
       } else {
         setRecipeResults([]);
         setSelectedRecipe(null);
-        setErrorMessage("No recipe found for these ingredients.");
+        setErrorMessage(
+          Object.values(filters).some(Boolean)
+            ? "No recipe found that meets your dietary preferences. Try loosening them."
+            : "No recipe found for these ingredients."
+        );
       }
     } catch (error) {
       console.error(error);
@@ -444,6 +525,7 @@ function App() {
   const handleSelectRecipe = (recipe, backPath) => {
     setSelectedRecipe(recipe);
     setDetailBackPath(backPath);
+    setHistory((prev) => addToHistory(prev, recipe));
     navigate("/recipe");
   };
 
@@ -452,7 +534,13 @@ function App() {
   };
 
   return path === "/recipe" ? (
-    <RecipePage recipe={selectedRecipe} onBack={handleBack} />
+    <RecipePage
+      recipe={selectedRecipe}
+      onBack={handleBack}
+      pantry={selectedIngredients}
+      favorite={isFavorite(favorites, selectedRecipe)}
+      onToggleFavorite={() => setFavorites((prev) => toggleFavorite(prev, selectedRecipe))}
+    />
   ) : path === "/recipes" ? (
     <RecipesPage
       recipes={recipeResults}
@@ -464,6 +552,14 @@ function App() {
       cuisine={browseCuisine}
       onCuisineChange={setBrowseCuisine}
       onSelectRecipe={(recipe) => handleSelectRecipe(recipe, "/browse")}
+      onBackToIngredients={handleBackToIngredients}
+    />
+  ) : path === "/saved" ? (
+    <SavedPage
+      favorites={favorites}
+      history={history}
+      onSelectRecipe={(recipe) => handleSelectRecipe(recipe, "/saved")}
+      onClearHistory={() => setHistory(clearHistory())}
       onBackToIngredients={handleBackToIngredients}
     />
   ) : (
@@ -483,6 +579,9 @@ function App() {
       onRemoveIngredient={removeIngredient}
       onGetRecipe={handleGetRecipe}
       onBrowse={() => navigate("/browse")}
+      onOpenSaved={() => navigate("/saved")}
+      filters={filters}
+      onFiltersChange={setFilters}
       errorMessage={errorMessage}
     />
   );

@@ -1,8 +1,7 @@
 import { useEffect, useState } from "react";
 import RecipeDetail from "./components/RecipeDetail";
+import { API_BASE_URL } from "./config";
 import "./App.css";
-
-const API_BASE_URL = "http://localhost:8000";
 
 function IngredientImage({ name }) {
   const [imageUrl, setImageUrl] = useState(null);
@@ -54,6 +53,7 @@ function IngredientPage({
   toggleIngredient,
   onRemoveIngredient,
   onGetRecipe,
+  onBrowse,
   errorMessage,
 }) {
   return (
@@ -123,6 +123,10 @@ function IngredientPage({
               </button>
 
               {errorMessage && <p className="error-text">{errorMessage}</p>}
+
+              <button type="button" className="link-button" onClick={onBrowse}>
+                Browse saved recipes by cuisine
+              </button>
             </section>
 
             <div className="landing-image-wrap">
@@ -160,6 +164,46 @@ function RecipePage({ recipe, onBack }) {
   );
 }
 
+function RecipeCardGrid({ recipes, onSelectRecipe }) {
+  return (
+    <section className="recipe-cards-grid">
+      {recipes.map((recipe) => (
+        <article
+          key={recipe.id || recipe.name}
+          className="recipe-card"
+          onClick={() => onSelectRecipe(recipe)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(event) => {
+            if (event.key === "Enter" || event.key === " ") {
+              event.preventDefault();
+              onSelectRecipe(recipe);
+            }
+          }}
+        >
+          <img
+            src={
+              recipe.image_url ||
+              "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=900&q=80"
+            }
+            alt={recipe.name}
+            className="recipe-card-image"
+          />
+          <div className="recipe-card-body">
+            {recipe.cuisine && <span className="recipe-card-cuisine">{recipe.cuisine}</span>}
+            <h3>{recipe.name}</h3>
+            <p>{recipe.notes || "Tap to open full recipe details."}</p>
+            <div className="recipe-card-meta">
+              <span>{recipe.time || "Quick meal"}</span>
+              <span>{recipe.servings ? `${recipe.servings} servings` : "Family size"}</span>
+            </div>
+          </div>
+        </article>
+      ))}
+    </section>
+  );
+}
+
 function RecipesPage({ recipes, onSelectRecipe, onBackToIngredients }) {
   return (
     <main className="recipes-list-page">
@@ -170,45 +214,95 @@ function RecipesPage({ recipes, onSelectRecipe, onBackToIngredients }) {
       </div>
 
       {recipes.length > 0 ? (
-        <section className="recipe-cards-grid">
-          {recipes.map((recipe) => (
-            <article
-              key={recipe.id || recipe.name}
-              className="recipe-card"
-              onClick={() => onSelectRecipe(recipe)}
-              role="button"
-              tabIndex={0}
-              onKeyDown={(event) => {
-                if (event.key === "Enter" || event.key === " ") {
-                  event.preventDefault();
-                  onSelectRecipe(recipe);
-                }
-              }}
-            >
-              <img
-                src={
-                  recipe.image_url ||
-                  "https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=900&q=80"
-                }
-                alt={recipe.name}
-                className="recipe-card-image"
-              />
-              <div className="recipe-card-body">
-                <h3>{recipe.name}</h3>
-                <p>{recipe.notes || "Tap to open full recipe details."}</p>
-                <div className="recipe-card-meta">
-                  <span>{recipe.time || "Quick meal"}</span>
-                  <span>{recipe.servings ? `${recipe.servings} servings` : "Family size"}</span>
-                </div>
-              </div>
-            </article>
-          ))}
-        </section>
+        <RecipeCardGrid recipes={recipes} onSelectRecipe={onSelectRecipe} />
       ) : (
         <section className="empty-state">
           <h2>No recipes found</h2>
           <p>Go back and try different vegetables.</p>
         </section>
+      )}
+    </main>
+  );
+}
+
+function BrowsePage({ cuisine, onCuisineChange, onSelectRecipe, onBackToIngredients }) {
+  const [cuisines, setCuisines] = useState([]);
+  // Which cuisine the loaded results belong to; while it differs from `cuisine`, we're loading.
+  const [loaded, setLoaded] = useState({ cuisine: null, recipes: [], error: false });
+
+  useEffect(() => {
+    fetch(`${API_BASE_URL}/cuisines`)
+      .then((res) => (res.ok ? res.json() : []))
+      .then(setCuisines)
+      .catch((err) => console.error("Cuisine fetch error:", err));
+  }, []);
+
+  useEffect(() => {
+    let current = true;
+    const query = cuisine ? `?cuisine=${encodeURIComponent(cuisine)}` : "";
+
+    fetch(`${API_BASE_URL}/recipes${query}`)
+      .then((res) => {
+        if (!res.ok) throw new Error(`Recipes request failed: ${res.status}`);
+        return res.json();
+      })
+      .then((data) => {
+        if (current) setLoaded({ cuisine, recipes: data, error: false });
+      })
+      .catch((err) => {
+        console.error(err);
+        if (current) setLoaded({ cuisine, recipes: [], error: true });
+      });
+
+    // Ignore a slower response for a chip the user has already clicked away from.
+    return () => {
+      current = false;
+    };
+  }, [cuisine]);
+
+  const isLoading = loaded.cuisine !== cuisine;
+
+  const chips = [{ cuisine: "", label: "All" }].concat(
+    cuisines.map((c) => ({ cuisine: c.cuisine, label: `${c.cuisine} (${c.count})` }))
+  );
+
+  return (
+    <main className="recipes-list-page">
+      <div className="recipes-list-header">
+        <button type="button" className="secondary-button" onClick={onBackToIngredients}>
+          Back to Ingredients
+        </button>
+        <h1 className="browse-title">Browse by cuisine</h1>
+      </div>
+
+      <div className="cuisine-filter" role="group" aria-label="Filter by cuisine">
+        {chips.map((chip) => (
+          <button
+            key={chip.label}
+            type="button"
+            className={`cuisine-chip${chip.cuisine === cuisine ? " is-active" : ""}`}
+            aria-pressed={chip.cuisine === cuisine}
+            onClick={() => onCuisineChange(chip.cuisine)}
+          >
+            {chip.label}
+          </button>
+        ))}
+      </div>
+
+      {isLoading ? (
+        <p className="browse-status">Loading recipes…</p>
+      ) : loaded.error ? (
+        <section className="empty-state">
+          <h2>Couldn't load recipes</h2>
+          <p>Check that the backend is running, then try again.</p>
+        </section>
+      ) : loaded.recipes.length === 0 ? (
+        <section className="empty-state">
+          <h2>No saved recipes{cuisine ? ` for ${cuisine}` : ""} yet</h2>
+          <p>Generate a recipe from your ingredients and it will show up here.</p>
+        </section>
+      ) : (
+        <RecipeCardGrid recipes={loaded.recipes} onSelectRecipe={onSelectRecipe} />
       )}
     </main>
   );
@@ -223,6 +317,8 @@ function App() {
   const [selectedRecipe, setSelectedRecipe] = useState(null);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [browseCuisine, setBrowseCuisine] = useState("");
+  const [detailBackPath, setDetailBackPath] = useState("/");
 
   useEffect(() => {
     const handlePopState = () => {
@@ -243,7 +339,7 @@ function App() {
   };
 
   useEffect(() => {
-    if (path !== "/" && path !== "/recipes" && path !== "/recipe") {
+    if (!["/", "/recipes", "/recipe", "/browse"].includes(path)) {
       navigate("/", true);
     }
   }, [path]);
@@ -342,15 +438,12 @@ function App() {
   };
 
   const handleBack = () => {
-    if (recipeResults.length > 0) {
-      navigate("/recipes");
-      return;
-    }
-    navigate("/");
+    navigate(detailBackPath);
   };
 
-  const handleSelectRecipe = (recipe) => {
+  const handleSelectRecipe = (recipe, backPath) => {
     setSelectedRecipe(recipe);
+    setDetailBackPath(backPath);
     navigate("/recipe");
   };
 
@@ -363,7 +456,14 @@ function App() {
   ) : path === "/recipes" ? (
     <RecipesPage
       recipes={recipeResults}
-      onSelectRecipe={handleSelectRecipe}
+      onSelectRecipe={(recipe) => handleSelectRecipe(recipe, "/recipes")}
+      onBackToIngredients={handleBackToIngredients}
+    />
+  ) : path === "/browse" ? (
+    <BrowsePage
+      cuisine={browseCuisine}
+      onCuisineChange={setBrowseCuisine}
+      onSelectRecipe={(recipe) => handleSelectRecipe(recipe, "/browse")}
       onBackToIngredients={handleBackToIngredients}
     />
   ) : (
@@ -382,6 +482,7 @@ function App() {
       toggleIngredient={toggleIngredient}
       onRemoveIngredient={removeIngredient}
       onGetRecipe={handleGetRecipe}
+      onBrowse={() => navigate("/browse")}
       errorMessage={errorMessage}
     />
   );

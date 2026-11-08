@@ -28,6 +28,16 @@ class Recipe(Base):
     notes = Column(String)
     image_url = Column(String)
 
+class IngredientSubstitution(Base):
+    """LLM-suggested substitutes, cached by normalized ingredient key."""
+
+    __tablename__ = "ingredient_substitutions"
+
+    id = Column(Integer, primary_key=True, index=True)
+    ingredient_key = Column(String, unique=True, index=True, nullable=False)
+    substitutes = Column(ARRAY(String), nullable=False)
+
+
 class IngredientImage(Base):
     __tablename__ = "ingredient_images"
 

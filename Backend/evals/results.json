@@ -8,8 +8,9 @@
     "success_rate_with_retry": 1.0,
     "mean_coverage": 0.99,
     "full_coverage_rate": 0.95,
-    "latency_p50_seconds": 33.6,
-    "latency_p95_seconds": 48.66
+    "cuisine_tagged_rate": 0.65,
+    "latency_p50_seconds": 20.5,
+    "latency_p95_seconds": 26.02
   },
   "results": [
     {
@@ -24,13 +25,14 @@
       "success": true,
       "coverage": 1.0,
       "missing": [],
-      "latency_seconds": 21.11,
+      "latency_seconds": 20.84,
       "error": null,
-      "recipe_name": "Chicken and Broccoli Stir Fry with Rice",
+      "recipe_name": "Chicken and Broccoli Stir Fry",
+      "cuisine": "Other",
       "recipe_ingredients": [
         "chicken",
-        "rice, cooked",
-        "broccoli florets"
+        "rice",
+        "broccoli"
       ],
       "rejected_outputs": []
     },
@@ -46,9 +48,10 @@
       "success": true,
       "coverage": 1.0,
       "missing": [],
-      "latency_seconds": 16.79,
+      "latency_seconds": 22.4,
       "error": null,
       "recipe_name": "Spinach and Feta Frittata",
+      "cuisine": "Mediterranean",
       "recipe_ingredients": [
         "eggs",
         "spinach",
@@ -68,12 +71,13 @@
       "success": true,
       "coverage": 1.0,
       "missing": [],
-      "latency_seconds": 25.57,
+      "latency_seconds": 20.41,
       "error": null,
-      "recipe_name": "Grilled Salmon with Lemon Asparagus",
+      "recipe_name": "Grilled Salmon with Lemon and Asparagus",
+      "cuisine": "Other",
       "recipe_ingredients": [
-        "Salmon fillet",
-        "Lemon",
+        "Salmon fillets",
+        "Lemons",
         "Asparagus"
       ],
       "rejected_outputs": []
@@ -91,9 +95,10 @@
       "success": true,
       "coverage": 1.0,
       "missing": [],
-      "latency_seconds": 32.78,
+      "latency_seconds": 18.08,
       "error": null,
-      "recipe_name": "Ground Beef and Kidney Bean Chili",
+      "recipe_name": "Classic Beef Tacos",
+      "cuisine": "Mexican",
       "recipe_ingredients": [
         "ground beef",
         "onion",
@@ -115,9 +120,10 @@
       "success": true,
       "coverage": 1.0,
       "missing": [],
-      "latency_seconds": 35.19,
+      "latency_seconds": 22.45,
       "error": null,
-      "recipe_name": "Ginger Soy Tofu with Scallions",
+      "recipe_name": "Vegetarian Stir Fry with Tofu and Ginger",
+      "cuisine": "Other",
       "recipe_ingredients": [
         "tofu",
         "soy sauce",
@@ -139,9 +145,10 @@
       "success": true,
       "coverage": 1.0,
       "missing": [],
-      "latency_seconds": 25.22,
+      "latency_seconds": 18.2,
       "error": null,
-      "recipe_name": "Garlic Parmesan Pasta",
+      "recipe_name": "Pasta with Garlic and Parmesan",
+      "cuisine": "Italian",
       "recipe_ingredients": [
         "pasta",
         "garlic",
@@ -162,9 +169,10 @@
       "success": true,
       "coverage": 1.0,
       "missing": [],
-      "latency_seconds": 30.11,
+      "latency_seconds": 17.33,
       "error": null,
-      "recipe_name": "Leek and Cream Mashed Potatoes",
+      "recipe_name": "Creamy Leek and Potato Soup",
+      "cuisine": "American",
       "recipe_ingredients": [
         "potatoes",
         "leeks",
@@ -185,9 +193,10 @@
       "success": true,
       "coverage": 1.0,
       "missing": [],
-      "latency_seconds": 28.12,
+      "latency_seconds": 20.05,
       "error": null,
-      "recipe_name": "Creamy Curried Chickpea and Spinach",
+      "recipe_name": "Chickpea Curry with Spinach",
+      "cuisine": "Indian",
       "recipe_ingredients": [
         "chickpeas",
         "coconut milk",
@@ -209,14 +218,15 @@
       "success": true,
       "coverage": 1.0,
       "missing": [],
-      "latency_seconds": 33.65,
+      "latency_seconds": 20.5,
       "error": null,
       "recipe_name": "Garlic Shrimp with Butter and Parsley",
+      "cuisine": "Other",
       "recipe_ingredients": [
         "shrimp",
         "garlic",
         "butter",
-        "fresh parsley, chopped"
+        "parsley, chopped"
       ],
       "rejected_outputs": []
     },
@@ -233,9 +243,10 @@
       "success": true,
       "coverage": 1.0,
       "missing": [],
-      "latency_seconds": 35.11,
+      "latency_seconds": 21.1,
       "error": null,
       "recipe_name": "Lentil and Vegetable Stew",
+      "cuisine": "Mediterranean",
       "recipe_ingredients": [
         "lentils",
         "carrots",
@@ -257,9 +268,10 @@
       "success": true,
       "coverage": 1.0,
       "missing": [],
-      "latency_seconds": 36.68,
+      "latency_seconds": 18.55,
       "error": null,
-      "recipe_name": "Blueberry Muffins",
+      "recipe_name": "Blueberry Pancakes",
+      "cuisine": "American",
       "recipe_ingredients": [
         "flour",
         "milk",
@@ -280,9 +292,10 @@
       "success": true,
       "coverage": 1.0,
       "missing": [],
-      "latency_seconds": 41.73,
+      "latency_seconds": 22.19,
       "error": null,
-      "recipe_name": "Pork Chops with Apple Mustard Sauce",
+      "recipe_name": "Pork Chops with Apples and Mustard Sauce",
+      "cuisine": "American",
       "recipe_ingredients": [
         "pork chops",
         "apples",
@@ -304,15 +317,16 @@
       "success": true,
       "coverage": 1.0,
       "missing": [],
-      "latency_seconds": 39.61,
+      "latency_seconds": 20.35,
       "error": null,
-      "recipe_name": "Quinoa and Black Bean Salad with Corn, Avocado, and Lime",
+      "recipe_name": "Quinoa Black Bean Salad",
+      "cuisine": "Other",
       "recipe_ingredients": [
-        "quinoa",
-        "black beans",
-        "corn",
-        "avocados",
-        "lime"
+        "Quinoa",
+        "Black beans",
+        "Corn",
+        "Avocado",
+        "Lime"
       ],
       "rejected_outputs": []
     },
@@ -328,13 +342,14 @@
       "success": true,
       "coverage": 1.0,
       "missing": [],
-      "latency_seconds": 33.44,
+      "latency_seconds": 19.1,
       "error": null,
       "recipe_name": "Barley and Mushroom Stew with Thyme",
+      "cuisine": "Other",
       "recipe_ingredients": [
         "mushrooms",
         "barley",
-        "fresh thyme leaves"
+        "thyme"
       ],
       "rejected_outputs": []
     },
@@ -350,9 +365,10 @@
       "success": true,
       "coverage": 1.0,
       "missing": [],
-      "latency_seconds": 33.6,
+      "latency_seconds": 26.02,
       "error": null,
-      "recipe_name": "Roasted Cauliflower with Tahini and Paprika",
+      "recipe_name": "Roasted Cauliflower with Tahini Sauce",
+      "cuisine": "Mediterranean",
       "recipe_ingredients": [
         "cauliflower",
         "tahini",
@@ -372,9 +388,10 @@
       "success": true,
       "coverage": 1.0,
       "missing": [],
-      "latency_seconds": 32.96,
+      "latency_seconds": 17.62,
       "error": null,
       "recipe_name": "Peanut Butter Banana Oatmeal",
+      "cuisine": "American",
       "recipe_ingredients": [
         "bananas",
         "oats",
@@ -395,14 +412,15 @@
       "success": true,
       "coverage": 1.0,
       "missing": [],
-      "latency_seconds": 38.74,
+      "latency_seconds": 20.74,
       "error": null,
-      "recipe_name": "Mint Lamb Yogurt Cucumber Salad",
+      "recipe_name": "Lamb Mint Cucumber Yogurt Salad",
+      "cuisine": "Middle Eastern",
       "recipe_ingredients": [
         "lamb",
         "yogurt",
-        "mint leaves, finely chopped",
-        "cucumber"
+        "mint, chopped",
+        "cucumber, diced"
       ],
       "rejected_outputs": []
     },
@@ -419,14 +437,15 @@
       "success": true,
       "coverage": 1.0,
       "missing": [],
-      "latency_seconds": 56.52,
+      "latency_seconds": 29.6,
       "error": null,
       "recipe_name": "Maple Glazed Sweet Potato and Kale Salad with Pecans",
+      "cuisine": "American",
       "recipe_ingredients": [
-        "large sweet potatoes",
-        "cups kale",
-        "cup pecans",
-        "cup maple syrup"
+        "sweet potato",
+        "bunch of kale",
+        "pecans",
+        "maple syrup"
       ],
       "rejected_outputs": []
     },
@@ -446,11 +465,12 @@
       "missing": [
         "orange"
       ],
-      "latency_seconds": 48.66,
+      "latency_seconds": 21.39,
       "error": null,
-      "recipe_name": "Braised Cod with Fennel, Orange and Capers",
+      "recipe_name": "Pan-Seared Cod with Fennel, Orange, Capers and White Wine",
+      "cuisine": "Other",
       "recipe_ingredients": [
-        "cod fillets",
+        "cod",
         "fennel bulb",
         "oranges",
         "capers",
@@ -473,16 +493,17 @@
       "success": true,
       "coverage": 1.0,
       "missing": [],
-      "latency_seconds": 48.14,
+      "latency_seconds": 25.62,
       "error": null,
-      "recipe_name": "Paneer and Bell Pepper Rice",
+      "recipe_name": "Paneer and Bell Pepper Stir Fry with Cilantro Rice",
+      "cuisine": "Indian",
       "recipe_ingredients": [
-        "paneer",
-        "bell pepper",
-        "turmeric",
-        "tomato paste",
-        "cilantro",
-        "rice"
+        "Paneer",
+        "Bell peppers",
+        "Turmeric",
+        "Tomato paste",
+        "Chopped cilantro",
+        "Rice"
       ],
       "rejected_outputs": []
     }

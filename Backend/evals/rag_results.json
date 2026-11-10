@@ -1,0 +1,452 @@
+{
+  "model": "mistral",
+  "sources_per_query": 3,
+  "summary": {
+    "without_retrieval": {
+      "meets_craving": 0.75,
+      "overlap_with_sources": 0.13778528184778185,
+      "copies_source": 0.0,
+      "latency_p50_seconds": 57.045,
+      "produced_recipe": 0.8
+    },
+    "with_retrieval": {
+      "meets_craving": 0.7777777777777778,
+      "overlap_with_sources": 0.5609440577577832,
+      "copies_source": 0.1111111111111111,
+      "latency_p50_seconds": 66.295,
+      "produced_recipe": 0.9
+    }
+  },
+  "queries": [
+    {
+      "query": "something light for lunch",
+      "sources": [
+        "Potato and Coriander Salad",
+        "Vegetable Salad with Cheese",
+        "Carrot Side Dish"
+      ],
+      "without_retrieval": {
+        "success": true,
+        "name": "Grilled Chicken and Quinoa Salad",
+        "ingredients": [
+          "boneless, skinless chicken breast",
+          "cups cooked quinoa",
+          "pound cherry tomatoes, halved",
+          "cucumber, diced",
+          "red onion, thinly sliced",
+          "cup crumbled feta cheese",
+          "cup chopped fresh parsley",
+          "cup olive oil",
+          "cup red wine vinegar",
+          "cloves garlic, minced",
+          "teaspoon salt",
+          "teaspoon black pepper"
+        ],
+        "meets_craving": false,
+        "overlap_with_sources": 0.07407407407407407,
+        "copies_source": false,
+        "latency_seconds": 62.31
+      },
+      "with_retrieval": {
+        "success": true,
+        "name": "Light Mediterranean Quinoa Salad",
+        "ingredients": [
+          "cooked quinoa",
+          "cucumbers",
+          "tomatoes",
+          "feta cheese",
+          "chopped fresh mint",
+          "olive oil",
+          "lemon juice"
+        ],
+        "meets_craving": false,
+        "overlap_with_sources": 0.18181818181818182,
+        "copies_source": false,
+        "latency_seconds": 25.42
+      }
+    },
+    {
+      "query": "a quick snack I can make in a few minutes",
+      "sources": [
+        "Indian Corn Pakoda",
+        "Chinese Stir-Fried Carrots",
+        "Steamed Broccoli"
+      ],
+      "without_retrieval": {
+        "success": true,
+        "name": "Quick Avocado Toast with Balsamic Drizzle",
+        "ingredients": [
+          "Avocado",
+          "Slices of whole grain bread",
+          "Tablespoons of olive oil",
+          "Tablespoon of balsamic vinegar",
+          "Sea salt",
+          "Black pepper"
+        ],
+        "meets_craving": true,
+        "overlap_with_sources": 0.3076923076923077,
+        "copies_source": false,
+        "latency_seconds": 40.63
+      },
+      "with_retrieval": {
+        "success": true,
+        "name": "Quick Spicy Carrot and Broccoli Stir-Fry",
+        "ingredients": [
+          "vegetable oil",
+          "sesame oil",
+          "garlic, minced",
+          "ginger root, grated",
+          "carrot, julienned",
+          "broccoli florets",
+          "soy sauce",
+          "honey",
+          "red pepper flakes (optional)",
+          "turmeric powder"
+        ],
+        "meets_craving": true,
+        "overlap_with_sources": 0.9,
+        "copies_source": false,
+        "latency_seconds": 63.98
+      }
+    },
+    {
+      "query": "something with a spicy kick",
+      "sources": [
+        "Indian Corn Pakora",
+        "Indian Corn Pakoda",
+        "Spicy Chicken and Spinach Stir Fry"
+      ],
+      "without_retrieval": {
+        "success": true,
+        "name": "Spicy Shrimp and Pineapple Stir-Fry",
+        "ingredients": [
+          "shrimp, peeled and deveined",
+          "pineapples, cored and chopped",
+          "bell peppers, sliced",
+          "soy sauce",
+          "sriracha sauce",
+          "honey",
+          "olive oil",
+          "garlic cloves, minced",
+          "grated ginger",
+          "chopped green onions"
+        ],
+        "meets_craving": true,
+        "overlap_with_sources": 0.0,
+        "copies_source": false,
+        "latency_seconds": 71.49
+      },
+      "with_retrieval": {
+        "success": true,
+        "name": "Spicy Corn and Black Bean Fritters",
+        "ingredients": [
+          "Corn Kernels",
+          "Black Beans",
+          "Chickpea Flour",
+          "Turmeric Powder",
+          "Red Chili Powder",
+          "Cumin Powder",
+          "Garam Masala",
+          "Salt",
+          "Fresh Cilantro, finely chopped",
+          "Vegetable Oil",
+          "Lemon Juice"
+        ],
+        "meets_craving": true,
+        "overlap_with_sources": 0.5,
+        "copies_source": false,
+        "latency_seconds": 39.76
+      }
+    },
+    {
+      "query": "a plant-based meal without any animal products",
+      "sources": [
+        "Potato and Coriander Salad",
+        "Indian Corn Fritters",
+        "Grilled Drumstick Vegetable and Tomato Salad"
+      ],
+      "without_retrieval": {
+        "success": false,
+        "error": "Model request failed",
+        "latency_seconds": 120.53
+      },
+      "with_retrieval": {
+        "success": false,
+        "error": "Model request failed",
+        "latency_seconds": 120.54
+      }
+    },
+    {
+      "query": "creamy, cheesy comfort food",
+      "sources": [
+        "Italian Polenta with Grilled Corn",
+        "Italian Polenta with Corn and Truffle Sauce",
+        "Indian Corn Pakoda"
+      ],
+      "without_retrieval": {
+        "success": false,
+        "error": "Model request failed",
+        "latency_seconds": 120.13
+      },
+      "with_retrieval": {
+        "success": true,
+        "name": "Creamy Cheesy Corn Polenta Casserole",
+        "ingredients": [
+          "Corn on the cob",
+          "Polenta",
+          "Grated Parmesan Cheese",
+          "Shredded Mozzarella Cheese",
+          "Unsalted butter",
+          "Garlic, minced",
+          "Heavy cream",
+          "Salt",
+          "Black pepper"
+        ],
+        "meets_craving": true,
+        "overlap_with_sources": 0.5,
+        "copies_source": false,
+        "latency_seconds": 107.07
+      }
+    },
+    {
+      "query": "a warming Indian curry",
+      "sources": [
+        "Indian Corn Kichadi",
+        "Indian Corn Pakoda",
+        "Indian Corn Pakora"
+      ],
+      "without_retrieval": {
+        "success": true,
+        "name": "Warming Chicken Korma Curry",
+        "ingredients": [
+          "boneless skinless chicken breasts",
+          "large onion, finely chopped",
+          "garlic, minced",
+          "fresh ginger, grated",
+          "garam masala",
+          "turmeric",
+          "coriander",
+          "cumin",
+          "cayenne pepper",
+          "plain yogurt",
+          "unsweetened coconut milk",
+          "shelled unsalted roasted cashews, ground",
+          "korma paste",
+          "oil",
+          "to taste",
+          "for garnish"
+        ],
+        "meets_craving": true,
+        "overlap_with_sources": 0.16666666666666666,
+        "copies_source": false,
+        "latency_seconds": 44.93
+      },
+      "with_retrieval": {
+        "success": true,
+        "name": "Warming Indian Corn and Spinach Curry",
+        "ingredients": [
+          "Frozen corn kernels",
+          "Fresh spinach leaves",
+          "Turmeric powder",
+          "Cumin seeds",
+          "Green chillies",
+          "Grated coconut",
+          "Ghee",
+          "Mustard seeds",
+          "Curry leaves",
+          "Salt"
+        ],
+        "meets_craving": true,
+        "overlap_with_sources": 0.8823529411764706,
+        "copies_source": true,
+        "latency_seconds": 30.38
+      }
+    },
+    {
+      "query": "something with chicken",
+      "sources": [
+        "Spicy Chicken Tomato Stir Fry",
+        "Grilled Chicken",
+        "Spicy Chicken and Spinach Stir Fry"
+      ],
+      "without_retrieval": {
+        "success": true,
+        "name": "Creamy Chicken Fettuccine Alfredo",
+        "ingredients": [
+          "fettuccine pasta",
+          "boneless, skinless chicken breasts",
+          "unsalted butter",
+          "garlic, minced",
+          "heavy cream",
+          "grated Parmesan cheese",
+          "salt",
+          "black pepper, freshly ground"
+        ],
+        "meets_craving": true,
+        "overlap_with_sources": 0.1111111111111111,
+        "copies_source": false,
+        "latency_seconds": 41.34
+      },
+      "with_retrieval": {
+        "success": true,
+        "name": "Spicy Chicken and Arugula Pesto Pasta",
+        "ingredients": [
+          "chicken breasts",
+          "cup olive oil",
+          "tablespoons arugula pesto",
+          "pound spaghetti",
+          "cups cherry tomatoes, halved",
+          "teaspoons red pepper flakes",
+          "tablespoon salt",
+          "tablespoon black pepper"
+        ],
+        "meets_craving": true,
+        "overlap_with_sources": 0.1875,
+        "copies_source": false,
+        "latency_seconds": 36.25
+      }
+    },
+    {
+      "query": "a fresh crunchy salad",
+      "sources": [
+        "Vegetable Salad with Cheese",
+        "Potato and Coriander Salad",
+        "Corn, Tomato, and Lettuce Salad"
+      ],
+      "without_retrieval": {
+        "success": true,
+        "name": "Crisp Mediterranean Quinoa Salad",
+        "ingredients": [
+          "Cooked quinoa",
+          "Medium cucumbers",
+          "Large tomatoes",
+          "Kalamata olives",
+          "Feta cheese, crumbled",
+          "Chopped fresh parsley",
+          "Chopped fresh mint",
+          "Lemons, juiced",
+          "Olive oil",
+          "Red wine vinegar",
+          "Salt",
+          "Black pepper, ground"
+        ],
+        "meets_craving": true,
+        "overlap_with_sources": 0.09523809523809523,
+        "copies_source": false,
+        "latency_seconds": 39.4
+      },
+      "with_retrieval": {
+        "success": true,
+        "name": "Fresh Crunchy Mediterranean Quinoa Salad",
+        "ingredients": [
+          "cooked quinoa",
+          "mixed greens",
+          "cherry tomatoes, halved",
+          "cucumber, diced",
+          "kalamata olives, pitted and sliced",
+          "feta cheese, crumbled",
+          "red onion, thinly sliced"
+        ],
+        "meets_craving": true,
+        "overlap_with_sources": 0.1111111111111111,
+        "copies_source": false,
+        "latency_seconds": 70.81
+      }
+    },
+    {
+      "query": "something sweet for dessert",
+      "sources": [
+        "Carrot Kheer",
+        "Chinese Corn Fritters",
+        "Indian Carrot Cake"
+      ],
+      "without_retrieval": {
+        "success": true,
+        "name": "Chocolate Raspberry Mousse Tartlets",
+        "ingredients": [
+          "Graham cracker crumbs",
+          "Unsalted butter, melted",
+          "Dark chocolate, finely chopped",
+          "Heavy cream",
+          "Fresh raspberries",
+          "Granulated sugar",
+          "Large egg yolks"
+        ],
+        "meets_craving": true,
+        "overlap_with_sources": 0.1875,
+        "copies_source": false,
+        "latency_seconds": 92.45
+      },
+      "with_retrieval": {
+        "success": true,
+        "name": "Carrot and Corn Sweet Dumplings",
+        "ingredients": [
+          "grated carrots",
+          "corn kernels",
+          "all-purpose flour",
+          "baking powder",
+          "salt",
+          "ground cinnamon",
+          "granulated sugar",
+          "vegetable oil",
+          "large eggs",
+          "vanilla extract",
+          "cardamom powder",
+          "saffron strands (optional)",
+          "scallions, thinly sliced"
+        ],
+        "meets_craving": true,
+        "overlap_with_sources": 1.0,
+        "copies_source": false,
+        "latency_seconds": 68.61
+      }
+    },
+    {
+      "query": "light and spicy for a cold night",
+      "sources": [
+        "Indian Corn Pakora",
+        "Spicy Chicken and Spinach Stir Fry",
+        "Carrot Curry"
+      ],
+      "without_retrieval": {
+        "success": true,
+        "name": "Spicy Shrimp and Vegetable Stir Fry",
+        "ingredients": [
+          "shrimp, peeled and deveined",
+          "bell pepper, sliced",
+          "zucchini, sliced",
+          "red onion, sliced",
+          "garlic cloves, minced",
+          "fresh red chili, seeded and finely chopped",
+          "Thai fish sauce",
+          "lime juice",
+          "brown sugar",
+          "vegetable oil",
+          "Thai red curry paste"
+        ],
+        "meets_craving": false,
+        "overlap_with_sources": 0.16,
+        "copies_source": false,
+        "latency_seconds": 51.78
+      },
+      "with_retrieval": {
+        "success": true,
+        "name": "Spicy Carrot and Chicken Pakora",
+        "ingredients": [
+          "Boneless Chicken Breast",
+          "Carrot, shredded",
+          "Chickpea Flour",
+          "Turmeric Powder",
+          "Red Chili Powder",
+          "Cumin Powder",
+          "Salt",
+          "Water"
+        ],
+        "meets_craving": false,
+        "overlap_with_sources": 0.7857142857142857,
+        "copies_source": false,
+        "latency_seconds": 131.36
+      }
+    }
+  ]
+}

@@ -65,10 +65,13 @@ function IngredientPage({
   onGetRecipe,
   onBrowse,
   onOpenSaved,
+  onSearchCraving,
   filters,
   onFiltersChange,
   errorMessage,
 }) {
+  const [craving, setCraving] = useState("");
+
   return (
     <main className="ingredient-page">
       <section className="landing-wrap">
@@ -138,6 +141,29 @@ function IngredientPage({
               </button>
 
               {errorMessage && <p className="error-text">{errorMessage}</p>}
+
+              <form
+                className="craving-form"
+                onSubmit={(event) => {
+                  event.preventDefault();
+                  if (craving.trim()) onSearchCraving(craving.trim());
+                }}
+              >
+                <label htmlFor="craving-input">Or describe what you're craving</label>
+                <div className="craving-row">
+                  <input
+                    id="craving-input"
+                    type="search"
+                    className="ingredient-input"
+                    placeholder="something light and spicy for a cold night"
+                    value={craving}
+                    onChange={(e) => setCraving(e.target.value)}
+                  />
+                  <button type="submit" className="secondary-button" disabled={!craving.trim()}>
+                    Search
+                  </button>
+                </div>
+              </form>
 
               <div className="landing-links">
                 <button type="button" className="link-button" onClick={onBrowse}>
@@ -345,6 +371,117 @@ function BrowsePage({ cuisine, onCuisineChange, onSelectRecipe, onBackToIngredie
   );
 }
 
+function SearchPage({ query, filters, onSelectRecipe, onRecipeCreated, onBackToIngredients }) {
+  // Which request the loaded results belong to; while it differs, we're loading.
+  const requestKey = JSON.stringify({ query, filters });
+  const [loaded, setLoaded] = useState({ key: null, hits: [], error: "" });
+  const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState("");
+
+  const createRecipe = async () => {
+    setCreating(true);
+    setCreateError("");
+    try {
+      const res = await fetch(`${API_BASE_URL}/search/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query, filters }),
+      });
+      if (!res.ok) {
+        throw new Error(
+          res.status === 422
+            ? "Couldn't create a recipe that meets your dietary preferences. Try loosening them."
+            : "Couldn't create a recipe right now. Check that Ollama is running."
+        );
+      }
+      const data = await res.json();
+      onRecipeCreated({ ...data.recipe, inspired_by: data.inspired_by });
+    } catch (err) {
+      console.error(err);
+      setCreateError(err.message);
+      setCreating(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!query) return undefined;
+    let current = true;
+
+    fetch(`${API_BASE_URL}/search`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ query, filters, limit: 9 }),
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          throw new Error(
+            res.status === 502
+              ? "Craving search needs Ollama running with the nomic-embed-text model."
+              : "Search failed. Please try again."
+          );
+        }
+        return res.json();
+      })
+      .then((data) => {
+        if (current) setLoaded({ key: requestKey, hits: data.results, error: "" });
+      })
+      .catch((err) => {
+        console.error(err);
+        if (current) setLoaded({ key: requestKey, hits: [], error: err.message });
+      });
+
+    return () => {
+      current = false;
+    };
+  }, [query, filters, requestKey]);
+
+  const filtersOn = Object.values(filters).some(Boolean);
+
+  return (
+    <main className="recipes-list-page">
+      <div className="recipes-list-header">
+        <button type="button" className="secondary-button" onClick={onBackToIngredients}>
+          Back to Ingredients
+        </button>
+        <h1 className="browse-title">{query ? `“${query}”` : "Search by craving"}</h1>
+        {query && filtersOn && <p className="browse-status">With your dietary preferences applied.</p>}
+        {query && loaded.key === requestKey && !loaded.error && (
+          <div className="create-from-search">
+            <button
+              type="button"
+              className="secondary-button"
+              onClick={createRecipe}
+              disabled={creating}
+            >
+              {creating ? "Creating your recipe… (about 30 seconds)" : "Create a new recipe from these"}
+            </button>
+            <p className="browse-status">A new recipe inspired by the top matches below.</p>
+            {createError && <p className="error-text">{createError}</p>}
+          </div>
+        )}
+      </div>
+
+      {!query ? (
+        <section className="empty-state saved-empty">
+          <p>Describe what you're craving on the home page to search.</p>
+        </section>
+      ) : loaded.key !== requestKey ? (
+        <p className="browse-status">Searching…</p>
+      ) : loaded.error ? (
+        <section className="empty-state saved-empty">
+          <p>{loaded.error}</p>
+        </section>
+      ) : loaded.hits.length === 0 ? (
+        <section className="empty-state saved-empty">
+          <p>No recipes matched. Try describing it differently{filtersOn ? " or loosening your filters" : ""}.</p>
+        </section>
+      ) : (
+        <RecipeCardGrid recipes={loaded.hits.map((hit) => hit.recipe)} onSelectRecipe={onSelectRecipe} />
+      )}
+    </main>
+  );
+}
+
 function SavedPage({ favorites, history, onSelectRecipe, onClearHistory, onBackToIngredients }) {
   return (
     <main className="recipes-list-page">
@@ -395,6 +532,7 @@ function App() {
   const [filters, setFilters] = useState(NO_FILTERS);
   const [favorites, setFavorites] = useState(loadFavorites);
   const [history, setHistory] = useState(loadHistory);
+  const [cravingQuery, setCravingQuery] = useState("");
 
   useEffect(() => {
     const handlePopState = () => {
@@ -415,7 +553,7 @@ function App() {
   };
 
   useEffect(() => {
-    if (!["/", "/recipes", "/recipe", "/browse", "/saved"].includes(path)) {
+    if (!["/", "/recipes", "/recipe", "/browse", "/saved", "/search"].includes(path)) {
       navigate("/", true);
     }
   }, [path]);
@@ -554,6 +692,14 @@ function App() {
       onSelectRecipe={(recipe) => handleSelectRecipe(recipe, "/browse")}
       onBackToIngredients={handleBackToIngredients}
     />
+  ) : path === "/search" ? (
+    <SearchPage
+      query={cravingQuery}
+      filters={filters}
+      onSelectRecipe={(recipe) => handleSelectRecipe(recipe, "/search")}
+      onRecipeCreated={(recipe) => handleSelectRecipe(recipe, "/search")}
+      onBackToIngredients={handleBackToIngredients}
+    />
   ) : path === "/saved" ? (
     <SavedPage
       favorites={favorites}
@@ -580,6 +726,10 @@ function App() {
       onGetRecipe={handleGetRecipe}
       onBrowse={() => navigate("/browse")}
       onOpenSaved={() => navigate("/saved")}
+      onSearchCraving={(query) => {
+        setCravingQuery(query);
+        navigate("/search");
+      }}
       filters={filters}
       onFiltersChange={setFilters}
       errorMessage={errorMessage}

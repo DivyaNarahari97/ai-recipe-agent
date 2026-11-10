@@ -218,6 +218,34 @@ body {
   color: #1e4d39;
 }
 
+.craving-form {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: 1px solid #2c3036;
+}
+
+.craving-form label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #f6f6f6;
+}
+
+.craving-row {
+  display: flex;
+  gap: 8px;
+}
+
+.craving-row .ingredient-input {
+  margin-bottom: 0;
+}
+
+.craving-row .secondary-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
 .landing-links {
   display: flex;
   flex-wrap: wrap;
@@ -656,6 +684,23 @@ body {
 .favorite-button.is-active {
   background: #d8e8de;
   color: #1e4d39;
+}
+
+.recipe-inspired-by {
+  margin: 8px 0 0;
+  font-family: "Trebuchet MS", "Gill Sans", sans-serif;
+  font-size: 0.85rem;
+  font-style: italic;
+  color: #4a4a4a;
+}
+
+.create-from-search {
+  margin-top: 14px;
+}
+
+.create-from-search .secondary-button:disabled {
+  opacity: 0.7;
+  cursor: wait;
 }
 
 .recipe-diet-tags {

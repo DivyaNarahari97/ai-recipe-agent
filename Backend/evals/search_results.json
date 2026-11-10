@@ -1,0 +1,302 @@
+{
+  "model": "nomic-embed-text",
+  "recipes": 79,
+  "distinct": 56,
+  "k": 5,
+  "mean": {
+    "base_rate": 0.26250000000000007,
+    "vector": 0.6,
+    "keyword": 0.6799999999999999,
+    "hybrid": 0.76
+  },
+  "most_frequent_in_top_k": {
+    "vector": {
+      "recipe": "indian corn pakoda",
+      "queries": 9
+    },
+    "keyword": {
+      "recipe": "potato and coriander salad",
+      "queries": 3
+    },
+    "hybrid": {
+      "recipe": "indian corn pakoda",
+      "queries": 6
+    }
+  },
+  "queries": [
+    {
+      "query": "something light for lunch",
+      "base_rate": 0.75,
+      "vector": 0.8,
+      "vector_top": [
+        "Carrot Kheer",
+        "Indian Corn Pakoda",
+        "Vegetable Salad with Cheese",
+        "Indian Corn Pulao",
+        "Potato and Coriander Salad"
+      ],
+      "keyword": 1.0,
+      "keyword_top": [
+        "Simple Cabbage Dish",
+        "Potato and Coriander Salad",
+        "Potato Salad with Cilantro and Mint",
+        "Indian Corn Kichadi",
+        "Chinese Stir-Fried Carrots"
+      ],
+      "hybrid": 1.0,
+      "hybrid_top": [
+        "Potato and Coriander Salad",
+        "Vegetable Salad with Cheese",
+        "Carrot Side Dish",
+        "Carrot Kheer",
+        "Chinese Stir-Fried Carrots"
+      ]
+    },
+    {
+      "query": "a quick snack I can make in a few minutes",
+      "base_rate": 0.23214285714285715,
+      "vector": 0.2,
+      "vector_top": [
+        "Indian Corn Pakoda",
+        "Indian Corn Fritters",
+        "Indian Corn Pakora",
+        "Grilled Pineapple",
+        "Spicy Chicken and Spinach Stir Fry"
+      ],
+      "keyword": 0.6,
+      "keyword_top": [
+        "Grilled Chicken Drumsticks with Tomatoes",
+        "Grilled Chicken",
+        "Sauteed Carrots and Spinach",
+        "Chinese Stir-Fried Carrots",
+        "Stir-Fried Carrots with Sesame Oil"
+      ],
+      "hybrid": 0.6,
+      "hybrid_top": [
+        "Indian Corn Pakoda",
+        "Chinese Stir-Fried Carrots",
+        "Steamed Broccoli",
+        "Indian Corn Kofta Curry",
+        "Spicy Chicken and Spinach Stir Fry"
+      ]
+    },
+    {
+      "query": "something with a spicy kick",
+      "base_rate": 0.21428571428571427,
+      "vector": 1.0,
+      "vector_top": [
+        "Indian Corn Pakoda",
+        "Indian Corn Pakora",
+        "Indian Corn Fritters",
+        "Carrot Curry",
+        "Indian Corn Pulao"
+      ],
+      "keyword": 1.0,
+      "keyword_top": [
+        "Spicy Chicken and Spinach Stir Fry",
+        "Spicy Chicken Tomato Stir Fry",
+        "Indian Corn Pakora",
+        "Carrot Curry",
+        "Indian Carrot Curry"
+      ],
+      "hybrid": 1.0,
+      "hybrid_top": [
+        "Indian Corn Pakora",
+        "Indian Corn Pakoda",
+        "Spicy Chicken and Spinach Stir Fry",
+        "Carrot Curry",
+        "Spicy Chicken Tomato Stir Fry"
+      ]
+    },
+    {
+      "query": "a plant-based meal without any animal products",
+      "base_rate": 0.6607142857142857,
+      "vector": 0.8,
+      "vector_top": [
+        "Indian Corn Pakoda",
+        "Indian Corn Pulao",
+        "Carrot Curry",
+        "Potato and Coriander Salad",
+        "Indian Corn Fritters"
+      ],
+      "keyword": 0.8,
+      "keyword_top": [
+        "Grilled Drumstick Vegetable and Tomato Salad",
+        "Potato and Coriander Salad",
+        "Vegetable Stuffed Tacos",
+        "Carrot and Spinach Stir Fry",
+        "Garlic and Ginger Vegetable Stir-fry"
+      ],
+      "hybrid": 0.8,
+      "hybrid_top": [
+        "Potato and Coriander Salad",
+        "Indian Corn Fritters",
+        "Grilled Drumstick Vegetable and Tomato Salad",
+        "Carrot and Spinach Stir Fry",
+        "Indian Corn Khichdi"
+      ]
+    },
+    {
+      "query": "creamy, cheesy comfort food",
+      "base_rate": 0.16071428571428573,
+      "vector": 0.4,
+      "vector_top": [
+        "Indian Corn Pakoda",
+        "Indian Corn Fritters",
+        "Mexican Street Corn Salad",
+        "Indian Corn Pakora",
+        "Indian Corn Kofta Curry"
+      ],
+      "keyword": 0.4,
+      "keyword_top": [
+        "Italian Polenta with Grilled Corn",
+        "Italian Polenta with Corn and Truffle Sauce"
+      ],
+      "hybrid": 0.6,
+      "hybrid_top": [
+        "Italian Polenta with Grilled Corn",
+        "Italian Polenta with Corn and Truffle Sauce",
+        "Indian Corn Pakoda",
+        "Indian Corn Fritters",
+        "Mexican Street Corn Salad"
+      ]
+    },
+    {
+      "query": "a warming Indian curry",
+      "base_rate": 0.19642857142857142,
+      "vector": 0.8,
+      "vector_top": [
+        "Indian Corn Pakoda",
+        "Indian Corn Kichadi",
+        "Indian Corn Pakora",
+        "Indian Corn Pulao",
+        "Spicy Chicken Tomato Stir Fry"
+      ],
+      "keyword": 0.6,
+      "keyword_top": [
+        "Indian Corn Kichadi",
+        "Carrot Curry",
+        "Indian Carrot Cake",
+        "Indian Carrot Curry",
+        "Indian Corn Pakoda"
+      ],
+      "hybrid": 1.0,
+      "hybrid_top": [
+        "Indian Corn Kichadi",
+        "Indian Corn Pakoda",
+        "Indian Corn Pakora",
+        "Indian Corn Khichdi",
+        "Indian Corn Pulao"
+      ]
+    },
+    {
+      "query": "something with chicken",
+      "base_rate": 0.07142857142857142,
+      "vector": 0.8,
+      "vector_top": [
+        "Spicy Chicken Tomato Stir Fry",
+        "Spicy Chicken and Spinach Stir Fry",
+        "Grilled Chicken Drumsticks with Tomatoes",
+        "Grilled Chicken",
+        "Chicken Basil Tomato Mozzarella Bake"
+      ],
+      "keyword": 0.8,
+      "keyword_top": [
+        "Grilled Chicken",
+        "Spicy Chicken Tomato Stir Fry",
+        "Spicy Chicken and Spinach Stir Fry",
+        "Grilled Chicken Drumsticks with Tomatoes",
+        "Chicken Basil Tomato Mozzarella Bake"
+      ],
+      "hybrid": 0.8,
+      "hybrid_top": [
+        "Spicy Chicken Tomato Stir Fry",
+        "Grilled Chicken",
+        "Spicy Chicken and Spinach Stir Fry",
+        "Grilled Chicken Drumsticks with Tomatoes",
+        "Chicken Basil Tomato Mozzarella Bake"
+      ]
+    },
+    {
+      "query": "a fresh crunchy salad",
+      "base_rate": 0.125,
+      "vector": 0.6,
+      "vector_top": [
+        "Potato and Coriander Salad",
+        "Vegetable Salad with Cheese",
+        "Indian Corn Fritters",
+        "Corn, Tomato, and Lettuce Salad",
+        "Indian Corn Pakoda"
+      ],
+      "keyword": 0.8,
+      "keyword_top": [
+        "Vegetable Salad with Cheese",
+        "Grilled Drumstick Vegetable and Tomato Salad",
+        "Corn, Tomato, and Lettuce Salad",
+        "Indian Corn Kichdi",
+        "Potato and Coriander Salad"
+      ],
+      "hybrid": 0.8,
+      "hybrid_top": [
+        "Vegetable Salad with Cheese",
+        "Potato and Coriander Salad",
+        "Corn, Tomato, and Lettuce Salad",
+        "Grilled Drumstick Vegetable and Tomato Salad",
+        "Roasted Cauliflower"
+      ]
+    },
+    {
+      "query": "something sweet for dessert",
+      "base_rate": 0.07142857142857142,
+      "vector": 0.4,
+      "vector_top": [
+        "Carrot Kheer",
+        "Indian Carrot Cake",
+        "Indian Corn Pakoda",
+        "Mexican Street Corn Salad",
+        "Indian Corn Fritters"
+      ],
+      "keyword": 0.2,
+      "keyword_top": [
+        "Carrot Kheer",
+        "Chinese Corn Fritters"
+      ],
+      "hybrid": 0.4,
+      "hybrid_top": [
+        "Carrot Kheer",
+        "Chinese Corn Fritters",
+        "Indian Carrot Cake",
+        "Indian Corn Pakoda",
+        "Mexican Street Corn Salad"
+      ]
+    },
+    {
+      "query": "light and spicy for a cold night",
+      "base_rate": 0.14285714285714285,
+      "vector": 0.2,
+      "vector_top": [
+        "Indian Corn Pakoda",
+        "Indian Corn Fritters",
+        "Indian Corn Pakora",
+        "Carrot Curry",
+        "Spicy Chicken and Spinach Stir Fry"
+      ],
+      "keyword": 0.6,
+      "keyword_top": [
+        "Spicy Chicken and Spinach Stir Fry",
+        "Indian Corn Pakora",
+        "Carrot Curry",
+        "Indian Corn Kichadi",
+        "Chinese Stir-Fried Carrots"
+      ],
+      "hybrid": 0.6,
+      "hybrid_top": [
+        "Indian Corn Pakora",
+        "Spicy Chicken and Spinach Stir Fry",
+        "Carrot Curry",
+        "Indian Corn Pakoda",
+        "Spicy Chicken Tomato Stir Fry"
+      ]
+    }
+  ]
+}

@@ -88,6 +88,11 @@ function RecipeDetail({ recipe, pantry = [] }) {
           <p className="recipe-subtitle">
             {recipe.description || "FAST AND DELICIOUS RECIPE FOR THE WHOLE FAMILY"}
           </p>
+          {recipe.inspired_by?.length > 0 && (
+            <p className="recipe-inspired-by">
+              Inspired by: {recipe.inspired_by.map((source) => source.name).join(", ")}
+            </p>
+          )}
           {recipe.dietary_tags?.length > 0 && (
             <ul className="recipe-diet-tags" aria-label="Dietary">
               {recipe.dietary_tags.map((tag) => (

@@ -13,20 +13,33 @@ from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app import models
-from app.ai import RecipeGenerationError, fetch_recipe_image, generate_recipe, suggest_substitutes
+from app.ai import (
+    RecipeGenerationError,
+    fetch_recipe_image,
+    generate_from_craving,
+    generate_recipe,
+    suggest_substitutes,
+)
 from app.db import engine, get_db
 from app.dietary import DietaryFilters
+from app.embeddings import EmbeddingError
 from app.ingredients import extract_normalized_ingredient_tokens
 from app.schemas import (
     AssistantResponse,
+    CravingRecipeRequest,
+    CravingRecipeResponse,
     CuisineCount,
+    GeneratedRecipe,
     RecipeCreate,
     RecipeResponse,
+    SearchRequest,
+    SearchResponse,
     ShoppingListRequest,
     ShoppingListResponse,
     SubstitutionResponse,
     normalize_cuisine,
 )
+from app.semantic_search import search as semantic_search
 from app.shopping import build_shopping_list
 from app.substitutions import lookup_substitutes, substitution_key
 
@@ -113,7 +126,10 @@ def _create_and_store_ai_recipe(
     db: Session,
     filters: Optional[DietaryFilters] = None,
 ) -> models.Recipe:
-    recipe = generate_recipe(user_ingredients, filters=filters)
+    return _store_generated_recipe(generate_recipe(user_ingredients, filters=filters), db)
+
+
+def _store_generated_recipe(recipe: GeneratedRecipe, db: Session) -> models.Recipe:
     recipe.image_url = fetch_recipe_image(recipe.name)
     recipe_data = recipe.model_dump()
     ingredient_tokens = _normalize_tokens_for_storage(
@@ -253,7 +269,33 @@ app.add_middleware(
 @app.on_event("startup")
 def startup_event():
     logger.info("Startup: creating metadata tables if needed")
-    models.Base.metadata.create_all(bind=engine)
+    try:
+        with engine.begin() as conn:
+            conn.execute(text("CREATE EXTENSION IF NOT EXISTS vector"))
+        vector_ready = True
+    except Exception:
+        # The rest of the app works without pgvector; only /search needs it.
+        logger.exception("Startup: pgvector unavailable, semantic search disabled")
+        vector_ready = False
+    tables = [
+        t for t in models.Base.metadata.sorted_tables
+        if vector_ready or t.name != models.RecipeEmbedding.__tablename__
+    ]
+    models.Base.metadata.create_all(bind=engine, tables=tables)
+    if vector_ready:
+        try:
+            # create_all doesn't add columns to an existing table. Rows left with
+            # a NULL search_vector are re-indexed by the next search.
+            with engine.begin() as conn:
+                conn.execute(text(
+                    "ALTER TABLE recipe_embeddings ADD COLUMN IF NOT EXISTS search_vector tsvector"
+                ))
+                conn.execute(text(
+                    "CREATE INDEX IF NOT EXISTS idx_recipe_embeddings_search_vector "
+                    "ON recipe_embeddings USING GIN (search_vector)"
+                ))
+        except Exception:
+            logger.exception("Startup: failed to ensure keyword search column")
     try:
         with engine.begin() as conn:
             conn.execute(
@@ -511,3 +553,58 @@ def get_shopping_list(recipe_id: int, data: ShoppingListRequest, db: Session = D
         raise HTTPException(status_code=404, detail="Recipe not found")
     logger.info("Shopping list requested", extra={"recipe_id": recipe_id, "have_count": len(data.have)})
     return build_shopping_list(recipe.ingredients, data.have)
+
+
+@app.post("/search", response_model=SearchResponse)
+def search_by_craving(data: SearchRequest, db: Session = Depends(get_db)):
+    """Semantic search: "something light and spicy for a cold night"."""
+    logger.info("Semantic search", extra={"query_length": len(data.query), "limit": data.limit})
+    try:
+        hits = semantic_search(db, data.query, data.limit, data.filters)
+    except EmbeddingError as exc:
+        logger.exception("Semantic search failed")
+        raise HTTPException(status_code=502, detail="Semantic search is unavailable") from exc
+    return {
+        "query": data.query,
+        "results": [{"score": round(score, 4), "recipe": recipe} for recipe, score in hits],
+    }
+
+
+# Inspiration recipes passed to the model; more makes the prompt slower without clear gains.
+CRAVING_SOURCE_COUNT = 3
+# Extra generations allowed when the model ignores the dietary filters.
+CRAVING_FILTER_ATTEMPTS = 2
+
+
+@app.post("/search/generate", response_model=CravingRecipeResponse)
+def generate_for_craving(data: CravingRecipeRequest, db: Session = Depends(get_db)):
+    """RAG: retrieve the best matches for a craving, then generate a new recipe from them."""
+    logger.info("Craving recipe requested", extra={"query_length": len(data.query)})
+    try:
+        hits = semantic_search(db, data.query, CRAVING_SOURCE_COUNT, data.filters)
+    except EmbeddingError as exc:
+        logger.exception("Retrieval for craving recipe failed")
+        raise HTTPException(status_code=502, detail="Semantic search is unavailable") from exc
+    sources = [recipe for recipe, _ in hits]
+
+    for attempt in range(1, CRAVING_FILTER_ATTEMPTS + 1):
+        try:
+            recipe = generate_from_craving(data.query, sources, filters=data.filters)
+        except RecipeGenerationError as exc:
+            logger.exception("Craving recipe generation failed")
+            raise HTTPException(status_code=502, detail="Recipe generation failed") from exc
+        problems = data.filters.violations(
+            [i.model_dump() for i in recipe.ingredients], recipe.time, recipe.calories
+        )
+        if not problems:
+            break
+        logger.info("Craving recipe ignored dietary filters", extra={"attempt": attempt, "problems": problems})
+    else:
+        raise HTTPException(
+            status_code=422, detail="Couldn't generate a recipe that meets your dietary preferences"
+        )
+
+    return {
+        "recipe": _store_generated_recipe(recipe, db),
+        "inspired_by": [{"id": s.id, "name": s.name} for s in sources],
+    }

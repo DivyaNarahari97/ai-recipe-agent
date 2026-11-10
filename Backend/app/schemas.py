@@ -3,7 +3,7 @@ from typing import List, Optional, Dict, Any
 
 from pydantic import BaseModel, ConfigDict, Field, computed_field, field_validator
 
-from app.dietary import dietary_tags
+from app.dietary import DietaryFilters, dietary_tags
 
 logger = logging.getLogger(__name__)
 logger.debug("Schemas module loaded")
@@ -96,6 +96,12 @@ class GeneratedSubstitutes(BaseModel):
         return cleaned[:3]
 
 
+class SearchRequest(BaseModel):
+    query: str = Field(min_length=1, max_length=500)
+    limit: int = Field(default=6, ge=1, le=20)
+    filters: DietaryFilters = DietaryFilters()
+
+
 class SubstitutionResponse(BaseModel):
     ingredient: str
     substitutes: List[str]
@@ -122,6 +128,31 @@ class RecipeResponse(RecipeCreate):
 class AssistantResponse(BaseModel):
     source: str
     results: List[RecipeResponse]
+
+
+class SearchHit(BaseModel):
+    score: float  # reciprocal-rank-fusion score, higher is better
+    recipe: RecipeResponse
+
+
+class SearchResponse(BaseModel):
+    query: str
+    results: List[SearchHit]
+
+
+class CravingRecipeRequest(BaseModel):
+    query: str = Field(min_length=1, max_length=500)
+    filters: DietaryFilters = DietaryFilters()
+
+
+class RecipeRef(BaseModel):
+    id: int
+    name: str
+
+
+class CravingRecipeResponse(BaseModel):
+    recipe: RecipeResponse
+    inspired_by: List[RecipeRef]
 
 
 class ShoppingListRequest(BaseModel):

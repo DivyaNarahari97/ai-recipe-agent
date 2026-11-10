@@ -48,6 +48,8 @@ def fetch_recipe_image(recipe_name: str):
 OLLAMA_URL = "http://localhost:11434/api/generate"
 MODEL_NAME = "mistral"
 MAX_ATTEMPTS = 2
+# Long recipes from craving prompts took over 120s on a laptop (M3) in the RAG eval.
+MODEL_TIMEOUT_SECONDS = 300
 
 
 class RecipeGenerationError(Exception):
@@ -62,7 +64,7 @@ def _call_model(prompt: str) -> str:
     "format": "json"
 }
     logger.info("Calling model API", extra={"model": payload["model"]})
-    response = requests.post(OLLAMA_URL, json=payload, timeout=120)
+    response = requests.post(OLLAMA_URL, json=payload, timeout=MODEL_TIMEOUT_SECONDS)
     response.raise_for_status()
     logger.info("Model API call completed")
     return response.json()["response"]
@@ -123,20 +125,9 @@ Return ONLY valid JSON in this structure:
     return [s for s in result.substitutes if s.lower() != ingredient.strip().lower()] or result.substitutes
 
 
-def generate_recipe(
-    ingredients: list[str],
-    call_model: Callable[[str], str] = _call_model,
-    filters: Optional[DietaryFilters] = None,
-) -> GeneratedRecipe:
-    logger.info(
-        "Generating recipe with AI",
-        extra={"ingredient_count": len(ingredients)}
-    )
+def _recipe_json_format() -> str:
     cuisines = ", ".join(f'"{c}"' for c in CUISINES)
-    prompt = f"""
-You are a professional chef.
-
-Return ONLY valid JSON in this structure:
+    return f"""Return ONLY valid JSON in this structure:
 
 {{
   "name": string,
@@ -155,12 +146,69 @@ Return ONLY valid JSON in this structure:
   ],
   "notes": string
 }}
+"""
 
+
+def generate_recipe(
+    ingredients: list[str],
+    call_model: Callable[[str], str] = _call_model,
+    filters: Optional[DietaryFilters] = None,
+) -> GeneratedRecipe:
+    logger.info(
+        "Generating recipe with AI",
+        extra={"ingredient_count": len(ingredients)}
+    )
+    prompt = f"""
+You are a professional chef.
+
+{_recipe_json_format()}
 Generate realistic values based on the ingredients.
 
 Ingredients:
 {ingredients}
 """
+    if filters:
+        prompt += filters.prompt_constraints()
+    return _generate_validated(prompt, GeneratedRecipe, call_model)
+
+
+def _source_summary(recipe) -> str:
+    ingredients = ", ".join(
+        str(i.get("name", "")) for i in recipe.ingredients or [] if isinstance(i, dict)
+    )
+    details = "; ".join(
+        f"{label} {value}"
+        for label, value in (("cuisine", recipe.cuisine), ("time", recipe.time), ("calories", recipe.calories))
+        if value
+    )
+    return f"- {recipe.name}" + (f" ({details})" if details else "") + f". Ingredients: {ingredients}."
+
+
+def generate_from_craving(
+    craving: str,
+    sources: list,
+    call_model: Callable[[str], str] = _call_model,
+    filters: Optional[DietaryFilters] = None,
+) -> GeneratedRecipe:
+    """Retrieval-augmented generation: a new recipe for a craving, inspired by `sources`.
+
+    With no sources this is plain generation from the craving, which the RAG eval
+    uses as its baseline.
+    """
+    logger.info("Generating recipe from craving", extra={"source_count": len(sources)})
+    prompt = f"""
+You are a professional chef.
+
+Create a NEW recipe for this craving: "{craving}"
+"""
+    if sources:
+        prompt += (
+            "\nThese recipes from our collection match the craving. Use them as inspiration: "
+            "borrow ingredients, techniques or flavors, but do not copy any one of them.\n\n"
+            + "\n".join(_source_summary(s) for s in sources)
+            + "\n"
+        )
+    prompt += "\n" + _recipe_json_format()
     if filters:
         prompt += filters.prompt_constraints()
     return _generate_validated(prompt, GeneratedRecipe, call_model)

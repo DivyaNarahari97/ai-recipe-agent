@@ -32,6 +32,14 @@ This project combines deterministic rule-based matching with LLM-powered recipe 
 - Image cached in database
 - Fallback image support
 
+## 🔎 Craving Search
+- Search by what you feel like eating ("something light and spicy for a cold night"), not just ingredients
+- Hybrid retrieval: `nomic-embed-text` embeddings in pgvector (HNSW cosine index) plus Postgres full-text search (GIN index), merged with reciprocal rank fusion
+- "Create a new recipe from these" generates a new recipe from the craving with the top 3 matches as context (RAG), and shows which recipes inspired it
+- Each recipe's embedded text includes derived words ("light", "quick", "spicy"), because an embedding can't infer them from numbers like "250 kcal"
+- Unindexed recipes are embedded on the next search; `python -m app.index_recipes` re-embeds recipes whose text or model changed
+- Works with the dietary filters, and returns one result per recipe name
+
 ## 🥗 Dietary Filters
 - Vegetarian, vegan and gluten-free, plus max time and max calories
 - Applied to stored recipes during matching and added to the generation prompt
@@ -89,6 +97,69 @@ Per-case detail for Run 3, including each recipe's ingredients and cuisine, is i
 cd Backend
 python -m evals.recipe_eval   # overwrites evals/results.json
 python -m unittest discover -s tests -t .   # offline tests, no Ollama or database
+```
+
+## Craving search (retrieval)
+
+10 craving queries over the 79 stored recipes (56 distinct names). Relevance is decided by a rule for each query (for example, "light" means at most 350 kcal), so the eval needs no hand labels. "Random pick" is the share of recipes that are relevant, which is what picking at random would score.
+
+- **Vector:** cosine similarity on `nomic-embed-text` embeddings.
+- **Keyword:** Postgres full-text search.
+- **Hybrid:** both, merged with reciprocal rank fusion. This is what `/search` uses.
+
+| Query | Random pick | Vector P@5 | Keyword P@5 | Hybrid P@5 |
+|-------|------|------|------|------|
+| something light for lunch | 75% | 80% | 100% | 100% |
+| a quick snack I can make in a few minutes | 23% | 20% | 60% | 60% |
+| something with a spicy kick | 21% | 100% | 100% | 100% |
+| a plant-based meal without any animal products | 66% | 80% | 80% | 80% |
+| creamy, cheesy comfort food | 16% | 40% | 40% | 60% |
+| a warming Indian curry | 20% | 80% | 60% | 100% |
+| something with chicken | 7% | 80% | 80% | 80% |
+| a fresh crunchy salad | 12% | 60% | 80% | 80% |
+| something sweet for dessert | 7% | 40% | 20% | 40% |
+| light and spicy for a cold night | 14% | 20% | 60% | 60% |
+| **Mean** | **26%** | **60%** | **68%** | **76%** |
+
+**One recipe matching everything:** with vector search alone, "Indian Corn Pakoda" appeared in the top 5 for 9 of 10 queries, including dessert. That's a known embedding problem called hubness. Hybrid search cuts it to 6 of 10, which is better but not solved; a reranker would be the next thing to try.
+
+**What the eval changed**
+
+- **Keyword search was added.** Hybrid search beats either method alone on mean precision, and is never worse than vector search on any query.
+- **Duplicates were crowding results.** One dish was stored 6 times. Search and the eval now keep one result per recipe name, which raised precision on every variant tried.
+- **Style words help.** Adding derived words ("light", "quick", "spicy") to the embedded text raised vector precision from 54% to 60% in an earlier run.
+- **Shorter documents didn't help.** Dropping the steps or notes from the embedded text made no difference.
+- **Spicy dishes were being missed.** Building the eval exposed a plural bug (`chillies` normalized to `chilly`) that kept dishes with green chillies from being tagged spicy.
+
+**Limits**
+
+- **Some numbers are partly circular.** The style words and the "light", "quick" and "spicy" relevance rules share thresholds, so those rows partly measure whether the derived word was retrieved.
+- **The sample is small.** 10 queries over a library dominated by corn and Indian dishes means single-query differences are noise.
+
+## Recipes from craving search (RAG)
+
+For the same 10 cravings, `mistral` generated one recipe with the top 3 hybrid-search matches in the prompt, as `/search/generate` does, and one recipe from the craving alone.
+
+| Metric | Without retrieval | With retrieval (RAG) |
+|--------|------|------|
+| Produced a recipe (one retry allowed) | 80% | 90% |
+| Meets the craving | 75% | 78% |
+| Ingredient overlap with retrieved recipes | 14% | 56% |
+| Copies a retrieved recipe | 0% | 11% |
+| Latency p50 | 57.0s | 66.3s |
+
+**How to read this**
+
+- **Retrieval clearly grounds the output.** With context, 56% of a recipe's ingredient words come from the retrieved recipes, versus 14% by chance. For "something sweet for dessert", the model went from chocolate mousse tartlets to carrot and corn dumplings built entirely from the library.
+- **It barely changes whether the craving is met.** 78% versus 75% is one recipe out of 10; Mistral meets most cravings either way. Rules on time and calories use the model's own estimates.
+- **One recipe was too close to its source.** The "Indian curry" recipe shared 70% or more of its ingredients with a retrieved recipe, even though the prompt says not to copy. `/search/generate` now rejects recipes like that and tries once more.
+- **All 3 failures were timeouts, not bad output.** The model call hit its 120-second limit, since responses to craving prompts can run long on a laptop. The limit is now 300 seconds. Latency includes the timeouts.
+- **These numbers were measured before both fixes**, so the eval hasn't been rerun with them.
+
+```bash
+cd Backend
+python -m evals.search_eval   # retrieval; reads the database only, writes evals/search_results.json
+python -m evals.rag_eval      # generation; ~20 model calls (10–20 min), writes evals/rag_results.json
 ```
 
 ---
@@ -188,7 +259,10 @@ This project uses Ollama to run a local LLM.
 
 ```bash
 ollama pull mistral
+ollama pull nomic-embed-text   # embeddings for craving search
 ```
+
+Craving search also needs the [pgvector](https://github.com/pgvector/pgvector) extension in Postgres (`brew install pgvector` on macOS). The backend runs `CREATE EXTENSION IF NOT EXISTS vector` on startup. Without the extension, everything except `/search` still works.
 
 ### Start Ollama server
 
@@ -254,6 +328,8 @@ http://localhost:5173
 |--------|----------|-------------|
 | POST | `/assistant` | Intelligent recipe endpoint (optional `filters`) |
 | GET | `/recipes` | Fetch stored recipes (optional `?cuisine=`) |
+| POST | `/search` | Hybrid search by craving (optional `filters`) |
+| POST | `/search/generate` | New recipe from a craving, grounded in the top matches |
 | GET | `/cuisines` | Cuisines with recipe counts |
 | GET | `/substitutions?ingredient=` | Substitutes for an ingredient |
 | POST | `/recipes/{id}/shopping-list` | Split ingredients into need / have / staples |

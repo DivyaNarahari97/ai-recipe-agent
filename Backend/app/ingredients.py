@@ -1,5 +1,6 @@
 """Ingredient name normalization shared by recipe matching and the eval."""
 import re
+from typing import Optional
 
 _IGNORED_INGREDIENT_WORDS = {
     "fresh",
@@ -66,3 +67,21 @@ def extract_normalized_ingredient_tokens(ingredients: list) -> set[str]:
         if raw_name:
             tokens.update(ingredient_tokens(raw_name))
     return tokens
+
+
+# A generated recipe sharing this much of a source's ingredient words is a copy.
+NEAR_COPY_JACCARD = 0.7
+
+
+def near_copy_of(name: str, ingredients: list, sources: list) -> Optional[str]:
+    """Name of the source recipe this one copies (same name, or mostly the same ingredients)."""
+    def same_name(a, b) -> bool:
+        return " ".join(str(a).lower().split()) == " ".join(str(b).lower().split())
+
+    tokens = extract_normalized_ingredient_tokens(ingredients)
+    for source in sources:
+        source_tokens = extract_normalized_ingredient_tokens(source.ingredients)
+        union = tokens | source_tokens
+        if same_name(name, source.name) or (union and len(tokens & source_tokens) / len(union) >= NEAR_COPY_JACCARD):
+            return source.name
+    return None

@@ -390,7 +390,7 @@ function SearchPage({ query, filters, onSelectRecipe, onRecipeCreated, onBackToI
       if (!res.ok) {
         throw new Error(
           res.status === 422
-            ? "Couldn't create a recipe that meets your dietary preferences. Try loosening them."
+            ? "Couldn't create a new recipe that fits. Try rewording the craving or loosening your preferences."
             : "Couldn't create a recipe right now. Check that Ollama is running."
         );
       }

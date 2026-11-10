@@ -7,6 +7,7 @@ and without any context, then compare:
 - overlap with retrieved recipes: share of the generated recipe's ingredient words
   that appear in the 3 retrieved recipes
 - copies a retrieved recipe: same name, or ingredient sets at least 70% identical
+  (the check /search/generate now uses to reject and retry)
 - latency per generation
 
 Reads the database, writes nothing; generated recipes are not saved.
@@ -19,13 +20,11 @@ from pathlib import Path
 from types import SimpleNamespace
 
 from app.ai import MODEL_NAME, RecipeGenerationError, generate_from_craving
-from app.ingredients import extract_normalized_ingredient_tokens
-from app.semantic_search import dedupe_key
+from app.ingredients import extract_normalized_ingredient_tokens, near_copy_of
 from evals.search_eval import QUERIES, distinct, load_corpus, rankings_for
 
 EVAL_DIR = Path(__file__).parent
 SOURCES = 3
-COPY_JACCARD = 0.7
 VARIANTS = ("without_retrieval", "with_retrieval")
 
 
@@ -47,14 +46,12 @@ def score(generated, sources, relevant) -> dict:
     recipe = _as_recipe(generated)
     tokens = _tokens(recipe)
     source_tokens = set().union(*(_tokens(s) for s in sources))
-    jaccards = [len(tokens & _tokens(s)) / len(tokens | _tokens(s)) for s in sources if tokens | _tokens(s)]
     return {
         "name": recipe.name,
         "ingredients": [i["name"] for i in recipe.ingredients],
         "meets_craving": bool(relevant(recipe)),
         "overlap_with_sources": len(tokens & source_tokens) / len(tokens) if tokens else 0.0,
-        "copies_source": any(dedupe_key(recipe) == dedupe_key(s) for s in sources)
-        or any(j >= COPY_JACCARD for j in jaccards),
+        "copies_source": near_copy_of(recipe.name, recipe.ingredients, sources) is not None,
     }
 
 

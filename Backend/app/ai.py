@@ -48,6 +48,8 @@ def fetch_recipe_image(recipe_name: str):
 OLLAMA_URL = "http://localhost:11434/api/generate"
 MODEL_NAME = "mistral"
 MAX_ATTEMPTS = 2
+# Long recipes from craving prompts took over 120s on a laptop (M3) in the RAG eval.
+MODEL_TIMEOUT_SECONDS = 300
 
 
 class RecipeGenerationError(Exception):
@@ -62,7 +64,7 @@ def _call_model(prompt: str) -> str:
     "format": "json"
 }
     logger.info("Calling model API", extra={"model": payload["model"]})
-    response = requests.post(OLLAMA_URL, json=payload, timeout=120)
+    response = requests.post(OLLAMA_URL, json=payload, timeout=MODEL_TIMEOUT_SECONDS)
     response.raise_for_status()
     logger.info("Model API call completed")
     return response.json()["response"]

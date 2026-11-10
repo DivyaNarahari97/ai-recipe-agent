@@ -23,7 +23,7 @@ from app.ai import (
 from app.db import engine, get_db
 from app.dietary import DietaryFilters
 from app.embeddings import EmbeddingError
-from app.ingredients import extract_normalized_ingredient_tokens
+from app.ingredients import extract_normalized_ingredient_tokens, near_copy_of
 from app.schemas import (
     AssistantResponse,
     CravingRecipeRequest,
@@ -572,8 +572,8 @@ def search_by_craving(data: SearchRequest, db: Session = Depends(get_db)):
 
 # Inspiration recipes passed to the model; more makes the prompt slower without clear gains.
 CRAVING_SOURCE_COUNT = 3
-# Extra generations allowed when the model ignores the dietary filters.
-CRAVING_FILTER_ATTEMPTS = 2
+# Generations allowed when the model ignores the dietary filters or copies a source.
+CRAVING_ATTEMPTS = 2
 
 
 @app.post("/search/generate", response_model=CravingRecipeResponse)
@@ -587,21 +587,25 @@ def generate_for_craving(data: CravingRecipeRequest, db: Session = Depends(get_d
         raise HTTPException(status_code=502, detail="Semantic search is unavailable") from exc
     sources = [recipe for recipe, _ in hits]
 
-    for attempt in range(1, CRAVING_FILTER_ATTEMPTS + 1):
+    for attempt in range(1, CRAVING_ATTEMPTS + 1):
         try:
             recipe = generate_from_craving(data.query, sources, filters=data.filters)
         except RecipeGenerationError as exc:
             logger.exception("Craving recipe generation failed")
             raise HTTPException(status_code=502, detail="Recipe generation failed") from exc
-        problems = data.filters.violations(
-            [i.model_dump() for i in recipe.ingredients], recipe.time, recipe.calories
-        )
+        ingredients = [i.model_dump() for i in recipe.ingredients]
+        problems = data.filters.violations(ingredients, recipe.time, recipe.calories)
+        copied = near_copy_of(recipe.name, ingredients, sources)
+        if copied:
+            # The prompt asks for a new recipe; the RAG eval caught one that wasn't.
+            problems.append(f"too similar to {copied!r}")
         if not problems:
             break
-        logger.info("Craving recipe ignored dietary filters", extra={"attempt": attempt, "problems": problems})
+        logger.info("Craving recipe rejected", extra={"attempt": attempt, "problems": problems})
     else:
         raise HTTPException(
-            status_code=422, detail="Couldn't generate a recipe that meets your dietary preferences"
+            status_code=422,
+            detail="Couldn't generate a new recipe that fits; try rewording the craving or loosening your preferences",
         )
 
     return {

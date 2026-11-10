@@ -152,8 +152,9 @@ For the same 10 cravings, `mistral` generated one recipe with the top 3 hybrid-s
 
 - **Retrieval clearly grounds the output.** With context, 56% of a recipe's ingredient words come from the retrieved recipes, versus 14% by chance. For "something sweet for dessert", the model went from chocolate mousse tartlets to carrot and corn dumplings built entirely from the library.
 - **It barely changes whether the craving is met.** 78% versus 75% is one recipe out of 10; Mistral meets most cravings either way. Rules on time and calories use the model's own estimates.
-- **One recipe was too close to its source.** The "Indian curry" recipe shared 70% or more of its ingredients with a retrieved recipe. The prompt says not to copy, but nothing enforces it yet. A similarity check before saving would.
-- **All 3 failures were timeouts, not bad output.** The model call hit its 120-second limit. Responses to craving prompts run long on a laptop, so a longer timeout or a cap on output length would fix this. Latency includes the timeouts.
+- **One recipe was too close to its source.** The "Indian curry" recipe shared 70% or more of its ingredients with a retrieved recipe, even though the prompt says not to copy. `/search/generate` now rejects recipes like that and tries once more.
+- **All 3 failures were timeouts, not bad output.** The model call hit its 120-second limit, since responses to craving prompts can run long on a laptop. The limit is now 300 seconds. Latency includes the timeouts.
+- **These numbers were measured before both fixes**, so the eval hasn't been rerun with them.
 
 ```bash
 cd Backend

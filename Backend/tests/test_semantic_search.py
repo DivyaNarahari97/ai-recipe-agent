@@ -194,8 +194,17 @@ class CravingEndpointTests(unittest.TestCase):
     def test_gives_up_with_422_and_stores_nothing(self):
         meaty = GeneratedRecipe.model_validate_json(json.dumps(VALID))
         with self.assertRaises(HTTPException) as caught:
-            self.run_endpoint([meaty] * main.CRAVING_FILTER_ATTEMPTS, DietaryFilters(vegetarian=True))
+            self.run_endpoint([meaty] * main.CRAVING_ATTEMPTS, DietaryFilters(vegetarian=True))
         self.assertEqual(caught.exception.status_code, 422)
+
+    def test_retries_when_a_source_is_copied(self):
+        copy = GeneratedRecipe.model_validate_json(json.dumps(
+            {**VALID, "name": "Dal Again", "ingredients": [{"name": "rice"}]}
+        ))
+        original = GeneratedRecipe.model_validate_json(json.dumps(VALID))
+        _, _, generate, store = self.run_endpoint([copy, original])
+        self.assertEqual(generate.call_count, 2)
+        self.assertEqual(store.call_args.args[0].name, "Chicken Rice")
 
     def test_generation_failure_returns_502(self):
         with self.assertRaises(HTTPException) as caught:

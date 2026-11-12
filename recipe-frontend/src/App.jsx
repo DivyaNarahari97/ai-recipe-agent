@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import DietaryFilters from "./components/DietaryFilters";
+import RefinePanel from "./components/RefinePanel";
 import RecipeDetail from "./components/RecipeDetail";
 import { API_BASE_URL } from "./config";
 import { DIET_LABELS, NO_FILTERS } from "./dietary";
@@ -189,7 +190,7 @@ function IngredientPage({
   );
 }
 
-function RecipePage({ recipe, onBack, pantry, favorite, onToggleFavorite }) {
+function RecipePage({ recipe, onBack, pantry, favorite, onToggleFavorite, onRefined, onUndoRefine }) {
   return (
     <main className="recipe-page">
       <div className="recipe-page-header">
@@ -207,6 +208,8 @@ function RecipePage({ recipe, onBack, pantry, favorite, onToggleFavorite }) {
           </button>
         )}
       </div>
+
+      {recipe?.id && <RefinePanel recipe={recipe} onRefined={onRefined} onUndo={onUndoRefine} />}
 
       {recipe ? (
         <RecipeDetail recipe={recipe} pantry={pantry} />
@@ -667,6 +670,21 @@ function App() {
     navigate("/recipe");
   };
 
+  const handleRefined = (refined, change) => {
+    // Keep the version before the change so it can be undone; the trail lists every change so far.
+    const next = {
+      ...refined,
+      refinements: [...(selectedRecipe?.refinements || []), change],
+      previous: selectedRecipe,
+    };
+    setSelectedRecipe(next);
+    setHistory((prev) => addToHistory(prev, next));
+  };
+
+  const handleUndoRefine = () => {
+    if (selectedRecipe?.previous) setSelectedRecipe(selectedRecipe.previous);
+  };
+
   const handleBackToIngredients = () => {
     navigate("/");
   };
@@ -678,6 +696,8 @@ function App() {
       pantry={selectedIngredients}
       favorite={isFavorite(favorites, selectedRecipe)}
       onToggleFavorite={() => setFavorites((prev) => toggleFavorite(prev, selectedRecipe))}
+      onRefined={handleRefined}
+      onUndoRefine={handleUndoRefine}
     />
   ) : path === "/recipes" ? (
     <RecipesPage

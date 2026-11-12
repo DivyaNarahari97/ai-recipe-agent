@@ -1,4 +1,5 @@
 # app/ai.py
+import json
 import logging
 import os
 from typing import Callable, Optional, TypeVar
@@ -125,14 +126,14 @@ Return ONLY valid JSON in this structure:
     return [s for s in result.substitutes if s.lower() != ingredient.strip().lower()] or result.substitutes
 
 
-def _recipe_json_format() -> str:
+def _recipe_json_format(servings: str = "2-4") -> str:
     cuisines = ", ".join(f'"{c}"' for c in CUISINES)
     return f"""Return ONLY valid JSON in this structure:
 
 {{
   "name": string,
   "cuisine": one of [{cuisines}],
-  "servings": 2-4,
+  "servings": {servings},
   "time": string,
   "calories": string,
   "ingredients": [
@@ -211,4 +212,40 @@ Create a NEW recipe for this craving: "{craving}"
     prompt += "\n" + _recipe_json_format()
     if filters:
         prompt += filters.prompt_constraints()
+    return _generate_validated(prompt, GeneratedRecipe, call_model)
+
+
+REFINE_FIELDS = ("name", "cuisine", "servings", "time", "calories", "ingredients", "instructions", "notes")
+
+
+def refine_recipe(
+    recipe,
+    instruction: str,
+    call_model: Callable[[str], str] = _call_model,
+    previous_attempt_unchanged: bool = False,
+) -> GeneratedRecipe:
+    """Edit an existing recipe ("for 6 people", "spicier", "no oven") instead of starting over."""
+    logger.info("Refining recipe", extra={"recipe_id": getattr(recipe, "id", None)})
+    current = json.dumps({field: getattr(recipe, field, None) for field in REFINE_FIELDS}, indent=2)
+    prompt = f"""
+You are a professional chef editing an existing recipe.
+
+Current recipe (JSON):
+{current}
+
+Apply this change: "{instruction}"
+
+Keep everything the change doesn't affect exactly as it is, including the servings
+({recipe.servings or "unknown"}) and the ingredient quantities.
+Update everything the change does affect:
+- If the servings change, update "servings" but leave the quantities of existing
+  ingredients as they are; they are scaled automatically afterwards.
+- Rewrite steps that use equipment or techniques the change rules out.
+- Update the time and calories if they change.
+Rename the recipe only if the old name would no longer be accurate.
+Return the complete updated recipe, not just the changes.
+"""
+    if previous_attempt_unchanged:
+        prompt += "\nYour previous answer returned the recipe unchanged. You must apply the change.\n"
+    prompt += "\n" + _recipe_json_format(servings="number")
     return _generate_validated(prompt, GeneratedRecipe, call_model)

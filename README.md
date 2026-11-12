@@ -40,6 +40,12 @@ This project combines deterministic rule-based matching with LLM-powered recipe 
 - Unindexed recipes are embedded on the next search; `python -m app.index_recipes` re-embeds recipes whose text or model changed
 - Works with the dietary filters, and returns one result per recipe name
 
+## 💬 Change a Recipe
+- On any recipe, ask for a change ("make it for 6 people", "spicier", "no oven") and the model edits that recipe instead of generating a new one
+- Changes build on each other, with undo; each version is saved as a new recipe, so the original and any saved copies stay as they were
+- Servings are scaled in code, not by the model: in testing, `mistral` updated the servings but left the quantities unchanged, or scaled them by the wrong factor
+- If the model returns the recipe unchanged, it's asked once more before the request fails
+
 ## 🥗 Dietary Filters
 - Vegetarian, vegan and gluten-free, plus max time and max calories
 - Applied to stored recipes during matching and added to the generation prompt
@@ -333,6 +339,7 @@ http://localhost:5173
 | GET | `/cuisines` | Cuisines with recipe counts |
 | GET | `/substitutions?ingredient=` | Substitutes for an ingredient |
 | POST | `/recipes/{id}/shopping-list` | Split ingredients into need / have / staples |
+| POST | `/recipes/{id}/refine` | Apply a change (`{"instruction": "spicier"}`), saved as a new recipe |
 | POST | `/ai/generate-recipe` | Force AI generation |
 | GET | `/health` | Health check |
 
@@ -407,9 +414,7 @@ Ensure PostgreSQL is running and `DATABASE_URL` is correct.
 # 📈 Future Improvements
 
 - User authentication
-- Save favorite recipes
 - Nutritional analysis
-- Cuisine classification
 - Docker containerization
 - Cloud deployment
 

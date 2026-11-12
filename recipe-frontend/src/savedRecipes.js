@@ -24,19 +24,23 @@ function write(key, list) {
 export const loadFavorites = () => read(FAVORITES_KEY);
 export const loadHistory = () => read(HISTORY_KEY);
 
+// A refined recipe links to the version before it (for undo); don't store that whole chain.
+// eslint-disable-next-line no-unused-vars
+const snapshot = ({ previous, ...recipe }) => recipe;
+
 export const isFavorite = (favorites, recipe) =>
   Boolean(recipe) && favorites.some((r) => r.id === recipe.id);
 
 export function toggleFavorite(favorites, recipe) {
   const next = isFavorite(favorites, recipe)
     ? favorites.filter((r) => r.id !== recipe.id)
-    : [recipe, ...favorites];
+    : [snapshot(recipe), ...favorites];
   write(FAVORITES_KEY, next);
   return next;
 }
 
 export function addToHistory(history, recipe) {
-  const next = [recipe, ...history.filter((r) => r.id !== recipe.id)].slice(0, HISTORY_LIMIT);
+  const next = [snapshot(recipe), ...history.filter((r) => r.id !== recipe.id)].slice(0, HISTORY_LIMIT);
   write(HISTORY_KEY, next);
   return next;
 }

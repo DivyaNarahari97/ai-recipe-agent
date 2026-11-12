@@ -155,6 +155,23 @@ class CravingRecipeResponse(BaseModel):
     inspired_by: List[RecipeRef]
 
 
+class RefineRequest(BaseModel):
+    instruction: str = Field(min_length=1, max_length=300)
+
+    @field_validator("instruction")
+    @classmethod
+    def _not_blank(cls, value: str) -> str:
+        value = value.strip()
+        if not value:
+            raise ValueError("instruction must not be blank")
+        return value
+
+
+class RefineResponse(BaseModel):
+    recipe: RecipeResponse
+    refined_from: RecipeRef
+
+
 class ShoppingListRequest(BaseModel):
     have: List[str] = []
 

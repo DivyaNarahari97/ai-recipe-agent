@@ -686,6 +686,74 @@ body {
   color: #1e4d39;
 }
 
+.refine-panel {
+  width: min(980px, 100%);
+  margin-bottom: 20px;
+  padding: 14px 16px;
+  border: 1px solid #2c3036;
+  border-radius: 10px;
+}
+
+.refine-panel label {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #f6f6f6;
+}
+
+.refine-panel .craving-row .secondary-button:disabled,
+.refine-panel .ingredient-input:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.refine-suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.refine-chip {
+  border: 1px solid #d8e8de;
+  border-radius: 999px;
+  padding: 5px 11px;
+  background: transparent;
+  color: #d8e8de;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.refine-chip:hover:not(:disabled) {
+  background: #d8e8de;
+  color: #1e4d39;
+}
+
+.refine-chip:disabled {
+  opacity: 0.5;
+  cursor: wait;
+}
+
+.refine-status {
+  min-height: 1.2em;
+  margin: 10px 0 0;
+  font-size: 0.85rem;
+  color: #f0c27b;
+}
+
+.refine-trail {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 12px;
+  margin-top: 6px;
+  font-size: 0.85rem;
+  color: #d8e8de;
+}
+
 .recipe-inspired-by {
   margin: 8px 0 0;
   font-family: "Trebuchet MS", "Gill Sans", sans-serif;

@@ -18,6 +18,7 @@ from app.ai import (
     fetch_recipe_image,
     generate_from_craving,
     generate_recipe,
+    refine_recipe,
     suggest_substitutes,
 )
 from app.db import engine, get_db
@@ -32,6 +33,8 @@ from app.schemas import (
     GeneratedRecipe,
     RecipeCreate,
     RecipeResponse,
+    RefineRequest,
+    RefineResponse,
     SearchRequest,
     SearchResponse,
     ShoppingListRequest,
@@ -39,6 +42,7 @@ from app.schemas import (
     SubstitutionResponse,
     normalize_cuisine,
 )
+from app.scaling import scale_for_new_servings
 from app.semantic_search import search as semantic_search
 from app.shopping import build_shopping_list
 from app.substitutions import lookup_substitutes, substitution_key
@@ -129,8 +133,10 @@ def _create_and_store_ai_recipe(
     return _store_generated_recipe(generate_recipe(user_ingredients, filters=filters), db)
 
 
-def _store_generated_recipe(recipe: GeneratedRecipe, db: Session) -> models.Recipe:
-    recipe.image_url = fetch_recipe_image(recipe.name)
+def _store_generated_recipe(
+    recipe: GeneratedRecipe, db: Session, image_url: Optional[str] = None
+) -> models.Recipe:
+    recipe.image_url = image_url or fetch_recipe_image(recipe.name)
     recipe_data = recipe.model_dump()
     ingredient_tokens = _normalize_tokens_for_storage(
         extract_normalized_ingredient_tokens(recipe_data["ingredients"])
@@ -612,3 +618,60 @@ def generate_for_craving(data: CravingRecipeRequest, db: Session = Depends(get_d
         "recipe": _store_generated_recipe(recipe, db),
         "inspired_by": [{"id": s.id, "name": s.name} for s in sources],
     }
+
+
+# One retry when the model hands back the recipe without applying the change.
+REFINE_ATTEMPTS = 2
+
+
+def _recipe_content(servings, time_, calories, ingredients, instructions, notes) -> tuple:
+    """What a refinement should change; the name alone doesn't count."""
+    def norm(value):
+        return " ".join(str(value or "").lower().split())
+
+    return (
+        norm(servings), norm(time_), norm(calories), norm(notes),
+        sorted((norm(i.get("quantity")), norm(i.get("name"))) for i in ingredients or [] if isinstance(i, dict)),
+        [[norm(step) for step in s.get("steps") or []] for s in instructions or [] if isinstance(s, dict)],
+    )
+
+
+def _unchanged(source: models.Recipe, refined: GeneratedRecipe) -> bool:
+    data = refined.model_dump()
+    return _recipe_content(
+        source.servings, source.time, source.calories, source.ingredients, source.instructions, source.notes
+    ) == _recipe_content(
+        data["servings"], data["time"], data["calories"], data["ingredients"], data["instructions"], data["notes"]
+    )
+
+
+@app.post("/recipes/{recipe_id}/refine", response_model=RefineResponse)
+def refine(recipe_id: int, data: RefineRequest, db: Session = Depends(get_db)):
+    """Edit a recipe conversationally ("for 6 people", "spicier") and save the result as a new recipe.
+
+    The original stays as it was, so favorites and history snapshots still point at it.
+    """
+    source = db.get(models.Recipe, recipe_id)
+    if source is None:
+        raise HTTPException(status_code=404, detail="Recipe not found")
+    logger.info("Recipe refinement requested", extra={"recipe_id": recipe_id})
+
+    for attempt in range(1, REFINE_ATTEMPTS + 1):
+        try:
+            refined = refine_recipe(source, data.instruction, previous_attempt_unchanged=attempt > 1)
+        except RecipeGenerationError as exc:
+            logger.exception("Recipe refinement failed")
+            raise HTTPException(status_code=502, detail="Recipe refinement failed") from exc
+        if not _unchanged(source, refined):
+            break
+        logger.info("Refinement returned the recipe unchanged", extra={"attempt": attempt})
+    else:
+        raise HTTPException(status_code=422, detail="Couldn't apply that change; try rewording it")
+
+    scaled = scale_for_new_servings(source, refined)
+    if scaled:
+        logger.info("Scaled quantities the model left unscaled", extra={"count": scaled})
+
+    # Same dish, so keep its photo instead of searching for a new one.
+    stored = _store_generated_recipe(refined, db, image_url=source.image_url)
+    return {"recipe": stored, "refined_from": {"id": source.id, "name": source.name}}

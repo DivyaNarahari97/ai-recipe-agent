@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 from pydantic import BaseModel, ValidationError
 
 from app.dietary import DietaryFilters
-from app.schemas import CUISINES, GeneratedRecipe, GeneratedSubstitutes
+from app.schemas import CUISINES, GeneratedRecipe, GeneratedSubstitutes, MealPlanDraft
 
 ModelT = TypeVar("ModelT", bound=BaseModel)
 
@@ -154,6 +154,7 @@ def generate_recipe(
     ingredients: list[str],
     call_model: Callable[[str], str] = _call_model,
     filters: Optional[DietaryFilters] = None,
+    dish_name: Optional[str] = None,
 ) -> GeneratedRecipe:
     logger.info(
         "Generating recipe with AI",
@@ -168,6 +169,8 @@ Generate realistic values based on the ingredients.
 Ingredients:
 {ingredients}
 """
+    if dish_name:
+        prompt += f"\nThe dish: {dish_name}\n"
     if filters:
         prompt += filters.prompt_constraints()
     return _generate_validated(prompt, GeneratedRecipe, call_model)
@@ -213,6 +216,52 @@ Create a NEW recipe for this craving: "{craving}"
     if filters:
         prompt += filters.prompt_constraints()
     return _generate_validated(prompt, GeneratedRecipe, call_model)
+
+
+def draft_meal_plan(
+    pantry: list[str],
+    days: int,
+    option_texts: list[str],
+    missing_days: int = 0,
+    call_model: Callable[[str], str] = _call_model,
+    filters: Optional[DietaryFilters] = None,
+    revision: Optional[str] = None,
+) -> MealPlanDraft:
+    """Ask the model to choose between plans the code ranked; `revision` carries feedback on its last answer."""
+    logger.info("Drafting meal plan", extra={"days": days, "options": len(option_texts), "revising": bool(revision)})
+    prompt = f"""
+You are planning dinners for {days} days for a home cook.
+
+Ingredients they already have: {", ".join(pantry)}
+
+These plans use up the most of their ingredients and share purchases across days:
+
+{chr(10).join(option_texts)}
+
+Choose the option with the most variety (not the same kind of dish every night) that they would enjoy most.
+"""
+    if missing_days:
+        prompt += (
+            f"\nThe options only cover {days - missing_days} days, so add a new dish for day {days}. "
+            "Build it from their ingredients and the option's shopping list.\n"
+        )
+    else:
+        prompt += (
+            "\nYou may replace one dinner with a new dish, but only to use up ingredients the option leaves "
+            "unused. Build it from their ingredients and the option's shopping list; it may need at most one "
+            "other item. Otherwise set new_dish to null.\n"
+        )
+    if filters:
+        prompt += filters.prompt_constraints().replace("The recipe MUST", "A new dish MUST")
+    if revision:
+        prompt += "\n" + revision + "\n"
+    prompt += """
+Return ONLY valid JSON in this structure:
+
+{"option": number,
+ "new_dish": null or {"replace_day": number, "name": string, "ingredients": [string]}}
+"""
+    return _generate_validated(prompt, MealPlanDraft, call_model)
 
 
 REFINE_FIELDS = ("name", "cuisine", "servings", "time", "calories", "ingredients", "instructions", "notes")

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import DietaryFilters from "./components/DietaryFilters";
+import MealPlanPage from "./components/MealPlanPage";
 import RefinePanel from "./components/RefinePanel";
 import RecipeDetail from "./components/RecipeDetail";
 import { API_BASE_URL } from "./config";
@@ -67,11 +68,15 @@ function IngredientPage({
   onBrowse,
   onOpenSaved,
   onSearchCraving,
+  onPlanMeals,
+  onOpenPlan,
+  hasPlan,
   filters,
   onFiltersChange,
   errorMessage,
 }) {
   const [craving, setCraving] = useState("");
+  const [planDays, setPlanDays] = useState(3);
 
   return (
     <main className="ingredient-page">
@@ -143,6 +148,32 @@ function IngredientPage({
 
               {errorMessage && <p className="error-text">{errorMessage}</p>}
 
+              <div className="craving-form">
+                <label htmlFor="plan-days">Or plan dinners that share ingredients</label>
+                <div className="craving-row">
+                  <select
+                    id="plan-days"
+                    className="ingredient-input plan-days-select"
+                    value={planDays}
+                    onChange={(e) => setPlanDays(Number(e.target.value))}
+                  >
+                    {[2, 3, 4, 5].map((n) => (
+                      <option key={n} value={n}>
+                        {n} days
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    type="button"
+                    className="secondary-button"
+                    disabled={selectedIngredients.length === 0}
+                    onClick={() => onPlanMeals(planDays)}
+                  >
+                    Plan dinners
+                  </button>
+                </div>
+              </div>
+
               <form
                 className="craving-form"
                 onSubmit={(event) => {
@@ -173,6 +204,11 @@ function IngredientPage({
                 <button type="button" className="link-button" onClick={onOpenSaved}>
                   Favorites &amp; history
                 </button>
+                {hasPlan && (
+                  <button type="button" className="link-button" onClick={onOpenPlan}>
+                    Your dinner plan
+                  </button>
+                )}
               </div>
             </section>
 
@@ -536,6 +572,9 @@ function App() {
   const [favorites, setFavorites] = useState(loadFavorites);
   const [history, setHistory] = useState(loadHistory);
   const [cravingQuery, setCravingQuery] = useState("");
+  // { key, request, status: "loading" | "done" | "error", data, error }; kept here so a
+  // plan that takes minutes survives browsing away and back.
+  const [mealPlan, setMealPlan] = useState(null);
 
   useEffect(() => {
     const handlePopState = () => {
@@ -556,7 +595,7 @@ function App() {
   };
 
   useEffect(() => {
-    if (!["/", "/recipes", "/recipe", "/browse", "/saved", "/search"].includes(path)) {
+    if (!["/", "/recipes", "/recipe", "/browse", "/saved", "/search", "/plan"].includes(path)) {
       navigate("/", true);
     }
   }, [path]);
@@ -685,6 +724,35 @@ function App() {
     if (selectedRecipe?.previous) setSelectedRecipe(selectedRecipe.previous);
   };
 
+  const handlePlanMeals = async (days) => {
+    const request = { ingredients: selectedIngredients, days, filters };
+    const key = JSON.stringify(request);
+    navigate("/plan");
+    if (mealPlan?.key === key && mealPlan.status !== "error") return;
+
+    setMealPlan({ key, request, status: "loading" });
+    // A newer request may have replaced this one by the time it finishes.
+    const settle = (update) => setMealPlan((prev) => (prev?.key === key ? { ...prev, ...update } : prev));
+    try {
+      const res = await fetch(`${API_BASE_URL}/meal-plan`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: key,
+      });
+      if (!res.ok) {
+        throw new Error(
+          res.status === 422
+            ? "None of our recipes fit your dietary preferences. Try loosening them."
+            : "Couldn't plan dinners right now. Check that Ollama is running and try again."
+        );
+      }
+      settle({ status: "done", data: await res.json() });
+    } catch (err) {
+      console.error(err);
+      settle({ status: "error", error: err.message });
+    }
+  };
+
   const handleBackToIngredients = () => {
     navigate("/");
   };
@@ -720,6 +788,12 @@ function App() {
       onRecipeCreated={(recipe) => handleSelectRecipe(recipe, "/search")}
       onBackToIngredients={handleBackToIngredients}
     />
+  ) : path === "/plan" ? (
+    <MealPlanPage
+      plan={mealPlan}
+      onSelectRecipe={(recipe) => handleSelectRecipe(recipe, "/plan")}
+      onBackToIngredients={handleBackToIngredients}
+    />
   ) : path === "/saved" ? (
     <SavedPage
       favorites={favorites}
@@ -746,6 +820,9 @@ function App() {
       onGetRecipe={handleGetRecipe}
       onBrowse={() => navigate("/browse")}
       onOpenSaved={() => navigate("/saved")}
+      onPlanMeals={handlePlanMeals}
+      onOpenPlan={() => navigate("/plan")}
+      hasPlan={Boolean(mealPlan)}
       onSearchCraving={(query) => {
         setCravingQuery(query);
         navigate("/search");

@@ -25,12 +25,15 @@ from app.db import engine, get_db
 from app.dietary import DietaryFilters
 from app.embeddings import EmbeddingError
 from app.ingredients import extract_normalized_ingredient_tokens, near_copy_of
+from app.meal_planner import NoRecipesFit, plan_meals
 from app.schemas import (
     AssistantResponse,
     CravingRecipeRequest,
     CravingRecipeResponse,
     CuisineCount,
     GeneratedRecipe,
+    MealPlanRequest,
+    MealPlanResponse,
     RecipeCreate,
     RecipeResponse,
     RefineRequest,
@@ -675,3 +678,24 @@ def refine(recipe_id: int, data: RefineRequest, db: Session = Depends(get_db)):
     # Same dish, so keep its photo instead of searching for a new one.
     stored = _store_generated_recipe(refined, db, image_url=source.image_url)
     return {"recipe": stored, "refined_from": {"id": source.id, "name": source.name}}
+
+
+@app.post("/meal-plan", response_model=MealPlanResponse)
+def meal_plan(data: MealPlanRequest, db: Session = Depends(get_db)):
+    """Agent: plan dinners for N days that reuse ingredients, ending with one shopping list."""
+    pantry = list(dict.fromkeys(i.strip().lower() for i in data.ingredients if i.strip()))
+    if not pantry:
+        raise HTTPException(status_code=400, detail="Add at least one ingredient")
+    logger.info("Meal plan requested", extra={"days": data.days, "ingredient_count": len(pantry)})
+
+    def generate(dish_name, ingredients):
+        recipe = generate_recipe(ingredients, filters=data.filters, dish_name=dish_name)
+        return _store_generated_recipe(recipe, db)
+
+    try:
+        return plan_meals(pantry, data.days, db.query(models.Recipe).all(), generate, data.filters)
+    except NoRecipesFit as exc:
+        raise HTTPException(status_code=422, detail="No stored recipes fit your preferences") from exc
+    except RecipeGenerationError as exc:
+        logger.exception("Meal planning failed")
+        raise HTTPException(status_code=502, detail="Meal planning failed") from exc

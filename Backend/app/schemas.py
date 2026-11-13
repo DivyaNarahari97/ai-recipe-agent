@@ -172,6 +172,57 @@ class RefineResponse(BaseModel):
     refined_from: RecipeRef
 
 
+class PlannedNewDish(BaseModel):
+    model_config = ConfigDict(str_strip_whitespace=True)
+
+    replace_day: Optional[int] = None
+    name: str = Field(min_length=1)
+    ingredients: List[str] = Field(min_length=1)
+
+
+class MealPlanDraft(BaseModel):
+    """LLM output contract for the meal planner: one of the offered options, maybe one new dish."""
+
+    option: int = Field(ge=1)
+    new_dish: Optional[PlannedNewDish] = None
+
+
+MAX_PLAN_DAYS = 7
+
+
+class MealPlanRequest(BaseModel):
+    ingredients: List[str] = Field(min_length=1, max_length=40)
+    days: int = Field(default=3, ge=1, le=MAX_PLAN_DAYS)
+    filters: DietaryFilters = DietaryFilters()
+
+
+class MealPlanDay(BaseModel):
+    day: int
+    recipe: RecipeResponse
+    new: bool  # generated for this plan rather than picked from stored recipes
+    uses_pantry: List[str]
+
+
+class ShoppingItem(BaseModel):
+    name: str
+    quantities: List[str]
+    days: List[int]
+
+
+class PantryUse(BaseModel):
+    ingredient: str
+    days: List[int]
+
+
+class MealPlanResponse(BaseModel):
+    days: List[MealPlanDay]
+    shopping_list: List[ShoppingItem]
+    staples: List[str]
+    pantry_used: List[PantryUse]
+    pantry_unused: List[str]
+    steps: List[str]  # what the planner did, in order
+
+
 class ShoppingListRequest(BaseModel):
     have: List[str] = []
 

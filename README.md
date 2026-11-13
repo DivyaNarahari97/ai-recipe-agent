@@ -46,6 +46,18 @@ This project combines deterministic rule-based matching with LLM-powered recipe 
 - Servings are scaled in code, not by the model: in testing, `mistral` updated the servings but left the quantities unchanged, or scaled them by the wrong factor
 - If the model returns the recipe unchanged, it's asked once more before the request fails
 
+## 🗓 Meal Planner Agent
+- Give it your ingredients and a number of days; it plans one dinner per day that reuses ingredients across days, and ends with one shopping list (what each item is for, shared items first)
+- Code does the search, the model does the judgment (`app/meal_planner.py`):
+  1. Shortlist stored recipes that fit your dietary filters, ranked by how much of your pantry they use
+  2. Try every combination of dinners from the shortlist and keep the 5 best: fewest items to buy, most of your pantry used, most purchases shared across days, no two near-identical dinners
+  3. The model picks one of those plans for variety, and may swap in one new dish to use up leftovers, built from your ingredients and the plan's shopping list
+  4. Code checks the answer (valid plan, dietary rules, not a near-copy of another dinner, at most one extra purchase) and sends any problems back for one revision
+  5. A new dish is written as a full recipe and checked again; if it breaks a filter or needs more than 3 new items, the original dinner stays
+  6. The days' shopping lists are merged into one
+- The page shows each step the planner took ("How this plan was made")
+- If the model is down, it uses the top-ranked plan
+
 ## 🥗 Dietary Filters
 - Vegetarian, vegan and gluten-free, plus max time and max calories
 - Applied to stored recipes during matching and added to the generation prompt
@@ -166,7 +178,27 @@ For the same 10 cravings, `mistral` generated one recipe with the top 3 hybrid-s
 cd Backend
 python -m evals.search_eval   # retrieval; reads the database only, writes evals/search_results.json
 python -m evals.rag_eval      # generation; ~20 model calls (10–20 min), writes evals/rag_results.json
+python -m evals.meal_plan_eval  # planner; ~8 plans (5 min), writes evals/meal_plan_results.json
 ```
+
+## Meal planner
+
+For 8 pantries (some with dietary filters), each method planned 3 dinners. Results are in `Backend/evals/meal_plan_results.json`; run it with `python -m evals.meal_plan_eval`.
+
+| Metric | Best matches (no planning) | Top-ranked plan (search only) | Agent | Fewest purchases |
+|--------|------|------|------|------|
+| Items to buy | 10.6 | 2.5 | 2.8 | 1.8 |
+| Items shared by 2+ dinners | 2.2 | 1.9 | 1.1 | 0.4 |
+| Pantry used | 72% | 48% | **77%** | 45% |
+| Near-identical dinner pairs | 0 | 0 | 0 | 0 |
+
+Agent: 8/8 valid plans (3 distinct dinners that meet the filters), 7 new dishes, 2 revisions, p50 latency 28s.
+
+- **Best matches** picks the 3 recipes that use the most of the pantry, independently. They often need a whole spice cupboard each, so it buys about 4 times as much.
+- **Fewest purchases** is a lower bound on shopping, but it gets there by choosing dishes that use less than half the pantry.
+- **The agent** buys almost as little as the search alone and uses the most of the pantry, mostly through the new dish it adds for leftovers (it added one in 7 of 8 plans). It shares fewer purchases than the search's top plan, because the new dish usually replaces a dinner that shared one.
+- **First version:** the model built the plan itself from a list of recipes. It bought 8.0 items per plan, shared 0.6, and once planned "Indian Corn Khichdi" and "Indian Corn Kichdi" together. Moving the search into code fixed both and halved the latency.
+- **Limits:** variety depends on the stored recipes, and with about 60 distinct dishes, plans still repeat a main ingredient ("Carrot Soup" with "Carrot Side Dish"). "Vegetable oil" counts as a purchase, which made the model's tofu stir-fry fail the extra-items check twice.
 
 ---
 
@@ -339,6 +371,7 @@ http://localhost:5173
 | GET | `/cuisines` | Cuisines with recipe counts |
 | GET | `/substitutions?ingredient=` | Substitutes for an ingredient |
 | POST | `/recipes/{id}/shopping-list` | Split ingredients into need / have / staples |
+| POST | `/meal-plan` | Plan dinners for 1–7 days (`ingredients`, `days`, optional `filters`) with one shopping list |
 | POST | `/recipes/{id}/refine` | Apply a change (`{"instruction": "spicier"}`), saved as a new recipe |
 | POST | `/ai/generate-recipe` | Force AI generation |
 | GET | `/health` | Health check |

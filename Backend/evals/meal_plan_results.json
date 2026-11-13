@@ -1,0 +1,584 @@
+{
+  "model": "mistral",
+  "days": 3,
+  "summary": {
+    "best_matches": {
+      "items_to_buy": 10.625,
+      "shared_items": 2.25,
+      "pantry_used": 0.71875,
+      "near_twins": 0
+    },
+    "top_option": {
+      "items_to_buy": 2.5,
+      "shared_items": 1.875,
+      "pantry_used": 0.475,
+      "near_twins": 0
+    },
+    "agent": {
+      "items_to_buy": 2.75,
+      "shared_items": 1.125,
+      "pantry_used": 0.76875,
+      "near_twins": 0,
+      "produced_plan": 1.0,
+      "valid_plan": 1.0,
+      "new_dishes": 7,
+      "revised": 2,
+      "dropped_new_dish": 1,
+      "latency_p50_seconds": 27.95
+    },
+    "fewest_purchases": {
+      "items_to_buy": 1.75,
+      "shared_items": 0.375,
+      "pantry_used": 0.45,
+      "near_twins": 0
+    }
+  },
+  "cases": [
+    {
+      "pantry": [
+        "rice",
+        "spinach",
+        "onion",
+        "tomato",
+        "garlic"
+      ],
+      "filters": {},
+      "best_matches": {
+        "dinners": [
+          "Indian Corn Kichdi",
+          "Chinese Stir-Fried Carrots",
+          "Indian Corn Kofta Curry"
+        ],
+        "items_to_buy": 23,
+        "shared_items": 2,
+        "pantry_used": 0.8,
+        "near_twins": 0
+      },
+      "top_option": {
+        "dinners": [
+          "Garlic and Tomato Roasted with Fresh Rosemary",
+          "Vegetable Salad with Cheese",
+          "Vegetable Tacos"
+        ],
+        "items_to_buy": 4,
+        "shared_items": 3,
+        "pantry_used": 0.6,
+        "near_twins": 0
+      },
+      "fewest_purchases": {
+        "dinners": [
+          "Garlic and Tomato Roasted with Fresh Rosemary",
+          "Garlic and Ginger Vegetable Stir-fry",
+          "Carrot and Spinach Stir Fry"
+        ],
+        "items_to_buy": 3,
+        "shared_items": 1,
+        "pantry_used": 0.6,
+        "near_twins": 0
+      },
+      "agent": {
+        "success": true,
+        "dinners": [
+          "Rice with Roasted Garlic and Tomatoes",
+          "Carrot and Spinach Stir Fry",
+          "Spaghetti al Pomodoro"
+        ],
+        "items_to_buy": 2,
+        "shared_items": 0,
+        "pantry_used": 1.0,
+        "near_twins": 0,
+        "valid": true,
+        "new_dishes": 1,
+        "revised": true,
+        "dropped_new_dish": false,
+        "steps": [
+          "Shortlisted 12 stored recipes that fit your preferences, ranked by how many of your ingredients they use.",
+          "Compared every combination of 3 of them and kept the 5 that buy the fewest items while using the most of your ingredients and sharing purchases across days.",
+          "The planner chose option 2 with a new dish for day 1: Rice with Roasted Tomatoes and Garlic (rice, onion), but: 'Rice with Roasted Tomatoes and Garlic' is the same dinner as 'Garlic and Tomato Roasted with Fresh Rosemary'.",
+          "Sent that back and asked for a revision.",
+          "The planner chose option 3 with a new dish for day 1: Rice with Roasted Garlic and Tomatoes (rice, onion, tomato, garlic).",
+          "Day 1: wrote the full recipe for Rice with Roasted Garlic and Tomatoes.",
+          "Merged the shopping lists: 2 items to buy, 0 of them used on more than one day."
+        ],
+        "latency_seconds": 44.3
+      }
+    },
+    {
+      "pantry": [
+        "chicken",
+        "potato",
+        "onion",
+        "garlic",
+        "lemon"
+      ],
+      "filters": {},
+      "best_matches": {
+        "dinners": [
+          "Carrot Curry",
+          "Chinese Stir-Fried Carrots",
+          "Indian Corn Pulao"
+        ],
+        "items_to_buy": 16,
+        "shared_items": 5,
+        "pantry_used": 0.4,
+        "near_twins": 0
+      },
+      "top_option": {
+        "dinners": [
+          "Classic Mashed Potatoes",
+          "Grilled Chicken",
+          "Potato and Coriander Salad"
+        ],
+        "items_to_buy": 1,
+        "shared_items": 0,
+        "pantry_used": 0.4,
+        "near_twins": 0
+      },
+      "fewest_purchases": {
+        "dinners": [
+          "Classic Mashed Potatoes",
+          "Grilled Chicken",
+          "Potato and Coriander Salad"
+        ],
+        "items_to_buy": 1,
+        "shared_items": 0,
+        "pantry_used": 0.4,
+        "near_twins": 0
+      },
+      "agent": {
+        "success": true,
+        "dinners": [
+          "Classic Mashed Potatoes",
+          "Grilled Chicken",
+          "Lemon and Herb Potato Salad"
+        ],
+        "items_to_buy": 1,
+        "shared_items": 0,
+        "pantry_used": 0.6,
+        "near_twins": 0,
+        "valid": true,
+        "new_dishes": 1,
+        "revised": false,
+        "dropped_new_dish": false,
+        "steps": [
+          "Shortlisted 12 stored recipes that fit your preferences, ranked by how many of your ingredients they use.",
+          "Compared every combination of 3 of them and kept the 5 that buy the fewest items while using the most of your ingredients and sharing purchases across days.",
+          "The planner chose option 5 with a new dish for day 3: Lemon and Herb Potato Salad (lemon, cilantro).",
+          "Day 3: wrote the full recipe for Lemon and Herb Potato Salad.",
+          "Merged the shopping lists: 1 items to buy, 0 of them used on more than one day."
+        ],
+        "latency_seconds": 22.8
+      }
+    },
+    {
+      "pantry": [
+        "pasta",
+        "tomato",
+        "basil",
+        "garlic",
+        "cheese"
+      ],
+      "filters": {},
+      "best_matches": {
+        "dinners": [
+          "Chicken Basil Tomato Mozzarella Bake",
+          "Spaghetti al Pomodoro",
+          "Garlic and Tomato Roasted with Fresh Rosemary"
+        ],
+        "items_to_buy": 2,
+        "shared_items": 0,
+        "pantry_used": 1.0,
+        "near_twins": 0
+      },
+      "top_option": {
+        "dinners": [
+          "Chicken Basil Tomato Mozzarella Bake",
+          "Spaghetti al Pomodoro",
+          "Garlic and Tomato Roasted with Fresh Rosemary"
+        ],
+        "items_to_buy": 2,
+        "shared_items": 0,
+        "pantry_used": 1.0,
+        "near_twins": 0
+      },
+      "fewest_purchases": {
+        "dinners": [
+          "Chicken Basil Tomato Mozzarella Bake",
+          "Spaghetti al Pomodoro",
+          "Garlic and Tomato Roasted with Fresh Rosemary"
+        ],
+        "items_to_buy": 2,
+        "shared_items": 0,
+        "pantry_used": 1.0,
+        "near_twins": 0
+      },
+      "agent": {
+        "success": true,
+        "dinners": [
+          "Chicken Basil Tomato Mozzarella Bake",
+          "Spinach and Garlic Saute",
+          "Garlic and Ginger Vegetable Stir-fry"
+        ],
+        "items_to_buy": 4,
+        "shared_items": 0,
+        "pantry_used": 0.8,
+        "near_twins": 0,
+        "valid": true,
+        "new_dishes": 1,
+        "revised": false,
+        "dropped_new_dish": false,
+        "steps": [
+          "Shortlisted 12 stored recipes that fit your preferences, ranked by how many of your ingredients they use.",
+          "Compared every combination of 3 of them and kept the 5 that buy the fewest items while using the most of your ingredients and sharing purchases across days.",
+          "The planner chose option 5 with a new dish for day 2: Spinach and Garlic Saute (spinach, garlic).",
+          "Day 2: wrote the full recipe for Spinach and Garlic Saute.",
+          "Merged the shopping lists: 4 items to buy, 0 of them used on more than one day."
+        ],
+        "latency_seconds": 27.0
+      }
+    },
+    {
+      "pantry": [
+        "eggs",
+        "bread",
+        "milk",
+        "cheese",
+        "spinach"
+      ],
+      "filters": {},
+      "best_matches": {
+        "dinners": [
+          "Vegetable Salad with Cheese",
+          "Vegetable Tacos",
+          "Carrot and Spinach Stir Fry"
+        ],
+        "items_to_buy": 4,
+        "shared_items": 3,
+        "pantry_used": 0.4,
+        "near_twins": 0
+      },
+      "top_option": {
+        "dinners": [
+          "Vegetable Salad with Cheese",
+          "Vegetable Tacos",
+          "Carrot and Spinach Stir Fry"
+        ],
+        "items_to_buy": 4,
+        "shared_items": 3,
+        "pantry_used": 0.4,
+        "near_twins": 0
+      },
+      "fewest_purchases": {
+        "dinners": [
+          "Carrot and Spinach Stir Fry",
+          "Sauteed Carrots and Spinach",
+          "Roasted Cauliflower"
+        ],
+        "items_to_buy": 2,
+        "shared_items": 1,
+        "pantry_used": 0.2,
+        "near_twins": 0
+      },
+      "agent": {
+        "success": true,
+        "dinners": [
+          "Vegetable Salad with Cheese",
+          "Vegetable Tacos",
+          "Italian Scramble"
+        ],
+        "items_to_buy": 3,
+        "shared_items": 3,
+        "pantry_used": 0.8,
+        "near_twins": 0,
+        "valid": true,
+        "new_dishes": 1,
+        "revised": false,
+        "dropped_new_dish": false,
+        "steps": [
+          "Shortlisted 12 stored recipes that fit your preferences, ranked by how many of your ingredients they use.",
+          "Compared every combination of 3 of them and kept the 5 that buy the fewest items while using the most of your ingredients and sharing purchases across days.",
+          "The planner chose option 1 with a new dish for day 3: Italian Scramble (eggs, cheese, bread).",
+          "Day 3: wrote the full recipe for Italian Scramble.",
+          "Merged the shopping lists: 3 items to buy, 3 of them used on more than one day."
+        ],
+        "latency_seconds": 28.9
+      }
+    },
+    {
+      "pantry": [
+        "chickpeas",
+        "onion",
+        "tomato",
+        "cumin",
+        "rice"
+      ],
+      "filters": {
+        "vegetarian": true
+      },
+      "best_matches": {
+        "dinners": [
+          "Indian Corn Kichdi",
+          "Indian Corn Kofta Curry",
+          "Carrot Curry"
+        ],
+        "items_to_buy": 18,
+        "shared_items": 4,
+        "pantry_used": 0.8,
+        "near_twins": 0
+      },
+      "top_option": {
+        "dinners": [
+          "Corn, Tomato, and Lettuce Salad",
+          "Vegetable Salad with Cheese",
+          "Vegetable Tacos"
+        ],
+        "items_to_buy": 4,
+        "shared_items": 4,
+        "pantry_used": 0.2,
+        "near_twins": 0
+      },
+      "fewest_purchases": {
+        "dinners": [
+          "Spaghetti al Pomodoro",
+          "Grilled Chicken Drumsticks with Tomatoes",
+          "Paneer and Tomato Curry"
+        ],
+        "items_to_buy": 3,
+        "shared_items": 0,
+        "pantry_used": 0.2,
+        "near_twins": 0
+      },
+      "agent": {
+        "success": true,
+        "dinners": [
+          "Chickpea Curry",
+          "Vegetable Salad with Cheese",
+          "Vegetable Tacos"
+        ],
+        "items_to_buy": 4,
+        "shared_items": 4,
+        "pantry_used": 0.8,
+        "near_twins": 0,
+        "valid": true,
+        "new_dishes": 1,
+        "revised": false,
+        "dropped_new_dish": false,
+        "steps": [
+          "Shortlisted 12 stored recipes that fit your preferences, ranked by how many of your ingredients they use.",
+          "Compared every combination of 3 of them and kept the 5 that buy the fewest items while using the most of your ingredients and sharing purchases across days.",
+          "The planner chose option 3 with a new dish for day 1: Chickpea Curry (chickpeas, onion, cumin).",
+          "Day 1: wrote the full recipe for Chickpea Curry.",
+          "Merged the shopping lists: 4 items to buy, 4 of them used on more than one day."
+        ],
+        "latency_seconds": 47.2
+      }
+    },
+    {
+      "pantry": [
+        "tofu",
+        "broccoli",
+        "soy sauce",
+        "ginger",
+        "rice"
+      ],
+      "filters": {
+        "vegan": true
+      },
+      "best_matches": {
+        "dinners": [
+          "Chinese Carrot Stir Fry",
+          "Steamed Broccoli",
+          "Garlic and Ginger Vegetable Stir-fry"
+        ],
+        "items_to_buy": 5,
+        "shared_items": 1,
+        "pantry_used": 0.6,
+        "near_twins": 0
+      },
+      "top_option": {
+        "dinners": [
+          "Steamed Broccoli",
+          "Carrot Soup",
+          "Carrot Side Dish"
+        ],
+        "items_to_buy": 1,
+        "shared_items": 1,
+        "pantry_used": 0.2,
+        "near_twins": 0
+      },
+      "fewest_purchases": {
+        "dinners": [
+          "Steamed Broccoli",
+          "Carrot Soup",
+          "Carrot Side Dish"
+        ],
+        "items_to_buy": 1,
+        "shared_items": 1,
+        "pantry_used": 0.2,
+        "near_twins": 0
+      },
+      "agent": {
+        "success": true,
+        "dinners": [
+          "Steamed Broccoli",
+          "Garlic and Ginger Vegetable Stir-fry",
+          "Carrot Soup"
+        ],
+        "items_to_buy": 3,
+        "shared_items": 1,
+        "pantry_used": 0.4,
+        "near_twins": 0,
+        "valid": true,
+        "new_dishes": 0,
+        "revised": true,
+        "dropped_new_dish": true,
+        "steps": [
+          "Shortlisted 12 stored recipes that fit your preferences, ranked by how many of your ingredients they use.",
+          "Compared every combination of 3 of them and kept the 5 that buy the fewest items while using the most of your ingredients and sharing purchases across days.",
+          "The planner chose option 5 with a new dish for day 1: Tofu Stir Fry (tofu, sesame oil, vegetable oil), but: 'Tofu Stir Fry' needs sesame oil, vegetable oil, which no other dinner uses; build it from their ingredients and the option's shopping list.",
+          "Sent that back and asked for a revision.",
+          "The planner chose option 5 with a new dish for day 1: Tofu and Broccoli Stir Fry (tofu, broccoli, soy sauce, ginger, sesame oil, vegetable oil), but: 'Tofu and Broccoli Stir Fry' needs sesame oil, vegetable oil, which no other dinner uses; build it from their ingredients and the option's shopping list.",
+          "Kept option 5 without the new dish.",
+          "Merged the shopping lists: 3 items to buy, 1 of them used on more than one day."
+        ],
+        "latency_seconds": 15.4
+      }
+    },
+    {
+      "pantry": [
+        "potato",
+        "carrot",
+        "peas",
+        "onion"
+      ],
+      "filters": {
+        "gluten_free": true
+      },
+      "best_matches": {
+        "dinners": [
+          "Indian Corn Pulao",
+          "Carrot Curry",
+          "Classic Mashed Potatoes"
+        ],
+        "items_to_buy": 9,
+        "shared_items": 3,
+        "pantry_used": 1.0,
+        "near_twins": 0
+      },
+      "top_option": {
+        "dinners": [
+          "Classic Mashed Potatoes",
+          "Carrot Soup",
+          "Carrot Side Dish"
+        ],
+        "items_to_buy": 0,
+        "shared_items": 0,
+        "pantry_used": 0.5,
+        "near_twins": 0
+      },
+      "fewest_purchases": {
+        "dinners": [
+          "Classic Mashed Potatoes",
+          "Carrot Soup",
+          "Carrot Side Dish"
+        ],
+        "items_to_buy": 0,
+        "shared_items": 0,
+        "pantry_used": 0.5,
+        "near_twins": 0
+      },
+      "agent": {
+        "success": true,
+        "dinners": [
+          "Classic Mashed Potatoes",
+          "Sauteed Peas",
+          "Sauteed Carrots and Spinach"
+        ],
+        "items_to_buy": 1,
+        "shared_items": 0,
+        "pantry_used": 1.0,
+        "near_twins": 0,
+        "valid": true,
+        "new_dishes": 1,
+        "revised": false,
+        "dropped_new_dish": false,
+        "steps": [
+          "Shortlisted 12 stored recipes that fit your preferences, ranked by how many of your ingredients they use.",
+          "Compared every combination of 3 of them and kept the 5 that buy the fewest items while using the most of your ingredients and sharing purchases across days.",
+          "The planner chose option 4 with a new dish for day 2: Sauteed Peas (peas, onion).",
+          "Day 2: wrote the full recipe for Sauteed Peas.",
+          "Merged the shopping lists: 1 items to buy, 0 of them used on more than one day."
+        ],
+        "latency_seconds": 22.7
+      }
+    },
+    {
+      "pantry": [
+        "paneer",
+        "capsicum",
+        "onion",
+        "tomato"
+      ],
+      "filters": {
+        "max_minutes": 45
+      },
+      "best_matches": {
+        "dinners": [
+          "Paneer and Tomato Curry",
+          "Indian Corn Kichdi",
+          "Spaghetti al Pomodoro"
+        ],
+        "items_to_buy": 8,
+        "shared_items": 0,
+        "pantry_used": 0.75,
+        "near_twins": 0
+      },
+      "top_option": {
+        "dinners": [
+          "Paneer and Tomato Curry",
+          "Vegetable Salad with Cheese",
+          "Vegetable Tacos"
+        ],
+        "items_to_buy": 4,
+        "shared_items": 4,
+        "pantry_used": 0.5,
+        "near_twins": 0
+      },
+      "fewest_purchases": {
+        "dinners": [
+          "Paneer and Tomato Curry",
+          "Spaghetti al Pomodoro",
+          "Grilled Chicken Drumsticks with Tomatoes"
+        ],
+        "items_to_buy": 2,
+        "shared_items": 0,
+        "pantry_used": 0.5,
+        "near_twins": 0
+      },
+      "agent": {
+        "success": true,
+        "dinners": [
+          "Paneer and Tomato Curry",
+          "Cheesy Corn and Pepper Saute",
+          "Vegetable Tacos"
+        ],
+        "items_to_buy": 4,
+        "shared_items": 1,
+        "pantry_used": 0.75,
+        "near_twins": 0,
+        "valid": true,
+        "new_dishes": 1,
+        "revised": false,
+        "dropped_new_dish": false,
+        "steps": [
+          "Shortlisted 12 stored recipes that fit your preferences, ranked by how many of your ingredients they use.",
+          "Compared every combination of 3 of them and kept the 5 that buy the fewest items while using the most of your ingredients and sharing purchases across days.",
+          "The planner chose option 1 with a new dish for day 2: Cheesy Corn and Pepper Saute (corn, capsicum).",
+          "Day 2: wrote the full recipe for Cheesy Corn and Pepper Saute.",
+          "Merged the shopping lists: 4 items to buy, 1 of them used on more than one day."
+        ],
+        "latency_seconds": 41.7
+      }
+    }
+  ]
+}

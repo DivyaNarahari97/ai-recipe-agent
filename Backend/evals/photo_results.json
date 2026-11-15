@@ -1,0 +1,560 @@
+{
+  "model": "llava",
+  "summary": {
+    "photos": 17,
+    "produced_list": 1.0,
+    "recall": 0.2755102040816326,
+    "precision": 0.6621621621621622,
+    "items_listed_per_photo": 4.352941176470588,
+    "invented_per_photo": 1.4705882352941178,
+    "removed_by_cleanup": 0,
+    "latency_p50_seconds": 5.8,
+    "recall_by_kind": {
+      "fridge": 0.21,
+      "market shelf": 0.75,
+      "pantry": 0.0,
+      "counter": 0.43,
+      "groceries": 0.25
+    }
+  },
+  "cases": [
+    {
+      "id": "AEU9UZstCfs",
+      "kind": "fridge",
+      "success": true,
+      "found": [
+        "broccoli",
+        "leafy greens",
+        "oranges",
+        "eggs",
+        "milk",
+        "cheese",
+        "sausages",
+        "butter"
+      ],
+      "must_found": 0,
+      "must_total": 9,
+      "missed": [
+        "green onion",
+        "mushroom",
+        "brussels sprout",
+        "kale",
+        "strawberry",
+        "parsley",
+        "lemon",
+        "lime",
+        "bell pepper"
+      ],
+      "listed": 8,
+      "invented": [
+        "broccoli",
+        "oranges",
+        "cheese",
+        "sausages",
+        "butter"
+      ],
+      "raw": [
+        "broccoli",
+        "leafy greens",
+        "oranges",
+        "eggs",
+        "milk",
+        "cheese",
+        "sausages",
+        "butter"
+      ],
+      "removed_by_cleanup": [],
+      "latency_seconds": 13.8
+    },
+    {
+      "id": "ZUhM8LE_HGc",
+      "kind": "fridge",
+      "success": true,
+      "found": [
+        "strawberries",
+        "bananas",
+        "blueberries",
+        "oranges",
+        "eggs",
+        "bread"
+      ],
+      "must_found": 2,
+      "must_total": 6,
+      "missed": [
+        "sausage",
+        "garlic",
+        "grape",
+        "cheese"
+      ],
+      "listed": 6,
+      "invented": [
+        "bananas",
+        "blueberries",
+        "oranges"
+      ],
+      "raw": [
+        "strawberries",
+        "bananas",
+        "blueberries",
+        "oranges",
+        "eggs",
+        "bread"
+      ],
+      "removed_by_cleanup": [],
+      "latency_seconds": 6.6
+    },
+    {
+      "id": "3A0qRjOesX4",
+      "kind": "fridge",
+      "success": true,
+      "found": [
+        "chicken",
+        "yogurt"
+      ],
+      "must_found": 1,
+      "must_total": 6,
+      "missed": [
+        "cheese",
+        "egg",
+        "crab",
+        "pickle",
+        "cream"
+      ],
+      "listed": 2,
+      "invented": [
+        "chicken"
+      ],
+      "raw": [
+        "chicken",
+        "yogurt"
+      ],
+      "removed_by_cleanup": [],
+      "latency_seconds": 5.7
+    },
+    {
+      "id": "gC-cKJebRhg",
+      "kind": "fridge",
+      "success": true,
+      "found": [
+        "lettuce",
+        "spinach",
+        "apples"
+      ],
+      "must_found": 3,
+      "must_total": 9,
+      "missed": [
+        "chili pepper",
+        "red cabbage",
+        "tomato",
+        "egg",
+        "orange",
+        "lemon"
+      ],
+      "listed": 3,
+      "invented": [],
+      "raw": [
+        "lettuce",
+        "spinach",
+        "apples"
+      ],
+      "removed_by_cleanup": [],
+      "latency_seconds": 5.8
+    },
+    {
+      "id": "XIMl4Crm1GQ",
+      "kind": "fridge",
+      "success": true,
+      "found": [
+        "pickles",
+        "olives",
+        "tomatoes",
+        "cucumbers"
+      ],
+      "must_found": 3,
+      "must_total": 9,
+      "missed": [
+        "pea",
+        "carrot",
+        "orange",
+        "apple",
+        "banana",
+        "red pepper"
+      ],
+      "listed": 4,
+      "invented": [],
+      "raw": [
+        "pickles",
+        "olives",
+        "tomatoes",
+        "cucumbers"
+      ],
+      "removed_by_cleanup": [],
+      "latency_seconds": 6.3
+    },
+    {
+      "id": "F5G4YTN5uEQ",
+      "kind": "fridge",
+      "success": true,
+      "found": [
+        "beer",
+        "juice"
+      ],
+      "must_found": 0,
+      "must_total": 4,
+      "missed": [
+        "cheese",
+        "butter",
+        "cream cheese",
+        "salsa"
+      ],
+      "listed": 2,
+      "invented": [
+        "beer"
+      ],
+      "raw": [
+        "beer",
+        "juice"
+      ],
+      "removed_by_cleanup": [],
+      "latency_seconds": 5.6
+    },
+    {
+      "id": "D6Tu_L3chLE",
+      "kind": "market shelf",
+      "success": true,
+      "found": [
+        "artichoke",
+        "broccoli",
+        "cantaloupe",
+        "cauliflower",
+        "celery",
+        "cherry tomatoes",
+        "eggplant",
+        "ginger root",
+        "green onions",
+        "head lettuce",
+        "kale",
+        "leafy greens mix",
+        "lemon",
+        "lime",
+        "onions",
+        "oranges",
+        "peppers",
+        "pineapple",
+        "red bell pepper",
+        "red cabbage",
+        "romaine lettuce",
+        "squash"
+      ],
+      "must_found": 6,
+      "must_total": 8,
+      "missed": [
+        "cucumber",
+        "zucchini"
+      ],
+      "listed": 22,
+      "invented": [
+        "artichoke",
+        "cantaloupe",
+        "cherry tomatoes",
+        "ginger root",
+        "lemon",
+        "lime",
+        "pineapple"
+      ],
+      "raw": [
+        "artichoke",
+        "broccoli",
+        "cantaloupe",
+        "cauliflower",
+        "celery",
+        "cherry tomatoes",
+        "eggplant",
+        "ginger root",
+        "green onions",
+        "head lettuce",
+        "kale",
+        "leafy greens mix",
+        "lemon",
+        "lime",
+        "onions",
+        "oranges",
+        "peppers",
+        "pineapple",
+        "red bell pepper",
+        "red cabbage",
+        "romaine lettuce",
+        "squash"
+      ],
+      "removed_by_cleanup": [],
+      "latency_seconds": 12.1
+    },
+    {
+      "id": "e6PwBakXOJM",
+      "kind": "pantry",
+      "success": true,
+      "found": [
+        "spices",
+        "seasonings"
+      ],
+      "must_found": 0,
+      "must_total": 2,
+      "missed": [
+        "flour",
+        "lentil"
+      ],
+      "listed": 2,
+      "invented": [
+        "seasonings"
+      ],
+      "raw": [
+        "spices",
+        "seasonings"
+      ],
+      "removed_by_cleanup": [],
+      "latency_seconds": 5.6
+    },
+    {
+      "id": "i-GPyFK_SJg",
+      "kind": "pantry",
+      "success": true,
+      "found": [
+        "sugar",
+        "flour",
+        "spices"
+      ],
+      "must_found": 0,
+      "must_total": 2,
+      "missed": [
+        "almond",
+        "bean"
+      ],
+      "listed": 3,
+      "invented": [],
+      "raw": [
+        "sugar",
+        "flour",
+        "spices"
+      ],
+      "removed_by_cleanup": [],
+      "latency_seconds": 5.8
+    },
+    {
+      "id": "xoWNIXzULMs",
+      "kind": "counter",
+      "success": true,
+      "found": [
+        "carrot",
+        "onion",
+        "celery"
+      ],
+      "must_found": 1,
+      "must_total": 3,
+      "missed": [
+        "chili pepper",
+        "cabbage"
+      ],
+      "listed": 3,
+      "invented": [],
+      "raw": [
+        "carrot",
+        "onion",
+        "celery"
+      ],
+      "removed_by_cleanup": [],
+      "latency_seconds": 5.8
+    },
+    {
+      "id": "Xw7UfpFqBXs",
+      "kind": "counter",
+      "success": true,
+      "found": [
+        "tomato",
+        "zucchini",
+        "parmesan cheese"
+      ],
+      "must_found": 1,
+      "must_total": 3,
+      "missed": [
+        "cilantro",
+        "cucumber"
+      ],
+      "listed": 3,
+      "invented": [
+        "zucchini",
+        "parmesan cheese"
+      ],
+      "raw": [
+        "tomato",
+        "zucchini",
+        "parmesan cheese"
+      ],
+      "removed_by_cleanup": [],
+      "latency_seconds": 6.1
+    },
+    {
+      "id": "RhWOB4vuxTI",
+      "kind": "counter",
+      "success": true,
+      "found": [
+        "broccoli"
+      ],
+      "must_found": 1,
+      "must_total": 1,
+      "missed": [],
+      "listed": 1,
+      "invented": [],
+      "raw": [
+        "broccoli"
+      ],
+      "removed_by_cleanup": [],
+      "latency_seconds": 5.4
+    },
+    {
+      "id": "8RaUEd8zD-U",
+      "kind": "groceries",
+      "success": true,
+      "found": [
+        "apples",
+        "bananas"
+      ],
+      "must_found": 2,
+      "must_total": 5,
+      "missed": [
+        "bagel",
+        "cabbage",
+        "bread"
+      ],
+      "listed": 2,
+      "invented": [],
+      "raw": [
+        "apples",
+        "bananas"
+      ],
+      "removed_by_cleanup": [],
+      "latency_seconds": 5.7
+    },
+    {
+      "id": "HeP33WOkVqM",
+      "kind": "groceries",
+      "success": true,
+      "found": [
+        "carrot",
+        "broccoli",
+        "mushrooms"
+      ],
+      "must_found": 3,
+      "must_total": 11,
+      "missed": [
+        "onion",
+        "leek",
+        "dill",
+        "radish",
+        "tomato",
+        "brussels sprout",
+        "apple",
+        "squash"
+      ],
+      "listed": 3,
+      "invented": [],
+      "raw": [
+        "carrot",
+        "broccoli",
+        "mushrooms"
+      ],
+      "removed_by_cleanup": [],
+      "latency_seconds": 5.9
+    },
+    {
+      "id": "-9TeWHMASzs",
+      "kind": "groceries",
+      "success": true,
+      "found": [
+        "broccoli",
+        "peppers",
+        "eggplant",
+        "celery",
+        "carrots"
+      ],
+      "must_found": 3,
+      "must_total": 8,
+      "missed": [
+        "squash",
+        "parsley",
+        "corn",
+        "zucchini",
+        "tomato"
+      ],
+      "listed": 5,
+      "invented": [
+        "carrots"
+      ],
+      "raw": [
+        "broccoli",
+        "peppers",
+        "eggplant",
+        "celery",
+        "carrots"
+      ],
+      "removed_by_cleanup": [],
+      "latency_seconds": 6.4
+    },
+    {
+      "id": "Hz4FAtKSLKo",
+      "kind": "groceries",
+      "success": true,
+      "found": [
+        "banana",
+        "apple",
+        "tomato",
+        "orange",
+        "leafy vegetable"
+      ],
+      "must_found": 1,
+      "must_total": 12,
+      "missed": [
+        "zucchini",
+        "pomegranate",
+        "egg",
+        "maple syrup",
+        "almond milk",
+        "balsamic vinegar",
+        "corn",
+        "kale",
+        "garlic",
+        "almond",
+        "chocolate"
+      ],
+      "listed": 5,
+      "invented": [
+        "apple",
+        "tomato",
+        "orange",
+        "leafy vegetable"
+      ],
+      "raw": [
+        "banana",
+        "apple",
+        "tomato",
+        "orange",
+        "leafy vegetable"
+      ],
+      "removed_by_cleanup": [],
+      "latency_seconds": 6.3
+    },
+    {
+      "id": "xK8QreBEjcc",
+      "kind": "nearly empty fridge",
+      "success": true,
+      "found": [],
+      "must_found": 0,
+      "must_total": 0,
+      "missed": [],
+      "listed": 0,
+      "invented": [],
+      "raw": [],
+      "removed_by_cleanup": [],
+      "latency_seconds": 5.2
+    }
+  ]
+}

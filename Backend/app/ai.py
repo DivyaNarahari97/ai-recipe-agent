@@ -9,7 +9,8 @@ from dotenv import load_dotenv
 from pydantic import BaseModel, ValidationError
 
 from app.dietary import DietaryFilters
-from app.schemas import CUISINES, GeneratedRecipe, GeneratedSubstitutes, MealPlanDraft
+from app.photo import clean_detected
+from app.schemas import CUISINES, DetectedIngredients, GeneratedRecipe, GeneratedSubstitutes, MealPlanDraft
 
 ModelT = TypeVar("ModelT", bound=BaseModel)
 
@@ -104,6 +105,50 @@ def _generate_validated(
     raise RecipeGenerationError(
         f"Model output failed validation after {MAX_ATTEMPTS} attempts"
     ) from last_error
+
+
+VISION_MODEL_NAME = os.getenv("VISION_MODEL", "llava")
+# 25 ingredient names fit easily; without a cap llava sometimes repeats itself until the timeout.
+VISION_MAX_TOKENS = 300
+
+
+def _call_vision_model(prompt: str, image_b64: str) -> str:
+    payload = {
+        "model": VISION_MODEL_NAME,
+        "prompt": prompt,
+        "images": [image_b64],
+        "stream": False,
+        "format": "json",
+        "options": {"num_predict": VISION_MAX_TOKENS},
+    }
+    logger.info("Calling vision model API", extra={"model": VISION_MODEL_NAME})
+    response = requests.post(OLLAMA_URL, json=payload, timeout=MODEL_TIMEOUT_SECONDS)
+    response.raise_for_status()
+    return response.json()["response"]
+
+
+PHOTO_PROMPT = """
+This is a photo of someone's fridge, pantry or kitchen counter.
+List the food ingredients you can clearly see, so they can cook with them.
+
+- Use plain ingredient names a recipe would use, like "eggs", "spinach", "cheddar cheese".
+- Name the food, not its container or brand: "pickles", not "jar".
+- Only include items you can actually see. If you're unsure what something is, leave it out.
+- If you see no food, return an empty list.
+
+Return ONLY valid JSON in this structure:
+
+{"ingredients": [string]}
+"""
+
+
+def extract_ingredients_from_photo(
+    image_b64: str,
+    call_model: Callable[[str, str], str] = _call_vision_model,
+) -> list[str]:
+    logger.info("Extracting ingredients from photo")
+    result = _generate_validated(PHOTO_PROMPT, DetectedIngredients, lambda prompt: call_model(prompt, image_b64))
+    return clean_detected(result.ingredients)
 
 
 def suggest_substitutes(

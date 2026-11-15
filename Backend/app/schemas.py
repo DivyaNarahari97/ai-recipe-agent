@@ -223,6 +223,21 @@ class MealPlanResponse(BaseModel):
     steps: List[str]  # what the planner did, in order
 
 
+class PhotoIngredientsRequest(BaseModel):
+    # Base64 JPEG/PNG, or a data URL; ~5 MB once decoded (checked in app.photo).
+    image: str = Field(min_length=1, max_length=7_000_000)
+
+
+class DetectedIngredients(BaseModel):
+    """LLM output contract for photo extraction; an empty list is a valid answer."""
+
+    ingredients: List[str]
+
+
+class PhotoIngredientsResponse(BaseModel):
+    ingredients: List[str]
+
+
 class ShoppingListRequest(BaseModel):
     have: List[str] = []
 

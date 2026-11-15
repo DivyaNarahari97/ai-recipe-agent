@@ -25,3 +25,6 @@ __pycache__/
 # Ollama models cache
 ollama
 
+
+# Photo eval downloads
+Backend/evals/photo_cache/

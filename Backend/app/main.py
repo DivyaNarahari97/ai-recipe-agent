@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 from app import models
 from app.ai import (
     RecipeGenerationError,
+    extract_ingredients_from_photo,
     fetch_recipe_image,
     generate_from_craving,
     generate_recipe,
@@ -34,6 +35,8 @@ from app.schemas import (
     GeneratedRecipe,
     MealPlanRequest,
     MealPlanResponse,
+    PhotoIngredientsRequest,
+    PhotoIngredientsResponse,
     RecipeCreate,
     RecipeResponse,
     RefineRequest,
@@ -45,6 +48,7 @@ from app.schemas import (
     SubstitutionResponse,
     normalize_cuisine,
 )
+from app.photo import InvalidImage, decode_image
 from app.scaling import scale_for_new_servings
 from app.semantic_search import search as semantic_search
 from app.shopping import build_shopping_list
@@ -678,6 +682,22 @@ def refine(recipe_id: int, data: RefineRequest, db: Session = Depends(get_db)):
     # Same dish, so keep its photo instead of searching for a new one.
     stored = _store_generated_recipe(refined, db, image_url=source.image_url)
     return {"recipe": stored, "refined_from": {"id": source.id, "name": source.name}}
+
+
+@app.post("/ingredients/from-photo", response_model=PhotoIngredientsResponse)
+def ingredients_from_photo(data: PhotoIngredientsRequest):
+    """List the ingredients a vision model sees in a fridge/pantry photo. Nothing is stored."""
+    try:
+        image = decode_image(data.image)
+    except InvalidImage as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    try:
+        found = extract_ingredients_from_photo(image)
+    except RecipeGenerationError as exc:
+        logger.exception("Photo ingredient extraction failed")
+        raise HTTPException(status_code=502, detail="Couldn't read the photo") from exc
+    logger.info("Ingredients extracted from photo", extra={"count": len(found)})
+    return {"ingredients": found}
 
 
 @app.post("/meal-plan", response_model=MealPlanResponse)

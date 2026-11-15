@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import DietaryFilters from "./components/DietaryFilters";
 import MealPlanPage from "./components/MealPlanPage";
+import PhotoIngredients from "./components/PhotoIngredients";
 import RefinePanel from "./components/RefinePanel";
 import RecipeDetail from "./components/RecipeDetail";
 import { API_BASE_URL } from "./config";
@@ -59,6 +60,7 @@ function IngredientPage({
   onIngredientInputChange,
   onIngredientInputKeyDown,
   onIngredientInputBlur,
+  onPhotoIngredients,
   allIngredients,
   selectedIngredients,
   loading,
@@ -96,6 +98,8 @@ function IngredientPage({
                 onBlur={onIngredientInputBlur}
                 className="ingredient-input"
               />
+
+              <PhotoIngredients onFound={onPhotoIngredients} />
 
               {allIngredients.length > 0 && (
                 <div className="tiles-wrap">
@@ -606,8 +610,10 @@ function App() {
       .map((item) => item.trim().toLowerCase())
       .filter((item) => item !== "");
 
-  const addIngredients = (rawInput) => {
-    const parsed = Array.from(new Set(parseIngredients(rawInput)));
+  const addIngredients = (rawInput) => addIngredientList(parseIngredients(rawInput));
+
+  const addIngredientList = (names) => {
+    const parsed = Array.from(new Set(names.map((n) => n.trim().toLowerCase()).filter(Boolean)));
     if (parsed.length === 0) {
       return;
     }
@@ -812,6 +818,7 @@ function App() {
       }}
       onIngredientInputKeyDown={handleIngredientInputKeyDown}
       onIngredientInputBlur={handleIngredientInputBlur}
+      onPhotoIngredients={addIngredientList}
       allIngredients={allIngredients}
       selectedIngredients={selectedIngredients}
       loading={loading}

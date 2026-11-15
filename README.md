@@ -58,6 +58,13 @@ This project combines deterministic rule-based matching with LLM-powered recipe 
 - The page shows each step the planner took ("How this plan was made")
 - If the model is down, it uses the top-ranked plan
 
+## 📷 Ingredients from a Photo
+- Upload a photo of your fridge, pantry or counter; a local vision model (`llava` in Ollama) lists the ingredients it sees, and they're added as ingredient tiles like typed ones, ready for recipes, search or the meal planner
+- The browser shrinks the photo to 1024px JPEG before upload; nothing is stored
+- Code cleans the model's list: plain lowercase names, "a jar of pickles" → "pickles", no containers or vague words ("fridge", "vegetables"), no duplicates ("egg"/"eggs")
+- **Check the tiles before cooking:** llava finds under a third of what's in a photo, and a quarter to a third of what it lists isn't there (see the eval below). Remove wrong tiles with ×, type anything it missed
+- Set `VISION_MODEL` in `.env` to try a different Ollama vision model
+
 ## 🥗 Dietary Filters
 - Vegetarian, vegan and gluten-free, plus max time and max calories
 - Applied to stored recipes during matching and added to the generation prompt
@@ -179,6 +186,7 @@ cd Backend
 python -m evals.search_eval   # retrieval; reads the database only, writes evals/search_results.json
 python -m evals.rag_eval      # generation; ~20 model calls (10–20 min), writes evals/rag_results.json
 python -m evals.meal_plan_eval  # planner; ~8 plans (5 min), writes evals/meal_plan_results.json
+python -m evals.photo_eval      # photo ingredients; 17 photos (2 min), writes evals/photo_results.json
 ```
 
 ## Meal planner
@@ -199,6 +207,24 @@ Agent: 8/8 valid plans (3 distinct dinners that meet the filters), 7 new dishes,
 - **The agent** buys almost as little as the search alone and uses the most of the pantry, mostly through the new dish it adds for leftovers (it added one in 7 of 8 plans). It shares fewer purchases than the search's top plan, because the new dish usually replaces a dinner that shared one.
 - **First version:** the model built the plan itself from a list of recipes. It bought 8.0 items per plan, shared 0.6, and once planned "Indian Corn Khichdi" and "Indian Corn Kichdi" together. Moving the search into code fixed both and halved the latency.
 - **Limits:** variety depends on the stored recipes, and with about 60 distinct dishes, plans still repeat a main ingredient ("Carrot Soup" with "Carrot Side Dish"). "Vegetable oil" counts as a purchase, which made the model's tofu stir-fry fail the extra-items check twice.
+
+## Ingredients from a photo
+
+17 Unsplash photos, hand-labeled in `Backend/evals/photo_cases.json`: 6 fridges, 2 pantry shelves, 3 counters, 5 grocery spreads and a nearly empty fridge (98 clearly visible ingredients in all). An ingredient counts as found if the model names it or a close variant ("red onion" for onion). A listed item counts as invented if it's not in the photo; reasonable broader answers ("herbs" for parsley) are allowed.
+
+| Prompt (`llava` 7B) | Found | Listed items that are right | Items listed per photo | Invented for the nearly empty fridge | p50 latency |
+|--------|------|------|------|------|------|
+| **JSON list (used)** | 28–29% | 66–75% | 3–4 | 1 ("pickles") | 6s |
+| Free-text list | 45% | 55% | 8.9 | 4 (eggs, red bell pepper, milk, chicken) | 6.5s |
+| Describe the photo, then `mistral` extracts the list | 47% | 54% | 8.5 | 2 (ketchup, eggs) | 47s |
+
+Ranges are two runs of the same prompt. Results for the used prompt are in `Backend/evals/photo_results.json`.
+
+- **The model is the limit, not the prompt.** Every prompt tops out under half found, with half of the extra items wrong. llava falls back on what fridges usually hold: it listed milk, cheese, butter and sausages for a fridge of kale, strawberries and herbs, and found nothing in either pantry photo of labeled jars.
+- **The JSON prompt is used because it invents the least.** Invented ingredients go straight into recipes and plans; a missed one costs a few keystrokes. The free-text prompts would add four ingredients to a fridge holding three drinks.
+- **It does best on loose produce in good light:** 75% found on a market shelf, and the broccoli photo was perfect. Packaged and jarred food mostly goes unnamed.
+- **A free-text llava call once repeated itself until the 5-minute timeout**, so output is now capped at 300 tokens.
+- **Next step:** a stronger vision model (`VISION_MODEL=...`); the eval measures any of them on the same photos.
 
 ---
 
@@ -298,6 +324,7 @@ This project uses Ollama to run a local LLM.
 ```bash
 ollama pull mistral
 ollama pull nomic-embed-text   # embeddings for craving search
+ollama pull llava              # vision model for ingredients from a photo (~4.7 GB, optional)
 ```
 
 Craving search also needs the [pgvector](https://github.com/pgvector/pgvector) extension in Postgres (`brew install pgvector` on macOS). The backend runs `CREATE EXTENSION IF NOT EXISTS vector` on startup. Without the extension, everything except `/search` still works.
@@ -371,6 +398,7 @@ http://localhost:5173
 | GET | `/cuisines` | Cuisines with recipe counts |
 | GET | `/substitutions?ingredient=` | Substitutes for an ingredient |
 | POST | `/recipes/{id}/shopping-list` | Split ingredients into need / have / staples |
+| POST | `/ingredients/from-photo` | List the ingredients in a fridge/pantry photo (`image`: base64 JPEG/PNG or data URL, 5 MB max) |
 | POST | `/meal-plan` | Plan dinners for 1–7 days (`ingredients`, `days`, optional `filters`) with one shopping list |
 | POST | `/recipes/{id}/refine` | Apply a change (`{"instruction": "spicier"}`), saved as a new recipe |
 | POST | `/ai/generate-recipe` | Force AI generation |

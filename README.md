@@ -3,12 +3,12 @@
 A full-stack AI-powered recipe generation and recommendation system built using:
 
 - ⚡ FastAPI (Backend)
-- 🗄 PostgreSQL (Database)
-- 🤖 Ollama (Local LLM Runtime)
+- 🗄 PostgreSQL + pgvector (Database and vector search)
+- 🤖 Ollama (local models: `mistral` for text, `nomic-embed-text` for embeddings, `llava` for photos)
 - 🖼 Unsplash API (Food Images)
 - ⚛ React (Frontend)
 
-This project combines deterministic rule-based matching with LLM-powered recipe generation.
+This project combines deterministic rule-based matching with LLM-powered recipe generation. Where code can do a step reliably (search, scaling, dietary checks, list cleanup), code does it, and the model handles the judgment. Each AI feature has an eval with its numbers below.
 
 ---
 
@@ -181,14 +181,6 @@ For the same 10 cravings, `mistral` generated one recipe with the top 3 hybrid-s
 - **All 3 failures were timeouts, not bad output.** The model call hit its 120-second limit, since responses to craving prompts can run long on a laptop. The limit is now 300 seconds. Latency includes the timeouts.
 - **These numbers were measured before both fixes**, so the eval hasn't been rerun with them.
 
-```bash
-cd Backend
-python -m evals.search_eval   # retrieval; reads the database only, writes evals/search_results.json
-python -m evals.rag_eval      # generation; ~20 model calls (10–20 min), writes evals/rag_results.json
-python -m evals.meal_plan_eval  # planner; ~8 plans (5 min), writes evals/meal_plan_results.json
-python -m evals.photo_eval      # photo ingredients; 17 photos (2 min), writes evals/photo_results.json
-```
-
 ## Meal planner
 
 For 8 pantries (some with dietary filters), each method planned 3 dinners. Results are in `Backend/evals/meal_plan_results.json`; run it with `python -m evals.meal_plan_eval`.
@@ -226,6 +218,20 @@ Ranges are two runs of the same prompt. Results for the used prompt are in `Back
 - **A free-text llava call once repeated itself until the 5-minute timeout**, so output is now capped at 300 tokens.
 - **Next step:** a stronger vision model (`VISION_MODEL=...`); the eval measures any of them on the same photos.
 
+## Running the evals
+
+With Ollama running, from `Backend/`:
+
+```bash
+python -m evals.recipe_eval     # generation; 20 cases, writes evals/results.json
+python -m evals.search_eval     # retrieval; reads the database only, writes evals/search_results.json
+python -m evals.rag_eval        # RAG generation; ~20 model calls (10–20 min), writes evals/rag_results.json
+python -m evals.meal_plan_eval  # planner; 8 plans (~5 min), writes evals/meal_plan_results.json
+python -m evals.photo_eval      # photo ingredients; 17 photos (~2 min), writes evals/photo_results.json
+```
+
+None of them write to the database. The unit tests need neither Ollama nor a database: `python -m unittest discover -s tests -t .`
+
 ---
 
 # 🧠 Decision Engine
@@ -252,10 +258,13 @@ User → DB Match?
 │  Backend   │
 └─────┬──────┘
       │
-      ├── Rule-Based Matching Engine
-      ├── Ollama LLM Generator
-      ├── Unsplash Image Fetch
-      └── PostgreSQL Database
+      ├── Rule-based matching, dietary checks, scaling, shopping lists   (code)
+      ├── Hybrid search: pgvector embeddings + Postgres full-text        (nomic-embed-text)
+      ├── Recipe generation, RAG, refinement, substitutions             (mistral)
+      ├── Meal planner: code searches plans, model chooses              (mistral)
+      ├── Ingredients from a photo                                      (llava)
+      ├── Unsplash image fetch
+      └── PostgreSQL database
 ```
 
 ---
@@ -267,22 +276,33 @@ ai-recipe-assistant/
 │
 ├── Backend/
 │   ├── app/
-│   │   ├── main.py
-│   │   ├── ai.py
-│   │   ├── models.py
-│   │   ├── schemas.py
-│   │   ├── ingredients.py
-│   │   └── db.py
-│   ├── evals/
+│   │   ├── main.py             # API endpoints
+│   │   ├── ai.py               # model prompts and calls (Ollama)
+│   │   ├── models.py           # database tables
+│   │   ├── schemas.py          # request/response and model-output contracts
+│   │   ├── db.py
+│   │   ├── ingredients.py      # ingredient name matching
+│   │   ├── dietary.py          # dietary filters and tags
+│   │   ├── shopping.py         # shopping lists
+│   │   ├── substitutions.py    # hand-picked ingredient swaps
+│   │   ├── embeddings.py       # nomic-embed-text calls
+│   │   ├── semantic_search.py  # hybrid craving search
+│   │   ├── index_recipes.py    # re-embed recipes
+│   │   ├── scaling.py          # servings scaling for refinements
+│   │   ├── meal_planner.py     # meal-planner agent
+│   │   └── photo.py            # photo checks and ingredient-list cleanup
+│   ├── evals/                  # evals, labeled cases and results
 │   ├── tests/
 │   ├── requirements.txt
 │   └── .env
 │
 └── recipe-frontend/
     ├── src/
-    │   ├── App.jsx
-    │   ├── components/
-    │   │   └── RecipeDetail.jsx
+    │   ├── App.jsx             # pages and routing
+    │   ├── components/         # RecipeDetail, RefinePanel, MealPlanPage, PhotoIngredients,
+    │   │                       # ShoppingList, DietaryFilters
+    │   ├── savedRecipes.js     # favorites and history (browser storage)
+    │   └── dietary.js
     └── package.json
 ```
 
@@ -295,6 +315,7 @@ Create a `.env` file inside the `Backend/` folder:
 ```
 UNSPLASH_ACCESS_KEY=your_unsplash_access_key
 DATABASE_URL=postgresql://username:password@localhost/dbname
+VISION_MODEL=llava   # optional; any Ollama vision model for ingredients from a photo
 ```
 
 ---
@@ -319,7 +340,7 @@ This project uses Ollama to run a local LLM.
 ### Install Ollama:
 👉 https://ollama.com/download
 
-### Pull the required model (example: mistral)
+### Pull the models
 
 ```bash
 ollama pull mistral
@@ -373,7 +394,6 @@ http://localhost:8000
 ## 4️⃣ Setup Frontend
 
 ```bash
-frr
 cd recipe-frontend
 npm install
 npm run dev
@@ -402,6 +422,9 @@ http://localhost:5173
 | POST | `/meal-plan` | Plan dinners for 1–7 days (`ingredients`, `days`, optional `filters`) with one shopping list |
 | POST | `/recipes/{id}/refine` | Apply a change (`{"instruction": "spicier"}`), saved as a new recipe |
 | POST | `/ai/generate-recipe` | Force AI generation |
+| POST | `/recipes` | Save a recipe |
+| POST | `/recipes/search` | Stored recipes matching a list of ingredients |
+| GET | `/ingredient-image?name=` | Photo for an ingredient tile (cached) |
 | GET | `/health` | Health check |
 
 ---
@@ -427,11 +450,14 @@ http://localhost:5173
 
 # 🛠 Requirements
 
+Python 3.11, Node 20.19+ (for Vite 7), PostgreSQL with the pgvector extension, and Ollama. Python packages are pinned in `Backend/requirements.txt`:
+
 ```
 fastapi
 uvicorn
 sqlalchemy
 psycopg2-binary
+pgvector
 pydantic
 requests
 python-dotenv
@@ -454,10 +480,19 @@ ollama serve
 ---
 
 ### ❌ Model not found
-Fix:
+Fix: pull the model the feature uses.
 ```
-ollama pull mistral
+ollama pull mistral            # recipes, search generation, meal planner
+ollama pull nomic-embed-text   # craving search
+ollama pull llava              # ingredients from a photo
 ```
+
+---
+
+### ❌ "Couldn't read the photo"
+- Check that `llava` (or your `VISION_MODEL`) is pulled and Ollama is running
+- The first photo after starting Ollama is slower while the model loads
+- Uploads must be JPEG or PNG and at most 5 MB; the frontend converts and shrinks photos automatically
 
 ---
 

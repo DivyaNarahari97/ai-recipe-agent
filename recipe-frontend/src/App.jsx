@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import CookMode from "./components/CookMode";
 import DietaryFilters from "./components/DietaryFilters";
 import MealPlanPage from "./components/MealPlanPage";
 import PhotoIngredients from "./components/PhotoIngredients";
@@ -230,7 +231,7 @@ function IngredientPage({
   );
 }
 
-function RecipePage({ recipe, onBack, pantry, favorite, onToggleFavorite, onRefined, onUndoRefine }) {
+function RecipePage({ recipe, onBack, onCook, pantry, favorite, onToggleFavorite, onRefined, onUndoRefine }) {
   return (
     <main className="recipe-page">
       <div className="recipe-page-header">
@@ -238,14 +239,21 @@ function RecipePage({ recipe, onBack, pantry, favorite, onToggleFavorite, onRefi
           Back to Recipes
         </button>
         {recipe && (
-          <button
-            type="button"
-            className={`favorite-button${favorite ? " is-active" : ""}`}
-            aria-pressed={favorite}
-            onClick={onToggleFavorite}
-          >
-            {favorite ? "♥ Saved" : "♡ Save recipe"}
-          </button>
+          <div className="recipe-page-actions">
+            {recipe.instructions?.some((section) => section.steps?.length) && (
+              <button type="button" className="cook-mode-button" onClick={onCook}>
+                👩‍🍳 Cook mode
+              </button>
+            )}
+            <button
+              type="button"
+              className={`favorite-button${favorite ? " is-active" : ""}`}
+              aria-pressed={favorite}
+              onClick={onToggleFavorite}
+            >
+              {favorite ? "♥ Saved" : "♡ Save recipe"}
+            </button>
+          </div>
         )}
       </div>
 
@@ -599,7 +607,7 @@ function App() {
   };
 
   useEffect(() => {
-    if (!["/", "/recipes", "/recipe", "/browse", "/saved", "/search", "/plan"].includes(path)) {
+    if (!["/", "/recipes", "/recipe", "/browse", "/saved", "/search", "/plan", "/cook"].includes(path)) {
       navigate("/", true);
     }
   }, [path]);
@@ -763,10 +771,17 @@ function App() {
     navigate("/");
   };
 
-  return path === "/recipe" ? (
+  return path === "/cook" && selectedRecipe ? (
+    <CookMode
+      key={selectedRecipe.id ?? selectedRecipe.name}
+      recipe={selectedRecipe}
+      onExit={() => window.history.back()}
+    />
+  ) : path === "/recipe" || path === "/cook" ? (
     <RecipePage
       recipe={selectedRecipe}
       onBack={handleBack}
+      onCook={() => navigate("/cook")}
       pantry={selectedIngredients}
       favorite={isFavorite(favorites, selectedRecipe)}
       onToggleFavorite={() => setFavorites((prev) => toggleFavorite(prev, selectedRecipe))}

@@ -65,6 +65,14 @@ This project combines deterministic rule-based matching with LLM-powered recipe 
 - **Check the tiles before cooking:** llava finds under a third of what's in a photo, and a quarter to a third of what it lists isn't there (see the eval below). Remove wrong tiles with ×, type anything it missed
 - Set `VISION_MODEL` in `.env` to try a different Ollama vision model
 
+## 👩‍🍳 Cook Mode
+- "Cook mode" on any recipe opens a step-by-step view in large type, with the ingredients a tap away
+- Times in a step ("simmer for 10-15 minutes", "a minute", "6-7 minutes per side") become timer buttons; ranges time the shorter end, the usual point to start checking. 100 of the 105 stored steps that mention a time get one; the other five say "a few minutes"
+- Several timers can run at once and keep going as you move between steps; pause, +1 min or cancel each one. A finished timer beeps, vibrates where supported, and changes the tab title until it's dismissed
+- The screen stays on while cook mode is open (Screen Wake Lock API, re-taken when you come back to the tab); the header says when the browser can't do it
+- Check off steps as you go; "Done, next step" jumps to the next unchecked one, and checked steps are remembered per recipe in this browser
+- Leaving cook mode stops its timers, so the Exit button asks first while any are running. The browser's back button doesn't ask
+
 ## 🥗 Dietary Filters
 - Vegetarian, vegan and gluten-free, plus max time and max calories
 - Applied to stored recipes during matching and added to the generation prompt

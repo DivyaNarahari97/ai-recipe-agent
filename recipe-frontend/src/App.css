@@ -1042,3 +1042,346 @@ body {
 .photo-ingredients .error-text {
   margin-top: 8px;
 }
+
+/* Cook mode */
+.recipe-page-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.cook-mode-button {
+  border: none;
+  border-radius: 8px;
+  padding: 9px 12px;
+  background: #ffffff;
+  color: #111215;
+  font-size: 0.86rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cook-page {
+  min-height: 100vh;
+  background: #111215;
+  color: #f6f6f6;
+  padding: 20px 16px 160px;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.cook-page > * {
+  width: min(760px, 100%);
+  box-sizing: border-box;
+}
+
+.cook-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.cook-wake {
+  font-size: 0.8rem;
+  color: #bfc6cb;
+}
+
+.cook-wake.is-on::before {
+  content: "● ";
+  color: #7fd19b;
+}
+
+.cook-wake.is-off,
+.cook-wake.is-unsupported {
+  color: #e6b866;
+}
+
+.cook-title {
+  margin: 4px 0 0;
+  font-family: "Arial Black", "Arial Narrow", sans-serif;
+  font-size: clamp(1.4rem, 4vw, 2rem);
+  line-height: 1.1;
+}
+
+.cook-progress {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.85rem;
+  color: #bfc6cb;
+}
+
+.cook-progress-bar {
+  flex: 1;
+  height: 8px;
+  border-radius: 999px;
+  background: #2c3036;
+  overflow: hidden;
+}
+
+.cook-progress-bar span {
+  display: block;
+  height: 100%;
+  background: #7fd19b;
+  transition: width 0.25s ease;
+}
+
+.cook-ingredients,
+.cook-overview {
+  border: 1px solid #2c3036;
+  border-radius: 10px;
+  padding: 10px 14px;
+}
+
+.cook-ingredients summary,
+.cook-overview summary {
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.cook-ingredients ul {
+  margin: 10px 0 2px;
+  padding-left: 18px;
+  columns: 2 220px;
+  line-height: 1.6;
+}
+
+.cook-step {
+  background: #ecebea;
+  color: #1f1f1f;
+  border-radius: 12px;
+  padding: 24px 22px 18px;
+  font-family: "Times New Roman", Georgia, "Palatino Linotype", serif;
+}
+
+.cook-step.is-done .cook-step-text {
+  color: #6a6f6c;
+}
+
+.cook-section {
+  margin: 0 0 8px;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #4e5f59;
+}
+
+.cook-step-text {
+  margin: 0 0 18px;
+  font-size: clamp(1.35rem, 3.6vw, 1.9rem);
+  line-height: 1.4;
+}
+
+.cook-time-button {
+  font: inherit;
+  border: none;
+  border-radius: 8px;
+  padding: 0 6px;
+  background: #d8e8de;
+  color: #1e4d39;
+  cursor: pointer;
+  text-decoration: underline dotted;
+  text-underline-offset: 4px;
+}
+
+.cook-time-button:hover {
+  background: #c3dccc;
+}
+
+.cook-time-button.is-running {
+  cursor: default;
+  text-decoration: none;
+  opacity: 0.7;
+}
+
+.cook-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cook-check input,
+.cook-overview input {
+  width: 22px;
+  height: 22px;
+  accent-color: #1e4d39;
+  cursor: pointer;
+}
+
+.cook-nav {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 10px;
+}
+
+.cook-nav .secondary-button,
+.cook-next {
+  min-height: 52px;
+  font-size: 1rem;
+}
+
+.cook-next {
+  border: none;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #111215;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cook-nav button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.cook-finished {
+  border-radius: 12px;
+  padding: 16px 18px;
+  background: #1e4d39;
+}
+
+.cook-finished h2 {
+  margin: 0 0 10px;
+  font-size: 1.15rem;
+}
+
+.cook-finished-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.cook-overview ol {
+  margin: 10px 0 2px;
+  padding-left: 0;
+  list-style: none;
+  display: grid;
+  gap: 6px;
+}
+
+.cook-overview li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.cook-overview-step {
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: #d9dde0;
+  text-align: left;
+  font: inherit;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  padding: 2px 0;
+  cursor: pointer;
+}
+
+.cook-overview li.is-current .cook-overview-step {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+.cook-overview li.is-done .cook-overview-step {
+  color: #7d8489;
+  text-decoration: line-through;
+}
+
+.cook-timers {
+  position: fixed;
+  left: 50%;
+  bottom: 12px;
+  transform: translateX(-50%);
+  width: min(760px, calc(100% - 24px));
+  display: grid;
+  gap: 8px;
+  z-index: 10;
+}
+
+.cook-timer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  border-radius: 10px;
+  background: #23272c;
+  border: 1px solid #3a4047;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+.cook-timer.is-done {
+  background: #a22d2d;
+  border-color: #c84a4a;
+  animation: cook-pulse 1s ease-in-out infinite;
+}
+
+@keyframes cook-pulse {
+  50% {
+    filter: brightness(1.25);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cook-timer.is-done {
+    animation: none;
+  }
+}
+
+.cook-timer-info {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.cook-timer-clock {
+  font-size: 1.5rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.cook-timer-label {
+  font-size: 0.8rem;
+  color: #d9dde0;
+}
+
+.cook-timer-actions {
+  display: flex;
+  gap: 6px;
+}
+
+.cook-timer-actions button {
+  border: none;
+  border-radius: 6px;
+  padding: 7px 10px;
+  background: #d8e8de;
+  color: #1e4d39;
+  font-weight: 700;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+@media (max-width: 680px) {
+  .cook-page {
+    padding: 14px 12px 180px;
+  }
+
+  .cook-step {
+    padding: 18px 16px 14px;
+  }
+}

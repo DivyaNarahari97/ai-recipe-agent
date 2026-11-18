@@ -7,6 +7,7 @@ import RefinePanel from "./components/RefinePanel";
 import RecipeDetail from "./components/RecipeDetail";
 import { API_BASE_URL } from "./config";
 import { DIET_LABELS, NO_FILTERS } from "./dietary";
+import { loadUnitSystem, recipeScale, saveUnitSystem } from "./quantities";
 import {
   addToHistory,
   clearHistory,
@@ -231,7 +232,19 @@ function IngredientPage({
   );
 }
 
-function RecipePage({ recipe, onBack, onCook, pantry, favorite, onToggleFavorite, onRefined, onUndoRefine }) {
+function RecipePage({
+  recipe,
+  onBack,
+  onCook,
+  pantry,
+  favorite,
+  onToggleFavorite,
+  onRefined,
+  onUndoRefine,
+  scale,
+  onServingsChange,
+  onSystemChange,
+}) {
   return (
     <main className="recipe-page">
       <div className="recipe-page-header">
@@ -260,7 +273,13 @@ function RecipePage({ recipe, onBack, onCook, pantry, favorite, onToggleFavorite
       {recipe?.id && <RefinePanel recipe={recipe} onRefined={onRefined} onUndo={onUndoRefine} />}
 
       {recipe ? (
-        <RecipeDetail recipe={recipe} pantry={pantry} />
+        <RecipeDetail
+          recipe={recipe}
+          pantry={pantry}
+          scale={scale}
+          onServingsChange={onServingsChange}
+          onSystemChange={onSystemChange}
+        />
       ) : (
         <section className="empty-state">
           <h2>No recipe loaded</h2>
@@ -576,6 +595,9 @@ function App() {
   const [selectedIngredients, setSelectedIngredients] = useState([]);
   const [recipeResults, setRecipeResults] = useState([]);
   const [selectedRecipe, setSelectedRecipe] = useState(null);
+  // Chosen servings belong to one recipe object, so a new or refined recipe starts at its own size.
+  const [servingsChoice, setServingsChoice] = useState({ recipe: null, servings: null });
+  const [unitSystem, setUnitSystem] = useState(loadUnitSystem);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [browseCuisine, setBrowseCuisine] = useState("");
@@ -771,14 +793,29 @@ function App() {
     navigate("/");
   };
 
+  const recipeSize = recipeScale(
+    selectedRecipe,
+    servingsChoice.recipe === selectedRecipe ? servingsChoice.servings : null,
+    unitSystem
+  );
+  const handleServingsChange = (servings) => setServingsChoice({ recipe: selectedRecipe, servings });
+  const handleSystemChange = (system) => {
+    setUnitSystem(system);
+    saveUnitSystem(system);
+  };
+
   return path === "/cook" && selectedRecipe ? (
     <CookMode
       key={selectedRecipe.id ?? selectedRecipe.name}
       recipe={selectedRecipe}
+      scale={recipeSize}
       onExit={() => window.history.back()}
     />
   ) : path === "/recipe" || path === "/cook" ? (
     <RecipePage
+      scale={recipeSize}
+      onServingsChange={handleServingsChange}
+      onSystemChange={handleSystemChange}
       recipe={selectedRecipe}
       onBack={handleBack}
       onCook={() => navigate("/cook")}

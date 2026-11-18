@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { API_BASE_URL } from "../config";
 
-const label = (item) => [item.quantity, item.name].filter(Boolean).join(" ");
-
-function ShoppingList({ recipe, pantry }) {
+function ShoppingList({ recipe, pantry, quantity = (item) => item.quantity }) {
+  // Amounts follow the servings and units picked on the recipe page.
+  const label = (item) => [quantity(item), item.name].filter(Boolean).join(" ");
   const [status, setStatus] = useState("idle"); // idle | loading | done | error
   const [items, setItems] = useState([]);
   const [copyMessage, setCopyMessage] = useState("");

@@ -73,6 +73,13 @@ This project combines deterministic rule-based matching with LLM-powered recipe 
 - Check off steps as you go; "Done, next step" jumps to the next unchecked one, and checked steps are remembered per recipe in this browser
 - Leaving cook mode stops its timers, so the Exit button asks first while any are running. The browser's back button doesn't ask
 
+## ⚖️ Servings & Units
+- Drag the servings slider (or tap − / +) and every ingredient amount rescales, in the ingredient list, the shopping list and cook mode
+- Kitchen-friendly results: "1 1/2 cups" × 2 → "3 cups", "1 tsp" × 6 → "2 tbsp", "2 tbsp" × 3 → "6 tbsp" (not "3/8 cup"), "3 cloves" ÷ 3 → "1 clove"
+- **As written / Metric / US** switch, remembered in this browser. Metric weighs dry goods and keeps liquids in ml; US turns grams back into cups. Small spoon amounts stay as spoons in both
+- Grams ↔ cups uses a density table of about 20 common ingredients (flour, sugars, rice, butter, oats, cheese, nuts…), in `src/quantities.js`. Anything not in it converts within its own kind only (ml ↔ cups, g ↔ oz), so 2 cups of grated carrot shows as 470 ml, not grams
+- Amounts without a number ("salt to taste", "pinch") are left alone. The step text isn't rewritten, so the directions keep the original amounts, and the page says so
+
 ## 🥗 Dietary Filters
 - Vegetarian, vegan and gluten-free, plus max time and max calories
 - Applied to stored recipes during matching and added to the generation prompt
@@ -405,6 +412,7 @@ http://localhost:8000
 cd recipe-frontend
 npm install
 npm run dev
+npm test   # quantity scaling and unit conversion (Node's built-in test runner)
 ```
 
 Frontend runs at:

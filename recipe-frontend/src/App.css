@@ -1385,3 +1385,128 @@ body {
     padding: 18px 16px 14px;
   }
 }
+
+/* Servings scaler + unit switch (on the light ingredients column) */
+.scaler {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 14px;
+  padding: 12px;
+  border-radius: 12px;
+  background: #ecebea;
+  font-family: "Trebuchet MS", "Gill Sans", sans-serif;
+}
+
+.scaler-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.scaler-label {
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.scaler-stepper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.scaler-stepper button {
+  width: 36px;
+  height: 36px;
+  border: 1px solid #1e4d39;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #1e4d39;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.scaler-stepper button:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.scaler-stepper output {
+  min-width: 2.2ch;
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.scaler input[type="range"] {
+  width: 100%;
+  margin: 4px 0 0;
+  accent-color: #1e4d39;
+}
+
+.scaler-note {
+  margin: 0;
+  font-size: 0.8rem;
+  color: #4a4a4a;
+  font-family: "Trebuchet MS", "Gill Sans", sans-serif;
+}
+
+.recipe-directions-col > .scaler-note {
+  margin: -4px 0 10px;
+}
+
+.scaler .link-button {
+  display: inline;
+  color: #1e4d39;
+  font-size: inherit;
+}
+
+.scaler .link-button:hover {
+  color: #111215;
+}
+
+.scaler-units {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  border: 1px solid #1e4d39;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.scaler-units button {
+  padding: 7px 4px;
+  border: none;
+  background: #ffffff;
+  color: #1e4d39;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.scaler-units button + button {
+  border-left: 1px solid #1e4d39;
+}
+
+.scaler-units button.is-active {
+  background: #1e4d39;
+  color: #ffffff;
+}
+
+.scaler button:focus-visible,
+.scaler input:focus-visible {
+  outline: 2px solid #111215;
+  outline-offset: 2px;
+}
+
+.recipe-quantity {
+  font-weight: 700;
+}
+
+.cook-scaled-note {
+  margin: 4px 0 0;
+  font-size: 0.8rem;
+  opacity: 0.75;
+}

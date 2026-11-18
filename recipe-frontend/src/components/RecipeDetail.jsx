@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { API_BASE_URL } from "../config";
 import { DIET_LABELS } from "../dietary";
+import { recipeScale } from "../quantities";
+import ServingsScaler from "./ServingsScaler";
 import ShoppingList from "./ShoppingList";
 
-function IngredientItem({ item }) {
+function IngredientItem({ item, quantity }) {
   const [open, setOpen] = useState(false);
   const [status, setStatus] = useState("idle"); // idle | loading | done | error
   const [substitutes, setSubstitutes] = useState([]);
@@ -36,7 +38,7 @@ function IngredientItem({ item }) {
     <li>
       <div className="recipe-ingredient-row">
         <span>
-          {item.quantity} {item.name}
+          {quantity && <strong className="recipe-quantity">{quantity}</strong>} {item.name}
         </span>
         <button
           type="button"
@@ -58,15 +60,18 @@ function IngredientItem({ item }) {
   );
 }
 
-function RecipeDetail({ recipe, pantry = [] }) {
+function RecipeDetail({ recipe, pantry = [], scale, onServingsChange, onSystemChange }) {
   if (!recipe) return null;
+  const shown = scale || recipeScale(recipe, null);
+  const resized = shown.factor !== 1;
+  const converted = shown.system !== "original";
 
   const meta = [
     recipe.cuisine && recipe.cuisine !== "Other"
       ? { icon: "🌍", label: recipe.cuisine }
       : null,
     recipe.servings
-      ? { icon: "🍴", label: `${recipe.servings} servings` }
+      ? { icon: "🍴", label: `${resized ? shown.servings : recipe.servings} servings` }
       : null,
     recipe.time ? { icon: "◷", label: recipe.time } : null,
     recipe.calories ? { icon: "•", label: recipe.calories } : null,
@@ -121,16 +126,29 @@ function RecipeDetail({ recipe, pantry = [] }) {
       <section className="recipe-content-block">
         <section className="recipe-ingredients-col">
           <h2 className="recipe-section-title">INGREDIENTS</h2>
+          {onServingsChange && (
+            <ServingsScaler
+              scale={shown}
+              originalServings={recipe.servings}
+              onServingsChange={onServingsChange}
+              onSystemChange={onSystemChange}
+            />
+          )}
           <ul className="recipe-ingredient-list">
             {recipe.ingredients?.map((item, i) => (
-              <IngredientItem key={`${item.name}-${i}`} item={item} />
+              <IngredientItem key={`${item.name}-${i}`} item={item} quantity={shown.quantity(item)} />
             ))}
           </ul>
-          {recipe.id && <ShoppingList recipe={recipe} pantry={pantry} />}
+          {recipe.id && <ShoppingList recipe={recipe} pantry={pantry} quantity={shown.quantity} />}
         </section>
 
         <section className="recipe-directions-col">
           <h2 className="recipe-section-title">DIRECTIONS</h2>
+          {(resized || converted) && (
+            <p className="scaler-note">
+              The directions still use the original {resized ? `amounts for ${recipe.servings} servings` : "units"}.
+            </p>
+          )}
           <ol className="recipe-step-list">
             {allSteps.map((entry, i) => (
               <li key={`${entry.section || "step"}-${i}`}>

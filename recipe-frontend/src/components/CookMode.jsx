@@ -152,7 +152,7 @@ function TimerTray({ timers, now, onToggle, onAddMinute, onRemove }) {
   );
 }
 
-export default function CookMode({ recipe, onExit }) {
+export default function CookMode({ recipe, scale, onExit }) {
   const steps = flattenSteps(recipe);
   const progressKey = `${PROGRESS_PREFIX}${recipe.id ?? recipe.name}`;
   const [initial] = useState(() => loadProgress(progressKey, steps.length));
@@ -324,14 +324,20 @@ export default function CookMode({ recipe, onExit }) {
 
       {recipe.ingredients?.length > 0 && (
         <details className="cook-ingredients">
-          <summary>Ingredients ({recipe.ingredients.length})</summary>
+          <summary>
+            Ingredients ({recipe.ingredients.length})
+            {scale && scale.factor !== 1 && ` · for ${scale.servings} servings`}
+          </summary>
           <ul>
             {recipe.ingredients.map((item, i) => (
               <li key={`${item.name}-${i}`}>
-                {item.quantity} {item.name}
+                {scale ? scale.quantity(item) : item.quantity} {item.name}
               </li>
             ))}
           </ul>
+          {scale && scale.factor !== 1 && (
+            <p className="cook-scaled-note">The steps still give amounts for {recipe.servings} servings.</p>
+          )}
         </details>
       )}
 

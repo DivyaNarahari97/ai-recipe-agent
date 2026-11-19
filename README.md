@@ -80,6 +80,13 @@ This project combines deterministic rule-based matching with LLM-powered recipe 
 - Grams ↔ cups uses a density table of about 20 common ingredients (flour, sugars, rice, butter, oats, cheese, nuts…), in `src/quantities.js`. Anything not in it converts within its own kind only (ml ↔ cups, g ↔ oz), so 2 cups of grated carrot shows as 470 ml, not grams
 - Amounts without a number ("salt to taste", "pinch") are left alone. The step text isn't rewritten, so the directions keep the original amounts, and the page says so
 
+## ♻️ Leftovers → New Dish
+- Type what's left ("I have half a roast chicken and rice") and get a new dish built around it, such as chicken fried rice
+- Code splits the text into leftovers, keeping the amount ("half a roast chicken") and dropping lead-ins ("I have", "from last night"). Dish names with "and" stay whole ("mac and cheese")
+- The model is told the leftovers are already cooked: add them at the end to heat through, and make a different dish rather than reheating the same meal. Code then checks the result and sends it back once with the reasons if it leaves out a leftover, is the same meal reheated ("Roast Chicken and Rice"), needs more than 4 items beyond pantry staples, or breaks a dietary filter
+- Leftovers that break a dietary filter (roast chicken with Vegetarian on) are refused up front with an explanation, instead of trying two generations that can't pass
+- Leftover ingredients are labelled "leftover …", the shopping list counts them as things you already have, and every dish gets a fixed food-safety note (use within 3–4 days, reheat to 165°F / 74°C, reheat only once)
+
 ## 🥗 Dietary Filters
 - Vegetarian, vegan and gluten-free, plus max time and max calories
 - Applied to stored recipes during matching and added to the generation prompt
@@ -233,6 +240,23 @@ Ranges are two runs of the same prompt. Results for the used prompt are in `Back
 - **A free-text llava call once repeated itself until the 5-minute timeout**, so output is now capped at 300 tokens.
 - **Next step:** a stronger vision model (`VISION_MODEL=...`); the eval measures any of them on the same photos.
 
+## Leftovers
+
+10 sets of leftovers (`Backend/evals/leftover_cases.json`), each given to the app's plain generation (what "Get Recipe" does) and to the leftover flow. The first three columns use the same code checks as the endpoint. The last was judged by reading every recipe's steps.
+
+| `mistral`, 10 cases | Uses every leftover | A new dish, not the meal reheated | At most 4 items beyond staples | Leftovers re-cooked from raw or mishandled | p50 |
+|---|---|---|---|---|---|
+| Plain generation | 9 | 4 | 9 | **8** | 26s |
+| **Leftover flow (used)** | 10 | 10 | 10 | **0** | 46s |
+
+- **Plain generation treats leftovers as raw ingredients.** It boiled the leftover rice, pasta, couscous and macaroni from scratch, grilled the cooked salmon for 6–8 minutes a side, and soaked chickpeas overnight for "dal and 3 rotis". It also slow-cooked the pulled pork and coleslaw together for 8 hours.
+- **The leftover flow re-cooked nothing.** Leftovers went in at the end to heat through (dal-stuffed rotis, ham and mashed-potato cakes, a mac and cheese hot dog bake) or were served cold (salmon quinoa salad). All 10 passed the checks on the first try. In an earlier run, 7 of 10 did and the retry fixed 2 more. The third was a parsing bug ("half a pot of chili" read as "pot chili"), since fixed.
+- **The code checks can't see re-cooking.** It's the biggest difference, but it lives in the step text. The eval flags it with a phrase heuristic ("according to package instructions", "soak", "grill for"…), which caught 5 of the 8.
+- **Steps aren't always complete.** One fried rice recipe stirs in "the cooked eggs" without a step that cooks them. The checks cover ingredients and names, not whether the method is complete.
+- **It's slower,** because the prompt asks for more and the recipes are longer. The trade is about 3 items to buy (median) for an actual new dish, against 0 for reheating the same meal.
+
+Results, including every recipe's ingredients and steps, are in `Backend/evals/leftover_results.json`.
+
 ## Running the evals
 
 With Ollama running, from `Backend/`:
@@ -243,6 +267,7 @@ python -m evals.search_eval     # retrieval; reads the database only, writes eva
 python -m evals.rag_eval        # RAG generation; ~20 model calls (10–20 min), writes evals/rag_results.json
 python -m evals.meal_plan_eval  # planner; 8 plans (~5 min), writes evals/meal_plan_results.json
 python -m evals.photo_eval      # photo ingredients; 17 photos (~2 min), writes evals/photo_results.json
+python -m evals.leftover_eval   # leftovers; 10 cases × 2 (~10 min), writes evals/leftover_results.json
 ```
 
 None of them write to the database. The unit tests need neither Ollama nor a database: `python -m unittest discover -s tests -t .`
@@ -434,6 +459,7 @@ http://localhost:5173
 | GET | `/cuisines` | Cuisines with recipe counts |
 | GET | `/substitutions?ingredient=` | Substitutes for an ingredient |
 | POST | `/recipes/{id}/shopping-list` | Split ingredients into need / have / staples |
+| POST | `/leftovers` | A new dish from leftovers (`leftovers`: text, optional `filters`); returns the recipe, the parsed leftovers and what's needed beyond staples |
 | POST | `/ingredients/from-photo` | List the ingredients in a fridge/pantry photo (`image`: base64 JPEG/PNG or data URL, 5 MB max) |
 | POST | `/meal-plan` | Plan dinners for 1–7 days (`ingredients`, `days`, optional `filters`) with one shopping list |
 | POST | `/recipes/{id}/refine` | Apply a change (`{"instruction": "spicier"}`), saved as a new recipe |

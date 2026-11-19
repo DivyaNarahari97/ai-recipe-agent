@@ -1,0 +1,685 @@
+{
+  "model": "mistral",
+  "summary": {
+    "baseline": {
+      "cases": 10,
+      "errors": 0,
+      "uses_all": 9,
+      "new_dish": 4,
+      "to_buy_within_4": 9,
+      "passes": 4,
+      "recooks_a_leftover": 5,
+      "median_to_buy": 0.0,
+      "median_seconds": 25.75
+    },
+    "leftover": {
+      "cases": 10,
+      "errors": 0,
+      "uses_all": 10,
+      "new_dish": 10,
+      "to_buy_within_4": 10,
+      "passes": 10,
+      "recooks_a_leftover": 0,
+      "median_to_buy": 3.0,
+      "median_seconds": 46.1,
+      "passed_first_try": 10
+    }
+  },
+  "cases": [
+    {
+      "text": "I have half a roast chicken and rice",
+      "leftovers": [
+        "half a roast chicken",
+        "rice"
+      ],
+      "baseline": {
+        "recooked": [
+          "Rinse rice according to package instructions.",
+          "Add the rinsed rice and reduce heat to low. Cover and simmer for 15-20 minutes or until the water is absorbed."
+        ],
+        "uses_all": true,
+        "new_dish": false,
+        "to_buy": 0,
+        "passes": false,
+        "problems": [
+          "“Half Roast Chicken with Rice” is the same leftovers reheated; make a different dish out of them"
+        ],
+        "recipe": {
+          "name": "Half Roast Chicken with Rice",
+          "servings": "2",
+          "ingredients": [
+            "half roast chicken",
+            "rice"
+          ],
+          "steps": [
+            "Heat oven to 375°F.",
+            "Place the half roast chicken in a baking dish.",
+            "Bake for 30-40 minutes or until the internal temperature reaches 165°F.",
+            "Rinse rice according to package instructions.",
+            "In a saucepan, bring 2 cups of water to boil.",
+            "Add the rinsed rice and reduce heat to low. Cover and simmer for 15-20 minutes or until the water is absorbed."
+          ]
+        },
+        "seconds": 19.8
+      },
+      "leftover": {
+        "recooked": [],
+        "uses_all": true,
+        "new_dish": true,
+        "to_buy": 3,
+        "passes": true,
+        "problems": [],
+        "recipe": {
+          "name": "Leftover Roast Chicken Fried Rice Bowl",
+          "servings": "2",
+          "ingredients": [
+            "1/2 leftover roast chicken",
+            "2 cups leftover cooked rice",
+            "2 large eggs",
+            "3 green onions, chopped",
+            "1/4 cup soy sauce",
+            "2 tbsp sesame oil",
+            "1 tsp grated ginger"
+          ],
+          "steps": [
+            "Chop the leftover roast chicken into bite-sized pieces.",
+            "Finely chop the green onions.",
+            "Stir the cooked eggs into the rice.",
+            "Add the chopped chicken, green onions, and grated ginger to the skillet.",
+            "Pour the soy sauce over the mixture and toss gently to combine."
+          ]
+        },
+        "attempts": 1,
+        "seconds": 36.5
+      }
+    },
+    {
+      "text": "leftover pasta and some steamed broccoli",
+      "leftovers": [
+        "pasta",
+        "steamed broccoli"
+      ],
+      "baseline": {
+        "recooked": [
+          "Cook the pasta according to package instructions.",
+          "Steam the broccoli for about 5 minutes until tender."
+        ],
+        "uses_all": true,
+        "new_dish": false,
+        "to_buy": 0,
+        "passes": false,
+        "problems": [
+          "“Pasta with Steamed Broccoli” is the same leftovers reheated; make a different dish out of them"
+        ],
+        "recipe": {
+          "name": "Pasta with Steamed Broccoli",
+          "servings": "3",
+          "ingredients": [
+            "16 oz pasta",
+            "4 cups steamed broccoli"
+          ],
+          "steps": [
+            "Cook the pasta according to package instructions.",
+            "Steam the broccoli for about 5 minutes until tender.",
+            "Drain the cooked pasta and return it to the pot.",
+            "Add steamed broccoli to the pot with the pasta.",
+            "Season with salt, pepper, and a drizzle of olive oil if desired."
+          ]
+        },
+        "seconds": 21.6
+      },
+      "leftover": {
+        "recooked": [],
+        "uses_all": true,
+        "new_dish": true,
+        "to_buy": 3,
+        "passes": true,
+        "problems": [],
+        "recipe": {
+          "name": "Creamy Pasta Broccoli Bake",
+          "servings": "2",
+          "ingredients": [
+            "1 cup leftover cooked pasta",
+            "1 cup steamed broccoli",
+            "1/2 cup grated Parmesan cheese",
+            "1/2 cup shredded mozzarella cheese",
+            "2 tablespoons olive oil",
+            "1/4 cup breadcrumbs",
+            "1 clove garlic, minced",
+            "to taste salt",
+            "to taste black pepper"
+          ],
+          "steps": [
+            "Preheat the oven to 375°F (190°C).",
+            "In a large bowl, combine leftover cooked pasta and steamed broccoli.",
+            "Season with salt, black pepper, and minced garlic.",
+            "In a separate bowl, mix grated Parmesan cheese, shredded mozzarella cheese, and breadcrumbs.",
+            "Pour the pasta and broccoli mixture into a baking dish.",
+            "Sprinkle the cheese mixture evenly on top.",
+            "Bake in the preheated oven for 20 minutes, or until the cheese is golden brown and bubbly."
+          ]
+        },
+        "attempts": 1,
+        "seconds": 54.3
+      }
+    },
+    {
+      "text": "mashed potatoes and a bit of ham",
+      "leftovers": [
+        "mashed potatoes",
+        "ham"
+      ],
+      "baseline": {
+        "recooked": [],
+        "uses_all": true,
+        "new_dish": false,
+        "to_buy": 0,
+        "passes": false,
+        "problems": [
+          "“Ham and Mashed Potatoes” is the same leftovers reheated; make a different dish out of them"
+        ],
+        "recipe": {
+          "name": "Ham and Mashed Potatoes",
+          "servings": "3",
+          "ingredients": [
+            "4 cups mashed potatoes",
+            "2 cups ham"
+          ],
+          "steps": [
+            "Heat mashed potatoes in a saucepan over medium heat.",
+            "Dice the ham into small cubes.",
+            "Mix the diced ham with the heated mashed potatoes."
+          ]
+        },
+        "seconds": 18.4
+      },
+      "leftover": {
+        "recooked": [],
+        "uses_all": true,
+        "new_dish": true,
+        "to_buy": 4,
+        "passes": true,
+        "problems": [],
+        "recipe": {
+          "name": "Leftover Ham and Mashed Potato Cakes",
+          "servings": "3",
+          "ingredients": [
+            "2 cups leftover mashed potatoes",
+            "1.5 cups leftover ham, diced",
+            "1/2 cup shredded cheddar cheese",
+            "2 large eggs",
+            "1/2 cup panko breadcrumbs",
+            "2 tbsp chopped green onions",
+            "1 tsp smoked paprika"
+          ],
+          "steps": [
+            "In a large bowl, combine the leftover mashed potatoes, diced ham, shredded cheddar cheese, eggs, panko breadcrumbs, green onions, and smoked paprika.",
+            "Using your hands, form the mixture into 6-8 equal sized patties.",
+            "Preheat a large skillet over medium heat. Add enough oil to lightly coat the surface.",
+            "Place the potato cakes in the skillet, cooking for about 4-5 minutes on each side until golden brown and crispy.",
+            "Serve immediately with your choice of sauce or garnish."
+          ]
+        },
+        "attempts": 1,
+        "seconds": 47.2
+      }
+    },
+    {
+      "text": "dal and 3 rotis",
+      "leftovers": [
+        "dal",
+        "3 rotis"
+      ],
+      "baseline": {
+        "recooked": [],
+        "uses_all": true,
+        "new_dish": true,
+        "to_buy": 0,
+        "passes": true,
+        "problems": [],
+        "recipe": {
+          "name": "Chickpea Curry with Whole Wheat Rotis",
+          "servings": "4",
+          "ingredients": [
+            "3 rotis",
+            "2 cups dal (chickpeas)"
+          ],
+          "steps": [
+            "Soak the chickpeas overnight.",
+            "Pressure cook the soaked chickpeas with spices like cumin, coriander, turmeric and garam masala.",
+            "Once cooked, blend a portion of the chickpeas to make a smooth paste.",
+            "While the chickpea curry is cooking, prepare the whole wheat rotis.",
+            "Knead the dough and roll into small circles.",
+            "Cook each roti on a hot tawa (griddle) until it puffs up."
+          ]
+        },
+        "seconds": 27.5
+      },
+      "leftover": {
+        "recooked": [],
+        "uses_all": true,
+        "new_dish": true,
+        "to_buy": 0,
+        "passes": true,
+        "problems": [],
+        "recipe": {
+          "name": "Leftover Dal Stuffed Rotis",
+          "servings": "2",
+          "ingredients": [
+            "2 leftover rotis",
+            "3 cups leftover dal",
+            "1 medium onion, finely chopped",
+            "2 garlic cloves, minced",
+            "1 tsp garam masala"
+          ],
+          "steps": [
+            "Heat a tablespoon of oil in a pan over medium heat.",
+            "Add the chopped onion and cook until translucent.",
+            "Add minced garlic and garam masala. Sauté for another minute.",
+            "Stir in the leftover dal and cook for 5 minutes, allowing the flavors to meld.",
+            "Place one leftover roti on a flat surface.",
+            "Scoop a portion of the dal mixture onto the center of the roti.",
+            "Fold in the sides and roll up the roti to enclose the filling.",
+            "Repeat with remaining rotis and dal.",
+            "Heat a non-stick pan over medium heat. Place the stuffed rotis in the pan.",
+            "Cook for 2-3 minutes on each side, until they are crispy and heated through."
+          ]
+        },
+        "attempts": 1,
+        "seconds": 46.7
+      }
+    },
+    {
+      "text": "half a pot of chili and half a baguette",
+      "leftovers": [
+        "half a pot of chili",
+        "half a baguette"
+      ],
+      "baseline": {
+        "recooked": [],
+        "uses_all": true,
+        "new_dish": true,
+        "to_buy": 0,
+        "passes": true,
+        "problems": [],
+        "recipe": {
+          "name": "Spicy Baguette Sandwich",
+          "servings": "2",
+          "ingredients": [
+            "half pot of chili",
+            "half baguette"
+          ],
+          "steps": [
+            "Heat the chili on medium heat for 10 minutes.",
+            "Slice the baguette into halves lengthwise.",
+            "Spread the heated chili onto the baguette halves.",
+            "Serve immediately and enjoy!"
+          ]
+        },
+        "seconds": 22.1
+      },
+      "leftover": {
+        "recooked": [],
+        "uses_all": true,
+        "new_dish": true,
+        "to_buy": 2,
+        "passes": true,
+        "problems": [],
+        "recipe": {
+          "name": "Chili Baguette Bruschetta",
+          "servings": "2",
+          "ingredients": [
+            "1 leftover chili",
+            "2 slices leftover baguette",
+            "2 garlic cloves",
+            "2 tomatoes",
+            "1/4 cup grated Parmesan cheese (optional)",
+            "2 tablespoons olive oil"
+          ],
+          "steps": [
+            "Slice the leftover baguette into 2 cm thick slices.",
+            "Cut the tomatoes into thin slices.",
+            "Heat olive oil in a skillet over medium heat. Crush garlic cloves and sauté until fragrant, then remove from pan but keep oil.",
+            "Add baguette slices to the oil, fry on each side for about 2 minutes or until golden brown.",
+            "Top each piece of garlic toast with a spoonful of leftover chili, followed by tomato slices.",
+            "Sprinkle Parmesan cheese on top (if using)"
+          ]
+        },
+        "attempts": 1,
+        "seconds": 42.2
+      }
+    },
+    {
+      "text": "pulled pork and coleslaw",
+      "leftovers": [
+        "pulled pork",
+        "coleslaw"
+      ],
+      "baseline": {
+        "recooked": [],
+        "uses_all": true,
+        "new_dish": true,
+        "to_buy": 0,
+        "passes": true,
+        "problems": [],
+        "recipe": {
+          "name": "Pulled Pork Sandwich with Coleslaw",
+          "servings": "4",
+          "ingredients": [
+            "2 lbs pulled pork",
+            "4 cups coleslaw mix"
+          ],
+          "steps": [
+            "Combine pulled pork and coleslaw in a large bowl.",
+            "Season with salt, pepper, and your favorite BBQ sauce.",
+            "Place the seasoned pulled pork mixture into the slow cooker.",
+            "Cook on low heat for 8 hours.",
+            "Stir occasionally for even heating."
+          ]
+        },
+        "seconds": 29.5
+      },
+      "leftover": {
+        "recooked": [],
+        "uses_all": true,
+        "new_dish": true,
+        "to_buy": 1,
+        "passes": true,
+        "problems": [],
+        "recipe": {
+          "name": "Pork and Coleslaw Stuffed Bread Bowls",
+          "servings": "2",
+          "ingredients": [
+            "2 cups leftover pulled pork",
+            "1.5 cups leftover coleslaw",
+            "2 large round bread loaves",
+            "2 tbsp butter",
+            "1 tsp garlic powder"
+          ],
+          "steps": [
+            "Preheat the oven to 375°F (190°C).",
+            "Cut off the tops of the bread loaves, reserving them for another use.",
+            "Hollow out the center of each bread loaf, leaving a 1-inch thickness around the edges.",
+            "In a large mixing bowl, combine leftover pulled pork and coleslaw.",
+            "Stir in garlic powder and season with salt and pepper to taste.",
+            "Divide the mixture evenly between the hollowed-out bread loaves.",
+            "Dot each loaf with butter.",
+            "Wrap each bread bowl in aluminum foil and place on a baking sheet.",
+            "Bake for 15-20 minutes, or until the bread is golden brown and the filling is heated through."
+          ]
+        },
+        "attempts": 1,
+        "seconds": 51.4
+      }
+    },
+    {
+      "text": "roasted vegetables and couscous",
+      "leftovers": [
+        "roasted vegetables",
+        "couscous"
+      ],
+      "baseline": {
+        "recooked": [],
+        "uses_all": true,
+        "new_dish": false,
+        "to_buy": 0,
+        "passes": false,
+        "problems": [
+          "“Roasted Vegetables and Couscous” is the same leftovers reheated; make a different dish out of them"
+        ],
+        "recipe": {
+          "name": "Roasted Vegetables and Couscous",
+          "servings": "3",
+          "ingredients": [
+            "2 cups roasted vegetables",
+            "1.5 cups couscous"
+          ],
+          "steps": [
+            "Preheat the oven to 400°F (200°C).",
+            "Spread the roasted vegetables on a baking sheet.",
+            "Bring 3 cups of water to a boil.",
+            "Add couscous, stir well, and remove from heat. Cover and let stand for 5 minutes.",
+            "Fluff with a fork.",
+            "Mix the roasted vegetables and cooked couscous together.",
+            "Season with salt, pepper, olive oil, and lemon juice to taste."
+          ]
+        },
+        "seconds": 31.6
+      },
+      "leftover": {
+        "recooked": [],
+        "uses_all": true,
+        "new_dish": true,
+        "to_buy": 0,
+        "passes": true,
+        "problems": [],
+        "recipe": {
+          "name": "Leftover Roasted Vegetable and Couscous Salad",
+          "servings": "2",
+          "ingredients": [
+            "1/2 cup leftover roasted vegetables",
+            "1 cup leftover couscous",
+            "1/4 cup olive oil",
+            "2 lemon, juiced",
+            "1/2 tsp salt",
+            "1/2 tsp black pepper, freshly ground"
+          ],
+          "steps": [
+            "In a large bowl, combine the leftover roasted vegetables and couscous.",
+            "Drizzle with olive oil, lemon juice, salt, and pepper. Toss until well combined."
+          ]
+        },
+        "attempts": 1,
+        "seconds": 39.0
+      }
+    },
+    {
+      "text": "a cooked salmon fillet and quinoa",
+      "leftovers": [
+        "a cooked salmon fillet",
+        "quinoa"
+      ],
+      "baseline": {
+        "recooked": [
+          "While the salmon is grilling, cook quinoa according to package instructions."
+        ],
+        "uses_all": true,
+        "new_dish": true,
+        "to_buy": 0,
+        "passes": true,
+        "problems": [],
+        "recipe": {
+          "name": "Grilled Salmon with Quinoa",
+          "servings": "2",
+          "ingredients": [
+            "1 a cooked salmon fillet",
+            "2 cups quinoa"
+          ],
+          "steps": [
+            "Preheat the grill to medium heat.",
+            "Season the salmon fillet with salt and pepper on both sides.",
+            "Grill the salmon for about 6-8 minutes per side, or until it reaches desired doneness.",
+            "While the salmon is grilling, cook quinoa according to package instructions."
+          ]
+        },
+        "seconds": 24.0
+      },
+      "leftover": {
+        "recooked": [],
+        "uses_all": true,
+        "new_dish": true,
+        "to_buy": 3,
+        "passes": true,
+        "problems": [],
+        "recipe": {
+          "name": "Salmon Quinoa Salad",
+          "servings": "2",
+          "ingredients": [
+            "1 leftover cooked salmon fillet",
+            "2 cups leftover cooked quinoa",
+            "1/2 cucumber, diced",
+            "1 avocado, sliced",
+            "1/4 cup lemon juice",
+            "1 tbsp olive oil",
+            "1 tsp dill, chopped",
+            "1 tsp salt",
+            "1/2 tsp pepper"
+          ],
+          "steps": [
+            "Chop the salmon fillet into bite-sized pieces.",
+            "In a large bowl, combine the quinoa, chopped cucumber, sliced avocado, and salmon.",
+            "In a separate bowl, whisk together lemon juice, olive oil, dill, salt, and pepper to create the dressing.",
+            "Pour the dressing over the salad and toss until evenly coated."
+          ]
+        },
+        "attempts": 1,
+        "seconds": 45.5
+      }
+    },
+    {
+      "text": "taco meat and tortilla chips",
+      "leftovers": [
+        "taco meat",
+        "tortilla chips"
+      ],
+      "baseline": {
+        "recooked": [
+          "Cook taco meat according to package instructions."
+        ],
+        "uses_all": true,
+        "new_dish": false,
+        "to_buy": 0,
+        "passes": false,
+        "problems": [
+          "“Taco Bowl with Tortilla Chips” is the same leftovers reheated; make a different dish out of them"
+        ],
+        "recipe": {
+          "name": "Taco Bowl with Tortilla Chips",
+          "servings": "3",
+          "ingredients": [
+            "1 lb taco meat",
+            "2 cups tortilla chips"
+          ],
+          "steps": [
+            "Cook taco meat according to package instructions.",
+            "Crush tortilla chips slightly.",
+            "Layer crushed tortilla chips at the bottom of a bowl.",
+            "Top with cooked taco meat.",
+            "Add your favorite toppings such as lettuce, tomatoes, cheese, and sour cream."
+          ]
+        },
+        "seconds": 31.1
+      },
+      "leftover": {
+        "recooked": [],
+        "uses_all": true,
+        "new_dish": true,
+        "to_buy": 3,
+        "passes": true,
+        "problems": [],
+        "recipe": {
+          "name": "Taco-Stuffed Tortilla Soup",
+          "servings": "2",
+          "ingredients": [
+            "1 cup leftover taco meat",
+            "1.5 cups leftover tortilla chips",
+            "2 romaine lettuce hearts",
+            "1 can black beans, drained and rinsed",
+            "1 avocado, diced"
+          ],
+          "steps": [
+            "Crush half of the tortilla chips in a bowl.",
+            "Set aside the remaining whole chips.",
+            "Coarsely chop the lettuce.",
+            "Heat 1 tablespoon of oil in a large pot over medium heat. Add the crushed tortilla chips and cook, stirring occasionally, until lightly toasted, about 5 minutes.",
+            "Add the leftover taco meat, black beans, and 4 cups of chicken or vegetable broth. Bring to a simmer.",
+            "Simmer for 10 minutes.",
+            "Stir in the chopped lettuce until slightly wilted.",
+            "Ladle soup into serving bowls.",
+            "Top with the diced avocado and remaining whole tortilla chips.",
+            "Serve immediately."
+          ]
+        },
+        "attempts": 1,
+        "seconds": 62.6
+      }
+    },
+    {
+      "text": "mac and cheese, 2 hot dogs",
+      "leftovers": [
+        "mac and cheese",
+        "2 hot dogs"
+      ],
+      "baseline": {
+        "recooked": [
+          "Cook the elbow macaroni according to package directions."
+        ],
+        "uses_all": false,
+        "new_dish": false,
+        "to_buy": 5,
+        "passes": false,
+        "problems": [
+          "it must use every leftover as an ingredient, but it leaves out: mac and cheese",
+          "“Mac and Cheese with Hot Dogs” is the same leftovers reheated; make a different dish out of them",
+          "it needs 5 ingredients they'd have to buy (elbow macaroni, sharp cheddar cheese, milk, unsalted butter, bread crumbs); use at most 4 besides the leftovers and pantry staples"
+        ],
+        "recipe": {
+          "name": "Mac and Cheese with Hot Dogs",
+          "servings": "3",
+          "ingredients": [
+            "8 oz elbow macaroni",
+            "4 cups sharp cheddar cheese, shredded",
+            "3 cups milk",
+            "1/2 cup unsalted butter",
+            "1 tsp mustard powder",
+            "4 hot dogs, sliced",
+            "2 cups bread crumbs"
+          ],
+          "steps": [
+            "Cook the elbow macaroni according to package directions.",
+            "Drain and set aside.",
+            "Melt the butter in a large saucepan over medium heat.",
+            "Stir in mustard powder.",
+            "Gradually add milk, whisking constantly.",
+            "Add shredded cheese and stir until melted.",
+            "Mix in cooked macaroni and sliced hot dogs.",
+            "Preheat the oven to 350°F (175°C).",
+            "Transfer the mixture to a baking dish.",
+            "Sprinkle bread crumbs on top.",
+            "Bake for about 20 minutes or until golden brown."
+          ]
+        },
+        "seconds": 43.1
+      },
+      "leftover": {
+        "recooked": [],
+        "uses_all": true,
+        "new_dish": true,
+        "to_buy": 3,
+        "passes": true,
+        "problems": [],
+        "recipe": {
+          "name": "Hot Dog Mac and Cheese Bake",
+          "servings": "2",
+          "ingredients": [
+            "1 cup leftover mac and cheese",
+            "2 leftover hot dogs",
+            "1/2 cup shredded cheddar cheese",
+            "1 egg",
+            "2 tbsp breadcrumbs"
+          ],
+          "steps": [
+            "Preheat oven to 375°F (190°C). Lightly grease a baking dish.",
+            "Cut the hot dogs into bite-sized pieces and mix them with the leftover mac and cheese.",
+            "Transfer the mixture to the prepared baking dish.",
+            "Sprinkle shredded cheddar cheese over the mac and cheese and hot dog mixture.",
+            "Beat the egg in a small bowl and drizzle it evenly over the dish.",
+            "Sprinkle breadcrumbs on top and bake for 15-20 minutes, or until golden brown and bubbly."
+          ]
+        },
+        "attempts": 1,
+        "seconds": 41.3
+      }
+    }
+  ]
+}

@@ -263,6 +263,45 @@ Create a NEW recipe for this craving: "{craving}"
     return _generate_validated(prompt, GeneratedRecipe, call_model)
 
 
+def generate_from_leftovers(
+    leftovers: list[str],
+    call_model: Callable[[str], str] = _call_model,
+    filters: Optional[DietaryFilters] = None,
+    rejected: Optional[list[str]] = None,
+    max_extra: int = 4,
+) -> GeneratedRecipe:
+    """A new dish built around already-cooked leftovers; `rejected` explains what was wrong last time."""
+    logger.info("Generating recipe from leftovers", extra={"leftover_count": len(leftovers)})
+    listed = "\n".join(f"- {item}" for item in leftovers)
+    prompt = f"""
+You are a professional chef who is great at turning leftovers into a new meal.
+
+The cook has these leftovers, already cooked or ready to eat:
+{listed}
+
+Create ONE new dish built around them:
+- Use every leftover as a main ingredient, in about the amount they have.
+- Make a different dish from what the leftovers were, for example leftover roast pork
+  becomes tacos, or leftover pasta becomes a frittata. Do not just reheat them as they were.
+- Cooked leftovers must not be cooked again from raw. Add them near the end so they only
+  heat through (rice and grains can be fried or baked until hot).
+- In the ingredient list, call each leftover "leftover ...", e.g. "leftover rice".
+- Besides pantry staples (oil, butter, salt, pepper, garlic, onion, spices, soy sauce,
+  flour, sugar, stock), use at most {max_extra} other ingredients.
+- Give servings for the amount of leftovers they have.
+"""
+    if rejected:
+        prompt += (
+            "\nYour last recipe was rejected because "
+            + "; and ".join(rejected)
+            + ". Fix this in the new recipe.\n"
+        )
+    prompt += "\n" + _recipe_json_format()
+    if filters:
+        prompt += filters.prompt_constraints()
+    return _generate_validated(prompt, GeneratedRecipe, call_model)
+
+
 def draft_meal_plan(
     pantry: list[str],
     days: int,

@@ -600,6 +600,8 @@ body {
   margin-top: 10px;
   font-family: "Trebuchet MS", "Gill Sans", sans-serif;
   font-size: 0.9rem;
+  /* Keeps the leftover safety note on its own paragraph. */
+  white-space: pre-line;
 }
 
 .diet-filters {
@@ -1509,4 +1511,47 @@ body {
   margin: 4px 0 0;
   font-size: 0.8rem;
   opacity: 0.75;
+}
+
+/* Leftovers → new dish (dark landing card) */
+.leftovers-examples {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.leftovers-example {
+  border: 1px solid #3a3f46;
+  border-radius: 999px;
+  padding: 4px 10px;
+  background: transparent;
+  color: #bfc6cb;
+  font: inherit;
+  font-size: 0.76rem;
+  cursor: pointer;
+}
+
+.leftovers-example:hover {
+  color: #ffffff;
+  border-color: #bfc6cb;
+}
+
+.leftovers-example:focus-visible {
+  outline: 2px solid #ffffff;
+  outline-offset: 2px;
+}
+
+.leftovers-hint {
+  margin: 8px 0 0;
+  font-size: 0.8rem;
+  color: #bfc6cb;
+}
+
+.leftovers-form .ingredient-input:disabled {
+  opacity: 0.6;
+}
+
+.leftovers-form .secondary-button {
+  white-space: nowrap;
 }

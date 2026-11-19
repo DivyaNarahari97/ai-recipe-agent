@@ -18,6 +18,7 @@ from app.ai import (
     extract_ingredients_from_photo,
     fetch_recipe_image,
     generate_from_craving,
+    generate_from_leftovers,
     generate_recipe,
     refine_recipe,
     suggest_substitutes,
@@ -26,6 +27,15 @@ from app.db import engine, get_db
 from app.dietary import DietaryFilters
 from app.embeddings import EmbeddingError
 from app.ingredients import extract_normalized_ingredient_tokens, near_copy_of
+from app.leftovers import (
+    DishRejected,
+    NoLeftovers,
+    add_safety_note,
+    extra_ingredients,
+    make_leftover_dish,
+    mark_leftovers,
+    parse_leftovers,
+)
 from app.meal_planner import NoRecipesFit, plan_meals
 from app.schemas import (
     AssistantResponse,
@@ -33,6 +43,8 @@ from app.schemas import (
     CravingRecipeResponse,
     CuisineCount,
     GeneratedRecipe,
+    LeftoversRequest,
+    LeftoversResponse,
     MealPlanRequest,
     MealPlanResponse,
     PhotoIngredientsRequest,
@@ -698,6 +710,45 @@ def ingredients_from_photo(data: PhotoIngredientsRequest):
         raise HTTPException(status_code=502, detail="Couldn't read the photo") from exc
     logger.info("Ingredients extracted from photo", extra={"count": len(found)})
     return {"ingredients": found}
+
+
+@app.post("/leftovers", response_model=LeftoversResponse)
+def transform_leftovers(data: LeftoversRequest, db: Session = Depends(get_db)):
+    """A new dish built around leftovers ("half a roast chicken and rice"), saved like any generated recipe."""
+    try:
+        leftovers = parse_leftovers(data.leftovers)
+    except NoLeftovers as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+    logger.info("Leftover recipe requested", extra={"leftover_count": len(leftovers)})
+
+    # Leftovers that break a diet filter can't become a dish that fits it; say so instead of retrying.
+    clash = data.filters.violations([{"name": l.text} for l in leftovers], None, None)
+    diet_clash = [p for p in clash if p.startswith("not ")]
+    if diet_clash:
+        raise HTTPException(
+            status_code=422,
+            detail=f"Your leftovers aren't {diet_clash[0][4:]}, so they can't fit your dietary filters. Turn the filter off to use them.",
+        )
+
+    try:
+        recipe, _ = make_leftover_dish(leftovers, data.filters, generate=generate_from_leftovers)
+    except RecipeGenerationError as exc:
+        logger.exception("Leftover recipe generation failed")
+        raise HTTPException(status_code=502, detail="Recipe generation failed") from exc
+    except DishRejected as exc:
+        raise HTTPException(
+            status_code=422,
+            detail="Couldn't make a new dish from those leftovers; try listing them differently or loosening your preferences",
+        ) from exc
+
+    mark_leftovers(recipe.ingredients, leftovers)
+    recipe.notes = add_safety_note(recipe.notes)
+    to_buy = extra_ingredients([i.model_dump() for i in recipe.ingredients], leftovers)
+    return {
+        "recipe": _store_generated_recipe(recipe, db),
+        "leftovers": [{"text": l.text, "name": l.name} for l in leftovers],
+        "to_buy": to_buy,
+    }
 
 
 @app.post("/meal-plan", response_model=MealPlanResponse)

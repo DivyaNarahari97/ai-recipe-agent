@@ -98,6 +98,13 @@ function RecipeDetail({ recipe, pantry = [], scale, onServingsChange, onSystemCh
               Inspired by: {recipe.inspired_by.map((source) => source.name).join(", ")}
             </p>
           )}
+          {recipe.leftovers?.length > 0 && (
+            <p className="recipe-inspired-by">
+              Made from your leftovers: {recipe.leftovers.map((item) => item.text).join(", ")}
+              {recipe.to_buy &&
+                ` · ${recipe.to_buy.length ? `beyond pantry staples you'll need ${recipe.to_buy.join(", ")}` : "nothing else needed beyond pantry staples"}`}
+            </p>
+          )}
           {recipe.dietary_tags?.length > 0 && (
             <ul className="recipe-diet-tags" aria-label="Dietary">
               {recipe.dietary_tags.map((tag) => (

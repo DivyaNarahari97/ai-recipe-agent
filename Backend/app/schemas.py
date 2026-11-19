@@ -238,6 +238,23 @@ class PhotoIngredientsResponse(BaseModel):
     ingredients: List[str]
 
 
+class LeftoversRequest(BaseModel):
+    leftovers: str = Field(min_length=1, max_length=500)
+    filters: DietaryFilters = DietaryFilters()
+
+
+class LeftoverItem(BaseModel):
+    text: str  # as typed: "half a roast chicken"
+    name: str  # the food, for matching: "chicken"
+
+
+class LeftoversResponse(BaseModel):
+    recipe: RecipeResponse
+    leftovers: List[LeftoverItem]
+    # Ingredients beyond the leftovers and pantry staples.
+    to_buy: List[str]
+
+
 class ShoppingListRequest(BaseModel):
     have: List[str] = []
 

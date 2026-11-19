@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import CookMode from "./components/CookMode";
 import DietaryFilters from "./components/DietaryFilters";
+import LeftoversForm from "./components/LeftoversForm";
 import MealPlanPage from "./components/MealPlanPage";
 import PhotoIngredients from "./components/PhotoIngredients";
 import RefinePanel from "./components/RefinePanel";
@@ -72,6 +73,7 @@ function IngredientPage({
   onBrowse,
   onOpenSaved,
   onSearchCraving,
+  onLeftoverRecipe,
   onPlanMeals,
   onOpenPlan,
   hasPlan,
@@ -202,6 +204,8 @@ function IngredientPage({
                   </button>
                 </div>
               </form>
+
+              <LeftoversForm filters={filters} onRecipeCreated={onLeftoverRecipe} />
 
               <div className="landing-links">
                 <button type="button" className="link-button" onClick={onBrowse}>
@@ -819,7 +823,8 @@ function App() {
       recipe={selectedRecipe}
       onBack={handleBack}
       onCook={() => navigate("/cook")}
-      pantry={selectedIngredients}
+      // Leftovers are already in the kitchen, so the shopping list shouldn't say to buy them.
+      pantry={[...selectedIngredients, ...(selectedRecipe?.leftovers || []).map((item) => item.name)]}
       favorite={isFavorite(favorites, selectedRecipe)}
       onToggleFavorite={() => setFavorites((prev) => toggleFavorite(prev, selectedRecipe))}
       onRefined={handleRefined}
@@ -882,6 +887,7 @@ function App() {
       onPlanMeals={handlePlanMeals}
       onOpenPlan={() => navigate("/plan")}
       hasPlan={Boolean(mealPlan)}
+      onLeftoverRecipe={(recipe) => handleSelectRecipe(recipe, "/")}
       onSearchCraving={(query) => {
         setCravingQuery(query);
         navigate("/search");

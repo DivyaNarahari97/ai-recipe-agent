@@ -25,8 +25,9 @@ export const loadFavorites = () => read(FAVORITES_KEY);
 export const loadHistory = () => read(HISTORY_KEY);
 
 // A refined recipe links to the version before it (for undo); don't store that whole chain.
+// "Uses up your spinach (tomorrow)" is only true today, so it isn't saved either.
 // eslint-disable-next-line no-unused-vars
-const snapshot = ({ previous, ...recipe }) => recipe;
+const snapshot = ({ previous, use_it_up, ...recipe }) => recipe;
 
 export const isFavorite = (favorites, recipe) =>
   Boolean(recipe) && favorites.some((r) => r.id === recipe.id);

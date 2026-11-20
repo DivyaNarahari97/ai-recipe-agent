@@ -1,4 +1,5 @@
 import logging
+from datetime import date
 from typing import List, Optional, Dict, Any
 
 from pydantic import BaseModel, ConfigDict, Field, computed_field, field_validator
@@ -253,6 +254,39 @@ class LeftoversResponse(BaseModel):
     leftovers: List[LeftoverItem]
     # Ingredients beyond the leftovers and pantry staples.
     to_buy: List[str]
+
+
+class PantryItemIn(BaseModel):
+    name: str = Field(min_length=1, max_length=80)
+    expires: Optional[date] = None
+
+
+class UseItUpRequest(BaseModel):
+    items: List[PantryItemIn] = Field(min_length=1, max_length=200)
+    # The cook's local date, so "expires tomorrow" doesn't depend on the server's timezone.
+    today: date
+    filters: DietaryFilters = DietaryFilters()
+    limit: int = Field(default=9, ge=1, le=30)
+
+
+class ExpiringUse(BaseModel):
+    name: str
+    days_left: int
+
+
+class UseItUpResult(BaseModel):
+    recipe: RecipeResponse
+    uses_expiring: List[ExpiringUse]
+    uses: List[str]
+    to_buy: List[str]
+
+
+class UseItUpResponse(BaseModel):
+    results: List[UseItUpResult]
+    # Pantry items expiring within a week, soonest first, so the UI can offer to generate around them.
+    expiring: List[ExpiringUse]
+    # Past their date: never suggested, listed so the UI can say why.
+    expired: List[str]
 
 
 class ShoppingListRequest(BaseModel):

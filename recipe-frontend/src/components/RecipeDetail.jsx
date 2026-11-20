@@ -105,6 +105,14 @@ function RecipeDetail({ recipe, pantry = [], scale, onServingsChange, onSystemCh
                 ` · ${recipe.to_buy.length ? `beyond pantry staples you'll need ${recipe.to_buy.join(", ")}` : "nothing else needed beyond pantry staples"}`}
             </p>
           )}
+          {recipe.use_it_up?.uses_expiring?.length > 0 && (
+            <p className="recipe-inspired-by">
+              Uses up your{" "}
+              {recipe.use_it_up.uses_expiring
+                .map((u) => `${u.name} (${u.days_left === 0 ? "expires today" : u.days_left === 1 ? "tomorrow" : `in ${u.days_left} days`})`)
+                .join(", ")}
+            </p>
+          )}
           {recipe.dietary_tags?.length > 0 && (
             <ul className="recipe-diet-tags" aria-label="Dietary">
               {recipe.dietary_tags.map((tag) => (

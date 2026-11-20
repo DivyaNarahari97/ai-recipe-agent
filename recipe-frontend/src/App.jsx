@@ -3,11 +3,13 @@ import CookMode from "./components/CookMode";
 import DietaryFilters from "./components/DietaryFilters";
 import LeftoversForm from "./components/LeftoversForm";
 import MealPlanPage from "./components/MealPlanPage";
+import PantryPage from "./components/PantryPage";
 import PhotoIngredients from "./components/PhotoIngredients";
 import RefinePanel from "./components/RefinePanel";
 import RecipeDetail from "./components/RecipeDetail";
 import { API_BASE_URL } from "./config";
 import { DIET_LABELS, NO_FILTERS } from "./dietary";
+import { countExpiring, daysLeft, loadPantry, savePantry, todayISO } from "./pantry";
 import { loadUnitSystem, recipeScale, saveUnitSystem } from "./quantities";
 import {
   addToHistory,
@@ -72,6 +74,9 @@ function IngredientPage({
   onGetRecipe,
   onBrowse,
   onOpenSaved,
+  onOpenPantry,
+  pantryCount,
+  pantryExpiring,
   onSearchCraving,
   onLeftoverRecipe,
   onPlanMeals,
@@ -213,6 +218,11 @@ function IngredientPage({
                 </button>
                 <button type="button" className="link-button" onClick={onOpenSaved}>
                   Favorites &amp; history
+                </button>
+                <button type="button" className="link-button" onClick={onOpenPantry}>
+                  {pantryCount > 0
+                    ? `Your pantry (${pantryCount}${pantryExpiring ? ` · ${pantryExpiring} expiring soon` : ""})`
+                    : "Your pantry"}
                 </button>
                 {hasPlan && (
                   <button type="button" className="link-button" onClick={onOpenPlan}>
@@ -613,6 +623,9 @@ function App() {
   // { key, request, status: "loading" | "done" | "error", data, error }; kept here so a
   // plan that takes minutes survives browsing away and back.
   const [mealPlan, setMealPlan] = useState(null);
+  const [pantry, setPantry] = useState(loadPantry);
+  // "Use it up first" stays on while you open a suggestion and come back.
+  const [useItUp, setUseItUp] = useState(false);
 
   useEffect(() => {
     const handlePopState = () => {
@@ -633,7 +646,7 @@ function App() {
   };
 
   useEffect(() => {
-    if (!["/", "/recipes", "/recipe", "/browse", "/saved", "/search", "/plan", "/cook"].includes(path)) {
+    if (!["/", "/recipes", "/recipe", "/browse", "/saved", "/search", "/plan", "/cook", "/pantry"].includes(path)) {
       navigate("/", true);
     }
   }, [path]);
@@ -797,6 +810,13 @@ function App() {
     navigate("/");
   };
 
+  const handlePantryChange = (items) => {
+    setPantry(items);
+    savePantry(items);
+  };
+  // What you own and can still use: the shopping list counts it as "already have".
+  const pantryOnHand = pantry.filter((item) => (daysLeft(item.expires, todayISO()) ?? 0) >= 0).map((item) => item.name);
+
   const recipeSize = recipeScale(
     selectedRecipe,
     servingsChoice.recipe === selectedRecipe ? servingsChoice.servings : null,
@@ -823,8 +843,12 @@ function App() {
       recipe={selectedRecipe}
       onBack={handleBack}
       onCook={() => navigate("/cook")}
-      // Leftovers are already in the kitchen, so the shopping list shouldn't say to buy them.
-      pantry={[...selectedIngredients, ...(selectedRecipe?.leftovers || []).map((item) => item.name)]}
+      // Leftovers and pantry items are already in the kitchen, so the shopping list shouldn't say to buy them.
+      pantry={[
+        ...selectedIngredients,
+        ...(selectedRecipe?.leftovers || []).map((item) => item.name),
+        ...pantryOnHand,
+      ]}
       favorite={isFavorite(favorites, selectedRecipe)}
       onToggleFavorite={() => setFavorites((prev) => toggleFavorite(prev, selectedRecipe))}
       onRefined={handleRefined}
@@ -849,6 +873,17 @@ function App() {
       filters={filters}
       onSelectRecipe={(recipe) => handleSelectRecipe(recipe, "/search")}
       onRecipeCreated={(recipe) => handleSelectRecipe(recipe, "/search")}
+      onBackToIngredients={handleBackToIngredients}
+    />
+  ) : path === "/pantry" ? (
+    <PantryPage
+      items={pantry}
+      onChange={handlePantryChange}
+      filters={filters}
+      useItUp={useItUp}
+      onUseItUpChange={setUseItUp}
+      onSelectRecipe={(recipe) => handleSelectRecipe(recipe, "/pantry")}
+      onRecipeCreated={(recipe) => handleSelectRecipe(recipe, "/pantry")}
       onBackToIngredients={handleBackToIngredients}
     />
   ) : path === "/plan" ? (
@@ -884,6 +919,9 @@ function App() {
       onGetRecipe={handleGetRecipe}
       onBrowse={() => navigate("/browse")}
       onOpenSaved={() => navigate("/saved")}
+      onOpenPantry={() => navigate("/pantry")}
+      pantryCount={pantry.length}
+      pantryExpiring={countExpiring(pantry, todayISO())}
       onPlanMeals={handlePlanMeals}
       onOpenPlan={() => navigate("/plan")}
       hasPlan={Boolean(mealPlan)}

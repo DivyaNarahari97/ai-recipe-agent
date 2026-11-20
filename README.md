@@ -87,6 +87,15 @@ This project combines deterministic rule-based matching with LLM-powered recipe 
 - Leftovers that break a dietary filter (roast chicken with Vegetarian on) are refused up front with an explanation, instead of trying two generations that can't pass
 - Leftover ingredients are labelled "leftover …", the shopping list counts them as things you already have, and every dish gets a fixed food-safety note (use within 3–4 days, reheat to 165°F / 74°C, reheat only once)
 
+## 🥫 Pantry & "Use It Up First"
+- Track what you own with optional expiry dates: type items ("spinach, milk"), pick a date or a preset (Today, +3 days, +1 week, +2 weeks, No date), or add straight from a fridge photo
+- The list shows expired items first (struck through, "Throw out"), then soonest to expire, then undated; badges read "Expires today", "Tomorrow", "In 3 days"
+- **Use it up first** ranks the stored recipes by what they use from your pantry: items expiring today or tomorrow count most, then within 3 days, then within a week, then anything else you own. Ties go to the recipe that needs fewer things bought. It's code over the stored recipes (`app/pantry.py`), no model call, so it's instant and updates as you change the pantry
+- Expired items are never suggested; the page says which ones were left out. Raw items don't count for "leftover …" ingredients, and "chicken stock" doesn't use up your chicken
+- If no stored recipe uses the item that expires first, it offers to generate one with your top expiring items
+- Recipes opened from it say what they use up, and the shopping list counts everything in your pantry as "already have"
+- The pantry lives in this browser (like favorites); there are no accounts yet, so it doesn't sync between devices
+
 ## 🥗 Dietary Filters
 - Vegetarian, vegan and gluten-free, plus max time and max calories
 - Applied to stored recipes during matching and added to the generation prompt
@@ -460,6 +469,7 @@ http://localhost:5173
 | GET | `/substitutions?ingredient=` | Substitutes for an ingredient |
 | POST | `/recipes/{id}/shopping-list` | Split ingredients into need / have / staples |
 | POST | `/leftovers` | A new dish from leftovers (`leftovers`: text, optional `filters`); returns the recipe, the parsed leftovers and what's needed beyond staples |
+| POST | `/pantry/use-it-up` | Stored recipes ranked by how much of the soon-to-expire pantry they use (`items` with optional `expires`, your local `today`, optional `filters`) |
 | POST | `/ingredients/from-photo` | List the ingredients in a fridge/pantry photo (`image`: base64 JPEG/PNG or data URL, 5 MB max) |
 | POST | `/meal-plan` | Plan dinners for 1–7 days (`ingredients`, `days`, optional `filters`) with one shopping list |
 | POST | `/recipes/{id}/refine` | Apply a change (`{"instruction": "spicier"}`), saved as a new recipe |

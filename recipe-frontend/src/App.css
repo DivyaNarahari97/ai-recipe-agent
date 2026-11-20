@@ -1555,3 +1555,268 @@ body {
 .leftovers-form .secondary-button {
   white-space: nowrap;
 }
+
+/* Pantry (dark page, light panels) */
+.pantry-panel {
+  width: min(1140px, 100%);
+  margin: 0 auto 16px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #ecebea;
+  color: #1f1f1f;
+  font-family: "Trebuchet MS", "Gill Sans", sans-serif;
+  box-sizing: border-box;
+}
+
+.pantry-add label,
+.pantry-expiry-row label {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.pantry-add-row {
+  display: flex;
+  gap: 8px;
+}
+
+.pantry-add-row .ingredient-input {
+  margin-bottom: 0;
+  min-width: 0;
+}
+
+.pantry-expiry-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.pantry-expiry-row label {
+  margin: 0;
+}
+
+.pantry-page input[type="date"] {
+  border: 1px solid #b9b5b2;
+  border-radius: 8px;
+  padding: 6px 8px;
+  background: #ffffff;
+  color: #1f1f1f;
+  font: inherit;
+  font-size: 0.85rem;
+}
+
+.pantry-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pantry-preset {
+  border: 1px solid #1e4d39;
+  border-radius: 999px;
+  padding: 5px 10px;
+  background: #ffffff;
+  color: #1e4d39;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.pantry-preset.is-active {
+  background: #1e4d39;
+  color: #ffffff;
+}
+
+.pantry-panel .photo-ingredients {
+  margin-top: 14px;
+}
+
+.pantry-heading {
+  margin: 0 0 10px;
+  font-size: 1.1rem;
+}
+
+.pantry-status {
+  margin: 8px 0 0;
+  font-size: 0.86rem;
+  color: #4a4a4a;
+}
+
+.pantry-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pantry-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0;
+  border-top: 1px solid #d3cfcc;
+}
+
+.pantry-item.is-expired .pantry-name {
+  text-decoration: line-through;
+  color: #6b6b6b;
+}
+
+.pantry-name {
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.pantry-badge {
+  border-radius: 999px;
+  padding: 3px 9px;
+  font-size: 0.76rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.pantry-badge.is-expired {
+  background: #6b6b6b;
+  color: #ffffff;
+}
+
+.pantry-badge.is-urgent {
+  background: #a22d2d;
+  color: #ffffff;
+}
+
+.pantry-badge.is-soon {
+  background: #f1d9a8;
+  color: #5c3d00;
+}
+
+.pantry-badge.is-week {
+  background: #dfe9d5;
+  color: #1e4d39;
+}
+
+.pantry-badge.is-fresh,
+.pantry-badge.is-none {
+  background: transparent;
+  color: #4a4a4a;
+  border: 1px solid #b9b5b2;
+}
+
+.pantry-remove {
+  border: none;
+  background: none;
+  padding: 4px;
+  color: #1e4d39;
+  font: inherit;
+  font-size: 0.8rem;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.use-it-up-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.use-it-up-header .pantry-heading {
+  margin: 0;
+}
+
+.use-it-up-toggle {
+  min-width: 64px;
+  border: 1px solid #1e4d39;
+  border-radius: 999px;
+  padding: 6px 14px;
+  background: #ffffff;
+  color: #1e4d39;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.use-it-up-toggle.is-active {
+  background: #1e4d39;
+  color: #ffffff;
+}
+
+.use-it-up-toggle:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.use-it-up-results.is-refreshing {
+  opacity: 0.6;
+}
+
+.use-it-up-create {
+  margin-top: 10px;
+}
+
+.use-it-up-create .secondary-button {
+  margin-top: 8px;
+}
+
+.use-it-up-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 10px;
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.use-it-up-card {
+  display: grid;
+  gap: 4px;
+  width: 100%;
+  height: 100%;
+  padding: 12px;
+  border: 1px solid #c9c5c2;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #1f1f1f;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.use-it-up-card:hover {
+  border-color: #1e4d39;
+}
+
+.use-it-up-name {
+  font-weight: 700;
+}
+
+.use-it-up-expiring {
+  color: #a22d2d;
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+
+.use-it-up-meta {
+  color: #4a4a4a;
+  font-size: 0.8rem;
+}
+
+.pantry-page button:focus-visible,
+.pantry-page input:focus-visible {
+  outline: 2px solid #1e4d39;
+  outline-offset: 2px;
+}
+
+@media (max-width: 560px) {
+  .pantry-item {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .pantry-item input[type="date"] {
+    grid-column: 1;
+  }
+}

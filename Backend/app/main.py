@@ -37,6 +37,7 @@ from app.leftovers import (
     parse_leftovers,
 )
 from app.meal_planner import NoRecipesFit, plan_meals
+from app.pantry import pantry_items, rank_recipes
 from app.schemas import (
     AssistantResponse,
     CravingRecipeRequest,
@@ -58,6 +59,8 @@ from app.schemas import (
     ShoppingListRequest,
     ShoppingListResponse,
     SubstitutionResponse,
+    UseItUpRequest,
+    UseItUpResponse,
     normalize_cuisine,
 )
 from app.photo import InvalidImage, decode_image
@@ -748,6 +751,20 @@ def transform_leftovers(data: LeftoversRequest, db: Session = Depends(get_db)):
         "recipe": _store_generated_recipe(recipe, db),
         "leftovers": [{"text": l.text, "name": l.name} for l in leftovers],
         "to_buy": to_buy,
+    }
+
+
+@app.post("/pantry/use-it-up", response_model=UseItUpResponse)
+def use_it_up(data: UseItUpRequest, db: Session = Depends(get_db)):
+    """Stored recipes ranked by how much of the soon-to-expire pantry they use. No model call."""
+    pantry, expired = pantry_items(data.items, data.today)
+    logger.info("Use-it-up requested", extra={"items": len(pantry), "expired": len(expired)})
+    results = rank_recipes(db.query(models.Recipe).all(), pantry, data.filters, data.limit)
+    expiring = sorted((p for p in pantry if p.urgency), key=lambda p: p.days_left)
+    return {
+        "results": results,
+        "expiring": [{"name": p.name, "days_left": p.days_left} for p in expiring],
+        "expired": expired,
     }
 
 

@@ -178,7 +178,7 @@ class DishRejected(Exception):
 LEFTOVER_ATTEMPTS = 2
 
 
-def make_leftover_dish(leftovers: list[Leftover], filters, generate) -> tuple:
+def make_leftover_dish(leftovers: list[Leftover], filters, generate, profile=None) -> tuple:
     """Generate, check, and retry once with the reasons. Returns (recipe, attempts used).
 
     `generate` is app.ai.generate_from_leftovers (passed in so callers and tests can swap it).
@@ -186,11 +186,14 @@ def make_leftover_dish(leftovers: list[Leftover], filters, generate) -> tuple:
     rejected: list[str] = []
     for attempt in range(1, LEFTOVER_ATTEMPTS + 1):
         recipe = generate(
-            [l.text for l in leftovers], filters=filters, rejected=rejected or None, max_extra=MAX_EXTRA_INGREDIENTS
+            [l.text for l in leftovers], filters=filters, rejected=rejected or None, max_extra=MAX_EXTRA_INGREDIENTS,
+            profile=profile,
         )
         ingredients = [i.model_dump() for i in recipe.ingredients]
         rejected = leftover_problems(recipe.name, ingredients, leftovers)
         rejected += filters.violations(ingredients, recipe.time, recipe.calories)
+        if profile:
+            rejected += profile.violations(ingredients)
         if not rejected:
             return recipe, attempt
         logger.info("Leftover recipe rejected", extra={"attempt": attempt, "problems": rejected})

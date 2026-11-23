@@ -1820,3 +1820,147 @@ body {
     grid-column: 1;
   }
 }
+
+/* Rating + taste profile */
+.rating {
+  width: min(980px, 100%);
+  margin-bottom: 14px;
+  padding: 10px 16px;
+  border: 1px solid #2c3036;
+  border-radius: 10px;
+  box-sizing: border-box;
+  color: #f6f6f6;
+}
+
+.rating-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.rating-question {
+  font-weight: 700;
+  margin-right: 4px;
+}
+
+.rating-thumb {
+  min-width: 44px;
+  min-height: 40px;
+  border: 1px solid #d8e8de;
+  border-radius: 999px;
+  background: transparent;
+  font-size: 1.15rem;
+  cursor: pointer;
+}
+
+.rating-thumb.is-active {
+  background: #d8e8de;
+}
+
+.rating .refine-chip.is-active {
+  background: #d8e8de;
+  color: #1e4d39;
+}
+
+.rating-reasons {
+  margin-top: 10px;
+}
+
+.rating-hint {
+  margin: 8px 0 6px;
+  font-size: 0.86rem;
+  color: #d8e8de;
+}
+
+.rating-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.rating-reasons > .link-button {
+  margin-top: 8px;
+}
+
+.rating-profile {
+  margin: 8px 0 0;
+  font-size: 0.86rem;
+  color: #d8e8de;
+}
+
+.rating-profile .link-button,
+.rating-row .link-button {
+  display: inline;
+  color: #f6f6f6;
+}
+
+.rating button:focus-visible {
+  outline: 2px solid #f0c27b;
+  outline-offset: 2px;
+}
+
+.taste-page button:focus-visible,
+.taste-page input:focus-visible {
+  outline: 2px solid #1e4d39;
+  outline-offset: 2px;
+}
+
+.taste-section {
+  width: min(1140px, 100%);
+  margin: 0 auto 16px;
+  padding: 16px;
+  border-radius: 12px;
+  background: #ecebea;
+  color: #1f1f1f;
+  box-sizing: border-box;
+}
+
+.taste-section .recipe-section-title {
+  margin-top: 0;
+}
+
+.taste-note {
+  margin: 0 0 8px;
+  font-size: 0.86rem;
+  color: #4a4a4a;
+}
+
+.taste-list,
+.taste-ratings {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.taste-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 0;
+  border-top: 1px solid #d3cfcc;
+  overflow-wrap: anywhere;
+}
+
+.taste-why {
+  color: #5a5a5a;
+  font-size: 0.8rem;
+}
+
+.taste-remove {
+  position: static;
+  flex: none;
+}
+
+.taste-add {
+  margin-top: 10px;
+}
+
+.taste-ratings li {
+  padding: 4px 0;
+}
+
+.taste-ratings + .secondary-button {
+  margin-top: 10px;
+}

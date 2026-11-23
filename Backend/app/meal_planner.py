@@ -25,6 +25,7 @@ from app.ai import RecipeGenerationError, draft_meal_plan
 from app.dietary import DietaryFilters
 from app.ingredients import ingredient_tokens
 from app.schemas import MealPlanDraft
+from app.taste import TasteProfile
 from app.shopping import build_shopping_list
 
 logger = logging.getLogger(__name__)
@@ -88,8 +89,12 @@ def pantry_used(ingredients, pantry: list[str]) -> list[str]:
     return [p for p in pantry if (owned := ingredient_tokens(p)) and any(owned <= n for n in names)]
 
 
-def shortlist(recipes, pantry: list[str], filters: DietaryFilters, size: int = SHORTLIST_SIZE) -> list:
-    eligible = [r for r in recipes if filters.matches(r)]
+def shortlist(recipes, pantry: list[str], filters: DietaryFilters, size: int = SHORTLIST_SIZE,
+              profile: Optional[TasteProfile] = None) -> list:
+    eligible = [
+        r for r in recipes
+        if filters.matches(r) and not (profile and profile.violations(r.ingredients))
+    ]
     eligible.sort(key=lambda r: (-len(pantry_used(r.ingredients, pantry)), len(to_buy(r.ingredients, pantry))))
     kept: list = []
     for recipe in eligible:
@@ -233,9 +238,11 @@ def plan_meals(
     generate: Generate,
     filters: Optional[DietaryFilters] = None,
     draft: Callable[..., MealPlanDraft] = draft_meal_plan,
+    profile: Optional[TasteProfile] = None,
 ) -> dict:
     filters = filters or DietaryFilters()
-    candidates = shortlist(recipes, pantry, filters)
+    profile = (profile or TasteProfile()).allowing(pantry)
+    candidates = shortlist(recipes, pantry, filters, profile=profile)
     if not candidates:
         raise NoRecipesFit()
     options = rank_options(candidates, pantry, days)
@@ -252,7 +259,7 @@ def plan_meals(
     revision = None
     for round_number in range(1, PLAN_ROUNDS + 1):
         try:
-            answer = draft(pantry, days, texts, missing, filters=filters, revision=revision)
+            answer = draft(pantry, days, texts, missing, filters=filters, revision=revision, profile=profile)
         except RecipeGenerationError:
             logger.exception("Meal plan draft failed", extra={"round": round_number})
             steps.append("The planner model didn't answer; used the top-ranked option.")
@@ -278,7 +285,7 @@ def plan_meals(
     if dish:
         day = days if missing else dish.replace_day
         others = [p.recipe for p in planned if p.day != day]
-        recipe = _write_new_dish(dish.name, dish.ingredients, others, pantry, generate, filters)
+        recipe = _write_new_dish(dish.name, dish.ingredients, others, pantry, generate, filters, profile)
         if recipe is not None:
             steps.append(f"Day {day}: wrote the full recipe for {recipe.name}.")
             planned = [p for p in planned if p.day != day] + [PlannedDay(day, recipe, True)]
@@ -300,7 +307,10 @@ def plan_meals(
 
 
 def _write_new_dish(name: str, ingredients: list[str], others: list, pantry: list[str],
-                    generate: Generate, filters: DietaryFilters):
+                    generate: Generate, filters: DietaryFilters, profile: Optional[TasteProfile] = None):
+    profile = profile or TasteProfile()
+    # The planner sometimes lists a food the cook avoids; don't hand it to the recipe writer.
+    ingredients = [i for i in ingredients if not profile.violations([i])] or ingredients
     for attempt in range(1, NEW_DISH_ATTEMPTS + 1):
         try:
             recipe = generate(name, ingredients)
@@ -308,6 +318,7 @@ def _write_new_dish(name: str, ingredients: list[str], others: list, pantry: lis
             logger.exception("New dish generation failed")
             return None
         problems = filters.violations(recipe.ingredients, recipe.time, recipe.calories)
+        problems += profile.violations(recipe.ingredients)
         extra = _extra_items(recipe.ingredients, others, pantry)
         if len(extra) > NEW_RECIPE_MAX_EXTRA_ITEMS:
             problems.append(f"needs {len(extra)} items no other dinner uses")

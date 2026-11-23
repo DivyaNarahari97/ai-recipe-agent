@@ -1,0 +1,130 @@
+{
+  "ingredients": [
+    {
+      "ingredients": [
+        "chicken",
+        "lime",
+        "rice",
+        "black beans"
+      ],
+      "avoid": "cilantro"
+    },
+    {
+      "ingredients": [
+        "chickpeas",
+        "tomatoes",
+        "onion"
+      ],
+      "avoid": "cilantro"
+    },
+    {
+      "ingredients": [
+        "beef",
+        "onion",
+        "sour cream"
+      ],
+      "avoid": "mushrooms"
+    },
+    {
+      "ingredients": [
+        "ground beef",
+        "tomatoes",
+        "spaghetti"
+      ],
+      "avoid": "onion"
+    },
+    {
+      "ingredients": [
+        "shrimp",
+        "butter",
+        "linguine"
+      ],
+      "avoid": "garlic"
+    },
+    {
+      "ingredients": [
+        "pasta",
+        "basil",
+        "tomatoes"
+      ],
+      "avoid": "parmesan"
+    },
+    {
+      "ingredients": [
+        "chicken",
+        "curry powder",
+        "rice"
+      ],
+      "avoid": "coconut"
+    },
+    {
+      "ingredients": [
+        "rice",
+        "peas",
+        "carrots",
+        "soy sauce"
+      ],
+      "avoid": "eggs"
+    },
+    {
+      "ingredients": [
+        "noodles",
+        "soy sauce",
+        "sesame oil",
+        "tofu"
+      ],
+      "avoid": "scallions"
+    },
+    {
+      "ingredients": [
+        "chicken",
+        "onion",
+        "rice",
+        "paprika"
+      ],
+      "avoid": "bell pepper"
+    }
+  ],
+  "cravings": [
+    {
+      "craving": "chicken burrito bowl",
+      "avoid": "cilantro"
+    },
+    {
+      "craving": "thai green curry",
+      "avoid": "cilantro"
+    },
+    {
+      "craving": "beef stroganoff",
+      "avoid": "mushrooms"
+    },
+    {
+      "craving": "shrimp scampi",
+      "avoid": "garlic"
+    },
+    {
+      "craving": "chicken caesar salad",
+      "avoid": "anchovies"
+    },
+    {
+      "craving": "pad thai",
+      "avoid": "peanuts"
+    },
+    {
+      "craving": "greek salad",
+      "avoid": "olives"
+    },
+    {
+      "craving": "chili con carne",
+      "avoid": "onion"
+    },
+    {
+      "craving": "vegetable fried rice",
+      "avoid": "eggs"
+    },
+    {
+      "craving": "creamy tomato basil pasta",
+      "avoid": "parmesan"
+    }
+  ]
+}

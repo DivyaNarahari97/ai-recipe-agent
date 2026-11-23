@@ -20,6 +20,7 @@ from app.ai import (
     generate_from_craving,
     generate_from_leftovers,
     generate_recipe,
+    generate_recipe_for_taste,
     refine_recipe,
     suggest_substitutes,
 )
@@ -68,6 +69,7 @@ from app.scaling import scale_for_new_servings
 from app.semantic_search import search as semantic_search
 from app.shopping import build_shopping_list
 from app.substitutions import lookup_substitutes, substitution_key
+from app.taste import TasteProfile
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
@@ -88,6 +90,7 @@ class RecipeSearchRequest(BaseModel):
 class IngredientsRequest(BaseModel):
     ingredients: list[str]
     filters: DietaryFilters = DietaryFilters()
+    profile: TasteProfile = TasteProfile()
 
 
 def _extract_ingredient_names(ingredients: list) -> set[str]:
@@ -102,9 +105,9 @@ def _extract_ingredient_names(ingredients: list) -> set[str]:
     return names
 
 
-def _cache_key(ingredients: list[str], filters: DietaryFilters) -> tuple:
+def _cache_key(ingredients: list[str], filters: DietaryFilters, profile: TasteProfile = TasteProfile()) -> tuple:
     cleaned = sorted({str(i).strip().lower() for i in ingredients if str(i).strip()})
-    return (tuple(cleaned), filters.model_dump_json())
+    return (tuple(cleaned), filters.model_dump_json(), profile.model_dump_json())
 
 
 _RECIPES_CACHE: dict[tuple, tuple[float, list[int]]] = {}
@@ -151,8 +154,13 @@ def _create_and_store_ai_recipe(
     user_ingredients: list[str],
     db: Session,
     filters: Optional[DietaryFilters] = None,
+    profile: Optional[TasteProfile] = None,
 ) -> models.Recipe:
-    return _store_generated_recipe(generate_recipe(user_ingredients, filters=filters), db)
+    """Generate and store; the caller checks the stored recipe against the filters and profile."""
+    recipe, _, _ = generate_recipe_for_taste(
+        user_ingredients, profile or TasteProfile(), filters, generate=generate_recipe
+    )
+    return _store_generated_recipe(recipe, db)
 
 
 def _store_generated_recipe(
@@ -176,8 +184,11 @@ def assistant_logic(
     user_ingredients: list[str],
     db: Session,
     filters: Optional[DietaryFilters] = None,
+    profile: Optional[TasteProfile] = None,
 ):
     filters = filters or DietaryFilters()
+    # Foods they asked for today aren't avoided, even if the profile says so.
+    profile = (profile or TasteProfile()).allowing(user_ingredients)
     logger.info(
         "Assistant flow started",
         extra={"ingredient_count": len(user_ingredients), "filters": filters.model_dump()}
@@ -186,7 +197,7 @@ def assistant_logic(
 
     user_set = extract_normalized_ingredient_tokens(user_ingredients)
 
-    cache_key = _cache_key(user_ingredients, filters)
+    cache_key = _cache_key(user_ingredients, filters, profile)
     cached = _RECIPES_CACHE.get(cache_key)
     if cached:
         cached_at, cached_ids = cached
@@ -205,10 +216,12 @@ def assistant_logic(
         query = query.filter(models.Recipe.ingredient_tokens.contains(list(user_set)))
 
     # Filters reject candidates after the query, so only cap the scan when none are set.
-    candidates = query.all() if filters.is_active() else query.limit(target_count * 3).all()
+    candidates = (
+        query.all() if filters.is_active() or profile.avoids else query.limit(target_count * 3).all()
+    )
     for recipe in candidates:
         recipe_set = extract_normalized_ingredient_tokens(recipe.ingredients)
-        if user_set.issubset(recipe_set) and filters.matches(recipe):
+        if user_set.issubset(recipe_set) and filters.matches(recipe) and not profile.violations(recipe.ingredients):
             results.append(recipe)
             existing_keys.add(_recipe_key(recipe))
         if len(results) >= target_count:
@@ -224,11 +237,12 @@ def assistant_logic(
             extra={"remaining": target_count - len(results), "attempt": attempts}
         )
         try:
-            new_recipe = _create_and_store_ai_recipe(user_ingredients, db, filters)
+            new_recipe = _create_and_store_ai_recipe(user_ingredients, db, filters, profile)
         except Exception:
             logger.exception("AI generation failed")
             break
         problems = filters.violations(new_recipe.ingredients, new_recipe.time, new_recipe.calories)
+        problems += profile.violations(new_recipe.ingredients)
         if problems:
             # Still saved (it's a valid recipe for other searches), just not shown here.
             logger.info(
@@ -455,10 +469,17 @@ def ai_generate_recipe(
 ):
     logger.info("AI recipe generation endpoint called", extra={"ingredient_count": len(data.ingredients)})
     try:
-        return _create_and_store_ai_recipe(data.ingredients, db, data.filters)
+        recipe = _create_and_store_ai_recipe(data.ingredients, db, data.filters, data.profile)
     except RecipeGenerationError as exc:
         logger.exception("AI recipe generation failed")
         raise HTTPException(status_code=502, detail="Recipe generation failed") from exc
+    avoided = data.profile.allowing(data.ingredients).violations(recipe.ingredients)
+    if avoided:
+        # Still stored like any generated recipe; just not handed to someone who avoids it.
+        raise HTTPException(
+            status_code=422, detail="Couldn't make a recipe without the foods you avoid; try again or edit your taste profile"
+        )
+    return recipe
 
 @app.post("/recipes/search", response_model=list[RecipeResponse])
 def search_recipes(
@@ -504,7 +525,7 @@ def search_recipes(
 @app.post("/assistant", response_model=AssistantResponse)
 def assistant(data: IngredientsRequest, db: Session = Depends(get_db)):
     logger.info("Assistant endpoint called", extra={"ingredient_count": len(data.ingredients)})
-    result = assistant_logic(data.ingredients, db, data.filters)
+    result = assistant_logic(data.ingredients, db, data.filters, data.profile)
     logger.info("Assistant endpoint completed", extra={"source": result.get("source")})
     return result
 
@@ -614,10 +635,14 @@ def generate_for_craving(data: CravingRecipeRequest, db: Session = Depends(get_d
         logger.exception("Retrieval for craving recipe failed")
         raise HTTPException(status_code=502, detail="Semantic search is unavailable") from exc
     sources = [recipe for recipe, _ in hits]
+    profile = data.profile.allowing([data.query])
 
+    problems: list[str] = []
     for attempt in range(1, CRAVING_ATTEMPTS + 1):
         try:
-            recipe = generate_from_craving(data.query, sources, filters=data.filters)
+            recipe = generate_from_craving(
+                data.query, sources, filters=data.filters, profile=profile, rejected=problems or None
+            )
         except RecipeGenerationError as exc:
             logger.exception("Craving recipe generation failed")
             raise HTTPException(status_code=502, detail="Recipe generation failed") from exc
@@ -627,6 +652,7 @@ def generate_for_craving(data: CravingRecipeRequest, db: Session = Depends(get_d
         if copied:
             # The prompt asks for a new recipe; the RAG eval caught one that wasn't.
             problems.append(f"too similar to {copied!r}")
+        problems += profile.violations(ingredients)
         if not problems:
             break
         logger.info("Craving recipe rejected", extra={"attempt": attempt, "problems": problems})
@@ -734,7 +760,10 @@ def transform_leftovers(data: LeftoversRequest, db: Session = Depends(get_db)):
         )
 
     try:
-        recipe, _ = make_leftover_dish(leftovers, data.filters, generate=generate_from_leftovers)
+        recipe, _ = make_leftover_dish(
+            leftovers, data.filters, generate=generate_from_leftovers,
+            profile=data.profile.allowing([l.text for l in leftovers]),
+        )
     except RecipeGenerationError as exc:
         logger.exception("Leftover recipe generation failed")
         raise HTTPException(status_code=502, detail="Recipe generation failed") from exc
@@ -776,12 +805,14 @@ def meal_plan(data: MealPlanRequest, db: Session = Depends(get_db)):
         raise HTTPException(status_code=400, detail="Add at least one ingredient")
     logger.info("Meal plan requested", extra={"days": data.days, "ingredient_count": len(pantry)})
 
+    profile = data.profile.allowing(pantry)
+
     def generate(dish_name, ingredients):
-        recipe = generate_recipe(ingredients, filters=data.filters, dish_name=dish_name)
+        recipe = generate_recipe(ingredients, filters=data.filters, dish_name=dish_name, profile=profile)
         return _store_generated_recipe(recipe, db)
 
     try:
-        return plan_meals(pantry, data.days, db.query(models.Recipe).all(), generate, data.filters)
+        return plan_meals(pantry, data.days, db.query(models.Recipe).all(), generate, data.filters, profile=profile)
     except NoRecipesFit as exc:
         raise HTTPException(status_code=422, detail="No stored recipes fit your preferences") from exc
     except RecipeGenerationError as exc:

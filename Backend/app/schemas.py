@@ -5,6 +5,7 @@ from typing import List, Optional, Dict, Any
 from pydantic import BaseModel, ConfigDict, Field, computed_field, field_validator
 
 from app.dietary import DietaryFilters, dietary_tags
+from app.taste import TasteProfile
 
 logger = logging.getLogger(__name__)
 logger.debug("Schemas module loaded")
@@ -144,6 +145,7 @@ class SearchResponse(BaseModel):
 class CravingRecipeRequest(BaseModel):
     query: str = Field(min_length=1, max_length=500)
     filters: DietaryFilters = DietaryFilters()
+    profile: TasteProfile = TasteProfile()
 
 
 class RecipeRef(BaseModel):
@@ -195,6 +197,7 @@ class MealPlanRequest(BaseModel):
     ingredients: List[str] = Field(min_length=1, max_length=40)
     days: int = Field(default=3, ge=1, le=MAX_PLAN_DAYS)
     filters: DietaryFilters = DietaryFilters()
+    profile: TasteProfile = TasteProfile()
 
 
 class MealPlanDay(BaseModel):
@@ -242,6 +245,7 @@ class PhotoIngredientsResponse(BaseModel):
 class LeftoversRequest(BaseModel):
     leftovers: str = Field(min_length=1, max_length=500)
     filters: DietaryFilters = DietaryFilters()
+    profile: TasteProfile = TasteProfile()
 
 
 class LeftoverItem(BaseModel):

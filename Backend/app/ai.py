@@ -11,6 +11,7 @@ from pydantic import BaseModel, ValidationError
 from app.dietary import DietaryFilters
 from app.photo import clean_detected
 from app.schemas import CUISINES, DetectedIngredients, GeneratedRecipe, GeneratedSubstitutes, MealPlanDraft
+from app.taste import TasteProfile
 
 ModelT = TypeVar("ModelT", bound=BaseModel)
 
@@ -195,11 +196,23 @@ def _recipe_json_format(servings: str = "2-4") -> str:
 """
 
 
+def _rejection(rejected: Optional[list[str]]) -> str:
+    if not rejected:
+        return ""
+    return "\nYour last recipe was rejected because " + "; and ".join(rejected) + ". Fix this in the new recipe.\n"
+
+
+def _taste(profile: Optional[TasteProfile], subject: str = "The recipe") -> str:
+    return profile.prompt_text(subject) if profile else ""
+
+
 def generate_recipe(
     ingredients: list[str],
     call_model: Callable[[str], str] = _call_model,
     filters: Optional[DietaryFilters] = None,
     dish_name: Optional[str] = None,
+    profile: Optional[TasteProfile] = None,
+    rejected: Optional[list[str]] = None,
 ) -> GeneratedRecipe:
     logger.info(
         "Generating recipe with AI",
@@ -218,7 +231,42 @@ Ingredients:
         prompt += f"\nThe dish: {dish_name}\n"
     if filters:
         prompt += filters.prompt_constraints()
+    prompt += _taste(profile) + _rejection(rejected)
     return _generate_validated(prompt, GeneratedRecipe, call_model)
+
+
+# One retry, with the reason, when a recipe uses a food the cook avoids.
+TASTE_ATTEMPTS = 2
+
+
+def generate_for_taste(
+    generate: Callable[..., GeneratedRecipe], profile: TasteProfile
+) -> tuple[GeneratedRecipe, int, list[str]]:
+    """Call generate(profile=..., rejected=...), check for avoided foods, retry once with the reason.
+
+    Returns (recipe, attempts used, problems left); problems is empty when the recipe is fine.
+    """
+    rejected: list[str] = []
+    for attempt in range(1, TASTE_ATTEMPTS + 1):
+        recipe = generate(profile=profile, rejected=rejected or None)
+        rejected = profile.violations([i.model_dump() for i in recipe.ingredients])
+        if not rejected:
+            return recipe, attempt, []
+        logger.info("Generated recipe used an avoided food", extra={"attempt": attempt, "problems": rejected})
+    return recipe, TASTE_ATTEMPTS, rejected
+
+
+def generate_recipe_for_taste(
+    ingredients: list[str],
+    profile: TasteProfile,
+    filters: Optional[DietaryFilters] = None,
+    generate: Callable[..., GeneratedRecipe] = None,
+) -> tuple[GeneratedRecipe, int, list[str]]:
+    """generate_recipe through generate_for_taste. Foods the cook listed are never treated as avoided."""
+    generate = generate or generate_recipe
+    return generate_for_taste(
+        lambda **kwargs: generate(ingredients, filters=filters, **kwargs), profile.allowing(ingredients)
+    )
 
 
 def _source_summary(recipe) -> str:
@@ -238,6 +286,8 @@ def generate_from_craving(
     sources: list,
     call_model: Callable[[str], str] = _call_model,
     filters: Optional[DietaryFilters] = None,
+    profile: Optional[TasteProfile] = None,
+    rejected: Optional[list[str]] = None,
 ) -> GeneratedRecipe:
     """Retrieval-augmented generation: a new recipe for a craving, inspired by `sources`.
 
@@ -260,6 +310,7 @@ Create a NEW recipe for this craving: "{craving}"
     prompt += "\n" + _recipe_json_format()
     if filters:
         prompt += filters.prompt_constraints()
+    prompt += _taste(profile) + _rejection(rejected)
     return _generate_validated(prompt, GeneratedRecipe, call_model)
 
 
@@ -269,6 +320,7 @@ def generate_from_leftovers(
     filters: Optional[DietaryFilters] = None,
     rejected: Optional[list[str]] = None,
     max_extra: int = 4,
+    profile: Optional[TasteProfile] = None,
 ) -> GeneratedRecipe:
     """A new dish built around already-cooked leftovers; `rejected` explains what was wrong last time."""
     logger.info("Generating recipe from leftovers", extra={"leftover_count": len(leftovers)})
@@ -290,15 +342,11 @@ Create ONE new dish built around them:
   flour, sugar, stock), use at most {max_extra} other ingredients.
 - Give servings for the amount of leftovers they have.
 """
-    if rejected:
-        prompt += (
-            "\nYour last recipe was rejected because "
-            + "; and ".join(rejected)
-            + ". Fix this in the new recipe.\n"
-        )
+    prompt += _rejection(rejected)
     prompt += "\n" + _recipe_json_format()
     if filters:
         prompt += filters.prompt_constraints()
+    prompt += _taste(profile)
     return _generate_validated(prompt, GeneratedRecipe, call_model)
 
 
@@ -310,6 +358,7 @@ def draft_meal_plan(
     call_model: Callable[[str], str] = _call_model,
     filters: Optional[DietaryFilters] = None,
     revision: Optional[str] = None,
+    profile: Optional[TasteProfile] = None,
 ) -> MealPlanDraft:
     """Ask the model to choose between plans the code ranked; `revision` carries feedback on its last answer."""
     logger.info("Drafting meal plan", extra={"days": days, "options": len(option_texts), "revising": bool(revision)})
@@ -337,6 +386,7 @@ Choose the option with the most variety (not the same kind of dish every night) 
         )
     if filters:
         prompt += filters.prompt_constraints().replace("The recipe MUST", "A new dish MUST")
+    prompt += _taste(profile, subject="A new dish")
     if revision:
         prompt += "\n" + revision + "\n"
     prompt += """

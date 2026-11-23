@@ -18,7 +18,7 @@ function ExpiryBadge({ days }) {
   return <span className={`pantry-badge is-${tone}`}>{label}</span>;
 }
 
-function UseItUpResults({ items, filters, onSelectRecipe, onRecipeCreated }) {
+function UseItUpResults({ items, filters, profile, onSelectRecipe, onRecipeCreated }) {
   const today = todayISO();
   const request = JSON.stringify({
     items: items.map(({ name, expires }) => ({ name, expires })),
@@ -67,9 +67,15 @@ function UseItUpResults({ items, filters, onSelectRecipe, onRecipeCreated }) {
       const res = await fetch(`${API_BASE_URL}/ai/generate-recipe`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ingredients: generateWith, filters }),
+        body: JSON.stringify({ ingredients: generateWith, filters, profile }),
       });
-      if (!res.ok) throw new Error("Couldn't create a recipe right now. Check that Ollama is running.");
+      if (!res.ok) {
+        // 422: every try used a food from the taste profile's avoid list.
+        const detail = res.status === 422 ? (await res.json().catch(() => ({}))).detail : "";
+        throw new Error(
+          (typeof detail === "string" && detail) || "Couldn't create a recipe right now. Check that Ollama is running."
+        );
+      }
       onRecipeCreated(await res.json());
     } catch (err) {
       console.error(err);
@@ -135,6 +141,7 @@ function PantryPage({
   items,
   onChange,
   filters,
+  profile,
   useItUp,
   onUseItUpChange,
   onSelectRecipe,
@@ -282,6 +289,7 @@ function PantryPage({
           <UseItUpResults
             items={items}
             filters={filters}
+            profile={profile}
             onSelectRecipe={onSelectRecipe}
             onRecipeCreated={onRecipeCreated}
           />

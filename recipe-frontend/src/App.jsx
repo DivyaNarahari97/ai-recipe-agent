@@ -7,6 +7,8 @@ import PantryPage from "./components/PantryPage";
 import PhotoIngredients from "./components/PhotoIngredients";
 import RefinePanel from "./components/RefinePanel";
 import RecipeDetail from "./components/RecipeDetail";
+import RecipeRating from "./components/RecipeRating";
+import TastePage from "./components/TastePage";
 import { API_BASE_URL } from "./config";
 import { DIET_LABELS, NO_FILTERS } from "./dietary";
 import { countExpiring, daysLeft, loadPantry, savePantry, todayISO } from "./pantry";
@@ -19,6 +21,19 @@ import {
   loadHistory,
   toggleFavorite,
 } from "./savedRecipes";
+import {
+  addAvoid,
+  buildProfile,
+  loadRatings,
+  loadTasteEdits,
+  profileRequest,
+  profileSummary,
+  rateRecipe,
+  ratingFor,
+  removeTrait,
+  saveRatings,
+  saveTasteEdits,
+} from "./taste";
 import "./App.css";
 
 function IngredientImage({ name }) {
@@ -84,9 +99,12 @@ function IngredientPage({
   hasPlan,
   filters,
   onFiltersChange,
+  profile,
+  onOpenTaste,
   errorMessage,
 }) {
   const [craving, setCraving] = useState("");
+  const tasteSummary = profileSummary(profile);
   const [planDays, setPlanDays] = useState(3);
 
   return (
@@ -210,7 +228,7 @@ function IngredientPage({
                 </div>
               </form>
 
-              <LeftoversForm filters={filters} onRecipeCreated={onLeftoverRecipe} />
+              <LeftoversForm filters={filters} profile={profileRequest(profile)} onRecipeCreated={onLeftoverRecipe} />
 
               <div className="landing-links">
                 <button type="button" className="link-button" onClick={onBrowse}>
@@ -223,6 +241,9 @@ function IngredientPage({
                   {pantryCount > 0
                     ? `Your pantry (${pantryCount}${pantryExpiring ? ` · ${pantryExpiring} expiring soon` : ""})`
                     : "Your pantry"}
+                </button>
+                <button type="button" className="link-button" onClick={onOpenTaste}>
+                  {tasteSummary ? `Your taste (${tasteSummary})` : "Your taste profile"}
                 </button>
                 {hasPlan && (
                   <button type="button" className="link-button" onClick={onOpenPlan}>
@@ -258,6 +279,10 @@ function RecipePage({
   scale,
   onServingsChange,
   onSystemChange,
+  rating,
+  profile,
+  onRate,
+  onOpenTaste,
 }) {
   return (
     <main className="recipe-page">
@@ -283,6 +308,17 @@ function RecipePage({
           </div>
         )}
       </div>
+
+      {recipe && (
+        <RecipeRating
+          key={recipe.id ?? recipe.name}
+          recipe={recipe}
+          rating={rating}
+          profile={profile}
+          onRate={onRate}
+          onOpenTaste={onOpenTaste}
+        />
+      )}
 
       {recipe?.id && <RefinePanel recipe={recipe} onRefined={onRefined} onUndo={onUndoRefine} />}
 
@@ -455,7 +491,7 @@ function BrowsePage({ cuisine, onCuisineChange, onSelectRecipe, onBackToIngredie
   );
 }
 
-function SearchPage({ query, filters, onSelectRecipe, onRecipeCreated, onBackToIngredients }) {
+function SearchPage({ query, filters, profile, onSelectRecipe, onRecipeCreated, onBackToIngredients }) {
   // Which request the loaded results belong to; while it differs, we're loading.
   const requestKey = JSON.stringify({ query, filters });
   const [loaded, setLoaded] = useState({ key: null, hits: [], error: "" });
@@ -469,7 +505,7 @@ function SearchPage({ query, filters, onSelectRecipe, onRecipeCreated, onBackToI
       const res = await fetch(`${API_BASE_URL}/search/generate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query, filters }),
+        body: JSON.stringify({ query, filters, profile }),
       });
       if (!res.ok) {
         throw new Error(
@@ -626,6 +662,11 @@ function App() {
   const [pantry, setPantry] = useState(loadPantry);
   // "Use it up first" stays on while you open a suggestion and come back.
   const [useItUp, setUseItUp] = useState(false);
+  const [ratings, setRatings] = useState(loadRatings);
+  const [tasteEdits, setTasteEdits] = useState(loadTasteEdits);
+  const tasteProfile = buildProfile(ratings, tasteEdits);
+  // Sent with every request that generates a recipe.
+  const profile = profileRequest(tasteProfile);
 
   useEffect(() => {
     const handlePopState = () => {
@@ -646,7 +687,7 @@ function App() {
   };
 
   useEffect(() => {
-    if (!["/", "/recipes", "/recipe", "/browse", "/saved", "/search", "/plan", "/cook", "/pantry"].includes(path)) {
+    if (!["/", "/recipes", "/recipe", "/browse", "/saved", "/search", "/plan", "/cook", "/pantry", "/taste"].includes(path)) {
       navigate("/", true);
     }
   }, [path]);
@@ -724,6 +765,7 @@ function App() {
         body: JSON.stringify({
           ingredients: selectedIngredients,
           filters,
+          profile,
         }),
       });
 
@@ -739,7 +781,9 @@ function App() {
         setErrorMessage(
           Object.values(filters).some(Boolean)
             ? "No recipe found that meets your dietary preferences. Try loosening them."
-            : "No recipe found for these ingredients."
+            : profile.avoids.length
+              ? `No recipe found for these ingredients without ${profile.avoids.join(", ")}.`
+              : "No recipe found for these ingredients."
         );
       }
     } catch (error) {
@@ -778,7 +822,7 @@ function App() {
   };
 
   const handlePlanMeals = async (days) => {
-    const request = { ingredients: selectedIngredients, days, filters };
+    const request = { ingredients: selectedIngredients, days, filters, profile };
     const key = JSON.stringify(request);
     navigate("/plan");
     if (mealPlan?.key === key && mealPlan.status !== "error") return;
@@ -808,6 +852,16 @@ function App() {
 
   const handleBackToIngredients = () => {
     navigate("/");
+  };
+
+  const handleRate = (rating, reasons, avoid) => {
+    const next = rateRecipe(ratings, selectedRecipe, rating, reasons, avoid);
+    setRatings(next);
+    saveRatings(next);
+  };
+  const handleTasteEdits = (next) => {
+    setTasteEdits(next);
+    saveTasteEdits(next);
   };
 
   const handlePantryChange = (items) => {
@@ -853,6 +907,10 @@ function App() {
       onToggleFavorite={() => setFavorites((prev) => toggleFavorite(prev, selectedRecipe))}
       onRefined={handleRefined}
       onUndoRefine={handleUndoRefine}
+      rating={ratingFor(ratings, selectedRecipe)}
+      profile={tasteProfile}
+      onRate={handleRate}
+      onOpenTaste={() => navigate("/taste")}
     />
   ) : path === "/recipes" ? (
     <RecipesPage
@@ -871,6 +929,7 @@ function App() {
     <SearchPage
       query={cravingQuery}
       filters={filters}
+      profile={profile}
       onSelectRecipe={(recipe) => handleSelectRecipe(recipe, "/search")}
       onRecipeCreated={(recipe) => handleSelectRecipe(recipe, "/search")}
       onBackToIngredients={handleBackToIngredients}
@@ -880,10 +939,29 @@ function App() {
       items={pantry}
       onChange={handlePantryChange}
       filters={filters}
+      profile={profile}
       useItUp={useItUp}
       onUseItUpChange={setUseItUp}
       onSelectRecipe={(recipe) => handleSelectRecipe(recipe, "/pantry")}
       onRecipeCreated={(recipe) => handleSelectRecipe(recipe, "/pantry")}
+      onBackToIngredients={handleBackToIngredients}
+    />
+  ) : path === "/taste" ? (
+    <TastePage
+      profile={tasteProfile}
+      ratings={ratings}
+      onRemoveTrait={(trait) => handleTasteEdits(removeTrait(tasteEdits, trait))}
+      onAddAvoid={(food) => setTasteEdits((prev) => {
+        const next = addAvoid(prev, food);
+        saveTasteEdits(next);
+        return next;
+      })}
+      onClearRatings={() => {
+        const none = {};
+        setRatings(none);
+        saveRatings(none);
+        handleTasteEdits({ dismissed: [], avoids: [] });
+      }}
       onBackToIngredients={handleBackToIngredients}
     />
   ) : path === "/plan" ? (
@@ -932,6 +1010,8 @@ function App() {
       }}
       filters={filters}
       onFiltersChange={setFilters}
+      profile={tasteProfile}
+      onOpenTaste={() => navigate("/taste")}
       errorMessage={errorMessage}
     />
   );

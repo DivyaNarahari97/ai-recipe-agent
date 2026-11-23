@@ -96,6 +96,15 @@ This project combines deterministic rule-based matching with LLM-powered recipe 
 - Recipes opened from it say what they use up, and the shopping list counts everything in your pantry as "already have"
 - The pantry lives in this browser (like favorites); there are no accounts yet, so it doesn't sync between devices
 
+## 👍 Taste Profile
+- Rate any recipe 👍 or 👎, optionally with a reason: "Loved the spice", "Big flavor", "Quick to make", or "Too spicy", "Too bland", "Took too long", "Didn't like an ingredient" (then tap which one)
+- The ratings add up to a profile such as "likes spicy · avoids cilantro". One reason is enough for a trait; without reasons it takes two liked recipes of the same kind (two spicy dishes, two Thai dishes). Avoids only come from foods you pick or type, never from guesses
+- The profile is sent with every request that creates a recipe: Get Recipe, craving search, leftovers, the meal planner's new dish and the pantry's "create a recipe". Likes go into the prompt as a lean ("where they suit the dish"); avoids go in as a hard rule, and code (`app/taste.py`) checks the result and remakes it once with the reason if an avoided food slips in, even as a garnish
+- The check knows other names for the same food ("cilantro" also catches "fresh coriander"), but not the spice: ground coriander and coriander seed stay allowed
+- Foods you ask for override the profile: listing cilantro as an ingredient, or craving "cilantro lime rice", gets you cilantro that time
+- Get Recipe and the meal planner also skip stored recipes that use an avoided food. Browse and search still show everything
+- The **Your taste** page shows each trait and where it came from ("from 2 ratings"), and lets you remove any of them or add foods to avoid. It lives in this browser, like favorites
+
 ## 🥗 Dietary Filters
 - Vegetarian, vegan and gluten-free, plus max time and max calories
 - Applied to stored recipes during matching and added to the generation prompt
@@ -277,6 +286,7 @@ python -m evals.rag_eval        # RAG generation; ~20 model calls (10–20 min),
 python -m evals.meal_plan_eval  # planner; 8 plans (~5 min), writes evals/meal_plan_results.json
 python -m evals.photo_eval      # photo ingredients; 17 photos (~2 min), writes evals/photo_results.json
 python -m evals.leftover_eval   # leftovers; 10 cases × 2 (~10 min), writes evals/leftover_results.json
+python -m evals.taste_eval      # taste profile; 10 cases × 2 (~10 min), writes evals/taste_results.json
 ```
 
 None of them write to the database. The unit tests need neither Ollama nor a database: `python -m unittest discover -s tests -t .`
@@ -461,23 +471,25 @@ http://localhost:5173
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| POST | `/assistant` | Intelligent recipe endpoint (optional `filters`) |
+| POST | `/assistant` | Intelligent recipe endpoint (optional `filters`, `profile`) |
 | GET | `/recipes` | Fetch stored recipes (optional `?cuisine=`) |
 | POST | `/search` | Hybrid search by craving (optional `filters`) |
-| POST | `/search/generate` | New recipe from a craving, grounded in the top matches |
+| POST | `/search/generate` | New recipe from a craving, grounded in the top matches (optional `filters`, `profile`) |
 | GET | `/cuisines` | Cuisines with recipe counts |
 | GET | `/substitutions?ingredient=` | Substitutes for an ingredient |
 | POST | `/recipes/{id}/shopping-list` | Split ingredients into need / have / staples |
-| POST | `/leftovers` | A new dish from leftovers (`leftovers`: text, optional `filters`); returns the recipe, the parsed leftovers and what's needed beyond staples |
+| POST | `/leftovers` | A new dish from leftovers (`leftovers`: text, optional `filters`, `profile`); returns the recipe, the parsed leftovers and what's needed beyond staples |
 | POST | `/pantry/use-it-up` | Stored recipes ranked by how much of the soon-to-expire pantry they use (`items` with optional `expires`, your local `today`, optional `filters`) |
 | POST | `/ingredients/from-photo` | List the ingredients in a fridge/pantry photo (`image`: base64 JPEG/PNG or data URL, 5 MB max) |
-| POST | `/meal-plan` | Plan dinners for 1–7 days (`ingredients`, `days`, optional `filters`) with one shopping list |
+| POST | `/meal-plan` | Plan dinners for 1–7 days (`ingredients`, `days`, optional `filters`, `profile`) with one shopping list |
 | POST | `/recipes/{id}/refine` | Apply a change (`{"instruction": "spicier"}`), saved as a new recipe |
-| POST | `/ai/generate-recipe` | Force AI generation |
+| POST | `/ai/generate-recipe` | Force AI generation (optional `filters`, `profile`; 422 if every try used an avoided food) |
 | POST | `/recipes` | Save a recipe |
 | POST | `/recipes/search` | Stored recipes matching a list of ingredients |
 | GET | `/ingredient-image?name=` | Photo for an ingredient tile (cached) |
 | GET | `/health` | Health check |
+
+`profile` is the taste profile: `{"likes": ["spicy food"], "avoids": ["cilantro"]}` (up to 12 likes and 20 avoids).
 
 ---
 

@@ -4,7 +4,7 @@ import { API_BASE_URL } from "../config";
 const EXAMPLES = ["half a roast chicken and rice", "leftover pasta and steamed broccoli", "dal and 3 rotis"];
 
 // "I have half a roast chicken and rice" → a new dish built around them.
-function LeftoversForm({ filters, onRecipeCreated }) {
+function LeftoversForm({ filters, profile, onRecipeCreated }) {
   const [text, setText] = useState("");
   const [status, setStatus] = useState("idle"); // idle | loading | error
   const [error, setError] = useState("");
@@ -18,7 +18,7 @@ function LeftoversForm({ filters, onRecipeCreated }) {
       const res = await fetch(`${API_BASE_URL}/leftovers`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ leftovers: text.trim(), filters }),
+        body: JSON.stringify({ leftovers: text.trim(), filters, profile }),
       });
       if (!res.ok) {
         // 400 and 422 explain themselves (no food found, diet clash, couldn't make a dish).

@@ -103,6 +103,7 @@ This project combines deterministic rule-based matching with LLM-powered recipe 
 - The check knows other names for the same food ("cilantro" also catches "fresh coriander"), but not the spice: ground coriander and coriander seed stay allowed
 - Foods you ask for override the profile: listing cilantro as an ingredient, or craving "cilantro lime rice", gets you cilantro that time
 - Get Recipe and the meal planner also skip stored recipes that use an avoided food. Browse and search still show everything
+- In an eval with cravings, recipes without a profile used the food to avoid in 5 of 7 cases; with the profile, in none of those 7 (details under Evaluation)
 - The **Your taste** page shows each trait and where it came from ("from 2 ratings"), and lets you remove any of them or add foods to avoid. It lives in this browser, like favorites
 
 ## 🥗 Dietary Filters
@@ -275,6 +276,26 @@ Ranges are two runs of the same prompt. Results for the used prompt are in `Back
 
 Results, including every recipe's ingredients and steps, are in `Backend/evals/leftover_results.json`.
 
+## Taste profile
+
+20 cases (`Backend/evals/taste_cases.json`), each with a food to avoid that suits the dish, run with and without a profile of "likes spicy food" plus that avoid. Ten send ingredients the way Get Recipe does (chicken, lime, rice, black beans; avoid cilantro). Ten send a craving the way craving search does ("chicken burrito bowl"; avoid cilantro), so the model picks every ingredient. "Uses the avoided food" is the endpoints' own check on the final recipe. "Spicy" means chili in the ingredients or steps.
+
+| `mistral` | Uses the avoided food | Spicy | p50 |
+|---|---|---|---|
+| Ingredients, no profile (10) | 0 | 0 | 24s |
+| **Ingredients, with profile (10)** | 0 | **9** | 33s |
+| Cravings, no profile (7 of 10 ran) | **5** | 4 | 53s |
+| **Cravings, with profile (9 of 10 ran)** | **1** | **9** | 52s |
+
+- **Without a profile, cravings bring in the classic version of the dish.** That meant garlic in shrimp scampi, anchovies in Caesar salad, onion in chili con carne, eggs in fried rice and parmesan in tomato basil pasta. With the profile, none of those 5 appeared. In the 7 cases where both runs finished, it was 5 of 7 without the profile and 0 of 7 with it.
+- **The one miss was pad thai with peanuts.** The model listed them as "optional", even after the retry told it why the recipe was rejected. Craving search turns that into a "couldn't make a recipe that fits" message, so peanuts still never reach the cook.
+- **With ingredients alone, the avoided food never showed up, even without a profile.** Get Recipe generation sticks to the listed ingredients. This set mostly shows the likes working: 9 of 10 recipes added heat, against none without the profile.
+- **The heat in the ingredient set lives in the steps, not the ingredient list.** For example, "marinate in lime juice, chili powder, garlic" and "a pinch of red pepper flakes"; only 1 of the 9 listed the chili as an ingredient. The avoid check reads the ingredient list, so I also searched every step for the avoided food. In the runs with a profile, none was hiding there. One run without a profile mentioned coconut milk only in a step.
+- **4 of the 40 generations failed** because the model's output didn't match the recipe format twice in a row: beef stroganoff in both runs, and pad thai and Greek salad without a profile. That's the existing format check, not the profile.
+- **Speed:** the profile added about 9 seconds (p50) to ingredient recipes, mostly from the longer recipes. Craving times were about the same.
+
+Results, including every recipe's ingredients and steps, are in `Backend/evals/taste_results.json`.
+
 ## Running the evals
 
 With Ollama running, from `Backend/`:
@@ -286,7 +307,7 @@ python -m evals.rag_eval        # RAG generation; ~20 model calls (10–20 min),
 python -m evals.meal_plan_eval  # planner; 8 plans (~5 min), writes evals/meal_plan_results.json
 python -m evals.photo_eval      # photo ingredients; 17 photos (~2 min), writes evals/photo_results.json
 python -m evals.leftover_eval   # leftovers; 10 cases × 2 (~10 min), writes evals/leftover_results.json
-python -m evals.taste_eval      # taste profile; 10 cases × 2 (~10 min), writes evals/taste_results.json
+python -m evals.taste_eval      # taste profile; 20 cases × 2 (~35 min), writes evals/taste_results.json
 ```
 
 None of them write to the database. The unit tests need neither Ollama nor a database: `python -m unittest discover -s tests -t .`

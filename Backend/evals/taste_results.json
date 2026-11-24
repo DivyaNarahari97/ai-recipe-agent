@@ -1,0 +1,1242 @@
+{
+  "model": "mistral",
+  "likes": [
+    "spicy food"
+  ],
+  "summary": {
+    "ingredients": {
+      "baseline": {
+        "cases": 10,
+        "errors": 0,
+        "uses_avoided": 0,
+        "spicy": 0,
+        "spicy_ingredient": 0,
+        "median_seconds": 24.25
+      },
+      "profile": {
+        "cases": 10,
+        "errors": 0,
+        "uses_avoided": 0,
+        "spicy": 9,
+        "spicy_ingredient": 1,
+        "median_seconds": 33.349999999999994,
+        "uses_avoided_first_try": 0,
+        "retried": 0
+      }
+    },
+    "cravings": {
+      "baseline": {
+        "cases": 7,
+        "errors": 3,
+        "uses_avoided": 5,
+        "spicy": 4,
+        "spicy_ingredient": 4,
+        "median_seconds": 53.0
+      },
+      "profile": {
+        "cases": 9,
+        "errors": 1,
+        "uses_avoided": 1,
+        "spicy": 9,
+        "spicy_ingredient": 9,
+        "median_seconds": 52.2,
+        "uses_avoided_first_try": 1,
+        "retried": 1
+      }
+    }
+  },
+  "cases": {
+    "ingredients": [
+      {
+        "ingredients": [
+          "chicken",
+          "lime",
+          "rice",
+          "black beans"
+        ],
+        "avoid": "cilantro",
+        "baseline": {
+          "uses_avoided": [],
+          "spicy_ingredient": false,
+          "spicy": false,
+          "recipe": {
+            "name": "Chicken Lime Rice Bowl with Black Beans",
+            "ingredients": [
+              "1 lb chicken",
+              "2 limes",
+              "2 cups rice",
+              "1 can (15 oz) black beans"
+            ],
+            "steps": [
+              "Cook the rice according to package instructions.",
+              "Season the chicken with salt, pepper, and cumin. Cook the chicken until fully cooked.",
+              "Juice the limes and set aside.",
+              "In a large bowl, combine cooked rice, sliced cooked chicken, drained black beans, and lime juice.",
+              "Season with salt and pepper to taste.",
+              "Serve with additional lime wedges if desired."
+            ]
+          },
+          "seconds": 19.0
+        },
+        "profile": {
+          "uses_avoided": [],
+          "spicy_ingredient": false,
+          "spicy": true,
+          "recipe": {
+            "name": "Spicy Chicken Fajitas with Black Beans and Lime Rice",
+            "ingredients": [
+              "1 lb Chicken breasts",
+              "2 Limes",
+              "2 cups Long-grain rice",
+              "1 can Black beans"
+            ],
+            "steps": [
+              "Marinate the chicken in a spicy marinade made with lime juice, chili powder, garlic, and oil.",
+              "Cook the rice according to package instructions, adding lime zest and salt to taste.",
+              "Heat a large skillet over medium-high heat. Add some oil and cook the marinated chicken until cooked through.",
+              "Add sliced bell peppers and onions to the same skillet, cooking until softened.",
+              "Stir in the cooked chicken, black beans, and season with salt and pepper to taste.",
+              "Serve the chicken fajita mixture over the prepared lime rice."
+            ]
+          },
+          "attempts": 1,
+          "first_try_uses_avoided": false,
+          "seconds": 22.8
+        }
+      },
+      {
+        "ingredients": [
+          "chickpeas",
+          "tomatoes",
+          "onion"
+        ],
+        "avoid": "cilantro",
+        "baseline": {
+          "uses_avoided": [],
+          "spicy_ingredient": false,
+          "spicy": false,
+          "recipe": {
+            "name": "Chickpea and Tomato Stew",
+            "ingredients": [
+              "2 cups chickpeas",
+              "3 medium tomatoes",
+              "1 large onion"
+            ],
+            "steps": [
+              "Chop the onion and tomatoes.",
+              "Drain and rinse the chickpeas.",
+              "Heat some olive oil in a large pot. Sauté the onion until translucent.",
+              "Add tomatoes and cook for 5 minutes.",
+              "Stir in chickpeas, season with salt, pepper, and your choice of spices such as cumin or paprika.",
+              "Simmer for about 30 minutes."
+            ]
+          },
+          "seconds": 16.8
+        },
+        "profile": {
+          "uses_avoided": [],
+          "spicy_ingredient": false,
+          "spicy": true,
+          "recipe": {
+            "name": "Spiced Chickpea and Tomato Stew",
+            "ingredients": [
+              "1 lb Chickpeas",
+              "2 medium Tomatoes",
+              "1 large Onion"
+            ],
+            "steps": [
+              "Rinse and drain the chickpeas.",
+              "Chop the onion and tomatoes.",
+              "Sauté the onion in a large pot over medium heat until translucent.",
+              "Add chopped tomatoes, chickpeas, 2 cloves minced garlic, 1 tsp ground cumin, 1 tsp paprika, and a pinch of red pepper flakes (adjust to taste for spiciness).",
+              "Stir well, cover the pot, and let it simmer for 30 minutes.",
+              "Season with salt and pepper to taste."
+            ]
+          },
+          "attempts": 1,
+          "first_try_uses_avoided": false,
+          "seconds": 21.9
+        }
+      },
+      {
+        "ingredients": [
+          "beef",
+          "onion",
+          "sour cream"
+        ],
+        "avoid": "mushrooms",
+        "baseline": {
+          "uses_avoided": [],
+          "spicy_ingredient": false,
+          "spicy": false,
+          "recipe": {
+            "name": "Beef and Sour Cream Onion Dip",
+            "ingredients": [
+              "1 lb beef",
+              "2 onions",
+              "1 cup sour cream"
+            ],
+            "steps": [
+              "Cook the beef until browned and drain off any excess fat.",
+              "Finely chop the onions and sauté them in a pan until they are soft.",
+              "Mix the cooked beef and sautéed onions with the sour cream."
+            ]
+          },
+          "seconds": 16.6
+        },
+        "profile": {
+          "uses_avoided": [],
+          "spicy_ingredient": false,
+          "spicy": true,
+          "recipe": {
+            "name": "Beef Tacos with Sour Cream and Spicy Onion",
+            "ingredients": [
+              "1 lb beef",
+              "2 onion",
+              "1 cup sour cream"
+            ],
+            "steps": [
+              "Heat a large skillet over medium-high heat. Add the beef and cook until browned, about 5 minutes.",
+              "Remove the beef from the skillet and set aside. In the same skillet, sauté the onions with a tablespoon of oil until they are translucent and slightly caramelized, about 5 minutes.",
+              "Add minced jalapeños (optional for spiciness) to the onions and cook for another minute.",
+              "Return the beef to the skillet, stir in the cooked onions and combine well.",
+              "Warm corn or flour tortillas.",
+              "Divide the beef mixture among the tortillas.",
+              "Top each taco with a dollop of sour cream.",
+              "Garnish with chopped cilantro, diced tomatoes, and lime wedges."
+            ]
+          },
+          "attempts": 1,
+          "first_try_uses_avoided": false,
+          "seconds": 40.0
+        }
+      },
+      {
+        "ingredients": [
+          "ground beef",
+          "tomatoes",
+          "spaghetti"
+        ],
+        "avoid": "onion",
+        "baseline": {
+          "uses_avoided": [],
+          "spicy_ingredient": false,
+          "spicy": false,
+          "recipe": {
+            "name": "Spaghetti Bolognese",
+            "ingredients": [
+              "1 lb ground beef",
+              "4 medium tomatoes",
+              "16 oz spaghetti"
+            ],
+            "steps": [
+              "Cook the spaghetti according to package instructions and drain.",
+              "In a large pan, brown the ground beef over medium heat until cooked through.",
+              "Add diced tomatoes, salt, pepper, and Italian seasoning. Simmer for 30 minutes.",
+              "Toss the cooked spaghetti in the meat sauce.",
+              "Serve hot with grated Parmesan cheese and fresh basil leaves."
+            ]
+          },
+          "seconds": 28.3
+        },
+        "profile": {
+          "uses_avoided": [],
+          "spicy_ingredient": false,
+          "spicy": true,
+          "recipe": {
+            "name": "Spicy Beef Spaghetti",
+            "ingredients": [
+              "1 lb ground beef",
+              "2 medium tomatoes",
+              "12 oz spaghetti"
+            ],
+            "steps": [
+              "Cook the spaghetti according to package instructions.",
+              "In a large skillet, brown the ground beef over medium heat. Drain excess fat.",
+              "Dice the tomatoes and add them to the skillet along with 2 tbsp of tomato paste.",
+              "Season with salt, black pepper, garlic powder, and crushed red pepper flakes (to taste, depending on desired spiciness).",
+              "Stir in cooked spaghetti."
+            ]
+          },
+          "attempts": 1,
+          "first_try_uses_avoided": false,
+          "seconds": 27.3
+        }
+      },
+      {
+        "ingredients": [
+          "shrimp",
+          "butter",
+          "linguine"
+        ],
+        "avoid": "garlic",
+        "baseline": {
+          "uses_avoided": [],
+          "spicy_ingredient": false,
+          "spicy": false,
+          "recipe": {
+            "name": "Shrimp Scampi over Linguine",
+            "ingredients": [
+              "1 lb shrimp",
+              "4 tbsp butter",
+              "1 lb linguine"
+            ],
+            "steps": [
+              "Cook the linguine according to package instructions.",
+              "Melt butter in a large skillet over medium heat.",
+              "Add shrimp and cook until pink, about 3-4 minutes.",
+              "Drain pasta and add to the skillet with the shrimp.",
+              "Season with salt, pepper, and lemon juice.",
+              "Toss to coat evenly and serve immediately."
+            ]
+          },
+          "seconds": 23.7
+        },
+        "profile": {
+          "uses_avoided": [],
+          "spicy_ingredient": false,
+          "spicy": true,
+          "recipe": {
+            "name": "Spicy Shrimp Linguine",
+            "ingredients": [
+              "1 lb shrimp",
+              "4 tbsp butter",
+              "12 oz linguine pasta"
+            ],
+            "steps": [
+              "Cook the linguine according to package instructions.",
+              "In a large skillet, melt the butter over medium heat.",
+              "Add crushed red pepper flakes (to taste) and sauté for 30 seconds.",
+              "Season the shrimp with salt, black pepper, and paprika.",
+              "Add shrimp to the skillet and cook until pink and opaque, about 3-4 minutes.",
+              "Remove skillet from heat and stir in a squeeze of lemon juice."
+            ]
+          },
+          "attempts": 1,
+          "first_try_uses_avoided": false,
+          "seconds": 28.4
+        }
+      },
+      {
+        "ingredients": [
+          "pasta",
+          "basil",
+          "tomatoes"
+        ],
+        "avoid": "parmesan",
+        "baseline": {
+          "uses_avoided": [],
+          "spicy_ingredient": false,
+          "spicy": false,
+          "recipe": {
+            "name": "Spaghetti al Pomodoro",
+            "ingredients": [
+              "1 pound pasta",
+              "2 cups basil leaves",
+              "4 medium tomatoes"
+            ],
+            "steps": [
+              "Cook pasta according to package instructions.",
+              "Chop tomatoes and basil leaves.",
+              "Heat olive oil in a large pan over medium heat.",
+              "Add garlic and sauté until fragrant.",
+              "Add chopped tomatoes, salt, pepper, and cook for 10 minutes.",
+              "Stir in basil leaves just before serving."
+            ]
+          },
+          "seconds": 24.2
+        },
+        "profile": {
+          "uses_avoided": [],
+          "spicy_ingredient": false,
+          "spicy": true,
+          "recipe": {
+            "name": "Spicy Tomato Basil Pasta",
+            "ingredients": [
+              "1 lb pasta",
+              "2 cups cherry tomatoes",
+              "1/3 cup fresh basil leaves"
+            ],
+            "steps": [
+              "Bring a large pot of salted water to a boil. Add the pasta and cook according to package instructions until al dente.",
+              "Drain the cooked pasta, reserving some pasta water.",
+              "Heat a large skillet over medium-high heat. Add 2 tbsp of olive oil.",
+              "Add halved cherry tomatoes and sauté for 5 minutes or until they begin to soften.",
+              "Stir in 2 minced garlic cloves, 1 tsp crushed red pepper flakes (adjust based on preference), salt, and black pepper. Cook for another minute.",
+              "Add the cooked pasta to the skillet, tossing to combine with the sauce.",
+              "Stir in chopped fresh basil leaves and a splash of reserved pasta water if needed."
+            ]
+          },
+          "attempts": 1,
+          "first_try_uses_avoided": false,
+          "seconds": 37.4
+        }
+      },
+      {
+        "ingredients": [
+          "chicken",
+          "curry powder",
+          "rice"
+        ],
+        "avoid": "coconut",
+        "baseline": {
+          "uses_avoided": [],
+          "spicy_ingredient": false,
+          "spicy": false,
+          "recipe": {
+            "name": "Chicken Curry with Rice",
+            "ingredients": [
+              "2 lbs chicken",
+              "2 tbsp curry powder",
+              "3 cups rice"
+            ],
+            "steps": [
+              "Clean and cut the chicken into bite-sized pieces.",
+              "Cook the rice according to package instructions.",
+              "Heat oil in a large pan over medium heat.",
+              "Add curry powder and cook for 1 minute, stirring continuously.",
+              "Stir in chicken pieces and cook until browned on all sides.",
+              "Add your choice of canned coconut milk, tomato sauce, or broth to cover the chicken.",
+              "Simmer for 20 minutes, or until chicken is fully cooked.",
+              "Season with salt and pepper if needed."
+            ]
+          },
+          "seconds": 28.0
+        },
+        "profile": {
+          "uses_avoided": [],
+          "spicy_ingredient": false,
+          "spicy": false,
+          "recipe": {
+            "name": "Chicken Curry with Rice",
+            "ingredients": [
+              "1 lb Chicken (boneless, skinless)",
+              "2 tbsp Curry powder",
+              "2 cups Basmati rice"
+            ],
+            "steps": [
+              "Wash the rice and set it aside.",
+              "Chop the chicken into bite-sized pieces.",
+              "Heat 1 tbsp of oil in a large skillet over medium heat. Add the chopped chicken and cook until browned.",
+              "Reduce heat to low, add 2 tbsp curry powder, stirring constantly for 1 minute to toast the spices.",
+              "Add 3 cups of water (or chicken broth) and bring to a boil.",
+              "Stir in the rice, reduce heat to low, cover, and simmer for about 15 minutes or until the rice is cooked.",
+              "Adjust seasoning with salt if needed."
+            ]
+          },
+          "attempts": 1,
+          "first_try_uses_avoided": false,
+          "seconds": 33.9
+        }
+      },
+      {
+        "ingredients": [
+          "rice",
+          "peas",
+          "carrots",
+          "soy sauce"
+        ],
+        "avoid": "eggs",
+        "baseline": {
+          "uses_avoided": [],
+          "spicy_ingredient": false,
+          "spicy": false,
+          "recipe": {
+            "name": "Stir-fried Vegetable Rice with Soy Sauce",
+            "ingredients": [
+              "1 cup rice",
+              "1 cup peas",
+              "1 cup carrots",
+              "3 tbsp soy sauce"
+            ],
+            "steps": [
+              "Cook rice according to package instructions.",
+              "Chop carrots and peas into bite-sized pieces.",
+              "Heat a large skillet over medium heat. Add 2 tbsp of oil.",
+              "Add the chopped carrots and cook for 5 minutes or until slightly tender.",
+              "Add the peas and cook for another 3 minutes.",
+              "Stir in cooked rice and soy sauce. Cook for an additional 2-3 minutes, stirring constantly.",
+              "Serve hot."
+            ]
+          },
+          "seconds": 29.1
+        },
+        "profile": {
+          "uses_avoided": [],
+          "spicy_ingredient": true,
+          "spicy": true,
+          "recipe": {
+            "name": "Stir-fried Vegetable Rice Bowl",
+            "ingredients": [
+              "1 cup Rice",
+              "2 cups Peas",
+              "1 cup Carrots",
+              "3 tbsp Soy Sauce",
+              "1 tsp Ginger (minced)",
+              "2 cloves Garlic (minced)",
+              "1 red bell pepper Red Bell Pepper (sliced)",
+              "1 jalapeno Jalapeno (finely chopped, seeds removed if desired for less heat)"
+            ],
+            "steps": [
+              "Cook the rice according to package instructions.",
+              "Prepare all vegetables as indicated.",
+              "Heat a large wok or skillet over high heat. Add 2 tbsp of oil (olive, sesame or peanut oil).",
+              "Add minced ginger and garlic, sauté for 30 seconds until fragrant.",
+              "Add sliced red bell pepper and finely chopped jalapeno. Sauté for 2 minutes.",
+              "Add carrots and peas. Stir-fry for another 3 minutes until slightly tender.",
+              "Add soy sauce and stir to coat the vegetables evenly.",
+              "Gently fold in cooked rice. Cook for an additional minute to combine flavors."
+            ]
+          },
+          "attempts": 1,
+          "first_try_uses_avoided": false,
+          "seconds": 41.3
+        }
+      },
+      {
+        "ingredients": [
+          "noodles",
+          "soy sauce",
+          "sesame oil",
+          "tofu"
+        ],
+        "avoid": "scallions",
+        "baseline": {
+          "uses_avoided": [],
+          "spicy_ingredient": false,
+          "spicy": false,
+          "recipe": {
+            "name": "Vegetable Sesame Tofu Stir Fry",
+            "ingredients": [
+              "12 oz noodles",
+              "3 tbsp soy sauce",
+              "2 tbsp sesame oil",
+              "14 oz tofu"
+            ],
+            "steps": [
+              "Cook noodles according to package instructions.",
+              "Drain and set aside.",
+              "Heat 1 tbsp of sesame oil in a large skillet over medium heat.",
+              "Add tofu and cook for 5 minutes on each side, or until golden brown.",
+              "Remove from skillet and set aside.",
+              "In the same skillet, add soy sauce and cook for 1 minute.",
+              "Add cooked noodles to the skillet, tossing to coat with the sauce.",
+              "Return the tofu to the skillet and mix well.",
+              "Serve hot."
+            ]
+          },
+          "seconds": 31.3
+        },
+        "profile": {
+          "uses_avoided": [],
+          "spicy_ingredient": false,
+          "spicy": true,
+          "recipe": {
+            "name": "Spicy Sesame Tofu Noodles",
+            "ingredients": [
+              "12 oz noodles",
+              "4 tbsp sesame oil",
+              "1/2 cup soy sauce",
+              "14 oz firm tofu"
+            ],
+            "steps": [
+              "Cook the noodles according to package instructions and drain.",
+              "Cut the tofu into cubes.",
+              "In a bowl, mix 3 tbsp sesame oil, soy sauce, and 2 tbsp of your favorite hot sauce (adjust to taste). Add the cubed tofu and let marinate for at least 15 minutes.",
+              "Heat a large skillet over medium-high heat. Remove tofu from marinade, reserving marinade. Cook the tofu until browned on all sides.",
+              "Add remaining sesame oil to the skillet and cook the noodles for 2-3 minutes.",
+              "Pour in the reserved marinade and cook for another 2-3 minutes, coating the noodles evenly.",
+              "Return the tofu to the skillet and toss everything together."
+            ]
+          },
+          "attempts": 1,
+          "first_try_uses_avoided": false,
+          "seconds": 36.0
+        }
+      },
+      {
+        "ingredients": [
+          "chicken",
+          "onion",
+          "rice",
+          "paprika"
+        ],
+        "avoid": "bell pepper",
+        "baseline": {
+          "uses_avoided": [],
+          "spicy_ingredient": false,
+          "spicy": false,
+          "recipe": {
+            "name": "Chicken and Rice with Paprika",
+            "ingredients": [
+              "1 lb chicken",
+              "1 onion",
+              "2 cups rice",
+              "1 tsp paprika"
+            ],
+            "steps": [
+              "Chop the chicken and onion.",
+              "Cook the rice according to package instructions.",
+              "Heat oil in a pan, add chopped chicken and cook until browned.",
+              "Add chopped onion and cook until softened.",
+              "Stir in cooked rice, 1 tsp of paprika, salt, and pepper to taste.",
+              "Serve hot."
+            ]
+          },
+          "seconds": 24.3
+        },
+        "profile": {
+          "uses_avoided": [],
+          "spicy_ingredient": false,
+          "spicy": true,
+          "recipe": {
+            "name": "Spicy Chicken Fried Rice",
+            "ingredients": [
+              "2 lbs chicken",
+              "1 large onion",
+              "2 cups rice",
+              "2 tbsp paprika"
+            ],
+            "steps": [
+              "Cook the rice according to package instructions.",
+              "Chop the onion and set aside.",
+              "Cut the chicken into bite-sized pieces.",
+              "Heat a large skillet over medium heat. Add 1 tbsp of oil.",
+              "Add chopped onion and cook until softened, about 5 minutes.",
+              "Add the chicken pieces and season with salt, pepper, and 1 tbsp paprika. Cook until browned, about 10 minutes.",
+              "Stir in the cooked rice and mix well.",
+              "Add 1 tbsp of soy sauce, 2 tsp of sriracha (for spiciness), and another tbsp of oil if needed. Stir well to combine.",
+              "Cook for another 5 minutes, stirring occasionally."
+            ]
+          },
+          "attempts": 1,
+          "first_try_uses_avoided": false,
+          "seconds": 32.8
+        }
+      }
+    ],
+    "cravings": [
+      {
+        "craving": "chicken burrito bowl",
+        "avoid": "cilantro",
+        "baseline": {
+          "uses_avoided": [],
+          "spicy_ingredient": true,
+          "spicy": true,
+          "recipe": {
+            "name": "Chipotle-Style Chicken Burrito Bowl",
+            "ingredients": [
+              "2 lbs Boneless, skinless chicken breasts",
+              "1 tbsp Olive oil",
+              "2 tsp Chili powder",
+              "1 tsp Cumin",
+              "1 tsp Garlic powder",
+              "1 tsp Salt",
+              "1/2 tsp Black pepper",
+              "4 cups Cooked brown rice",
+              "2 Avocados",
+              "3 Tomatoes",
+              "2 Cans of black beans, drained and rinsed",
+              "1 cup Shredded lettuce",
+              "1 cup Shredded Monterey Jack cheese",
+              "1/2 cup Sour cream",
+              "1/2 cup Salsa (of your choice)",
+              "1 Lime"
+            ],
+            "steps": [
+              "In a bowl, combine chicken, olive oil, chili powder, cumin, garlic powder, salt, and black pepper. Mix well.",
+              "Heat a grill or skillet over medium-high heat.",
+              "Add the seasoned chicken and cook for about 7 minutes on each side or until fully cooked.",
+              "Once done, let it rest for a few minutes before slicing.",
+              "Divide rice evenly among four bowls.",
+              "Add sliced chicken, black beans, diced tomatoes, and shredded lettuce on top of the rice.",
+              "Top each bowl with shredded cheese, sour cream, salsa, avocado slices, a squeeze of lime juice, and any other toppings you prefer."
+            ]
+          },
+          "seconds": 53.0
+        },
+        "profile": {
+          "uses_avoided": [],
+          "spicy_ingredient": true,
+          "spicy": true,
+          "recipe": {
+            "name": "Spicy Chicken Fajita Burrito Bowl",
+            "ingredients": [
+              "2 lbs boneless, skinless chicken breasts",
+              "1 large bell pepper (any color)",
+              "1 large onion",
+              "4 garlic cloves, minced",
+              "2 tbsp olive oil",
+              "1 tbsp ground cumin",
+              "1 tbsp paprika",
+              "2 tsp chili powder",
+              "1-2 tsp cayenne pepper (adjust for desired spiciness)",
+              "salt to taste black pepper, ground",
+              "1/2 cup lime juice",
+              "4 cups cooked white rice",
+              "8 flour tortillas, warmed",
+              "2-3 cups shredded lettuce",
+              "1.5 cups salsa (preferred: pico de gallo)",
+              "1 cup shredded cheddar cheese",
+              "1/2 cup sour cream (optional)"
+            ],
+            "steps": [
+              "In a large bowl, whisk together cumin, paprika, chili powder, cayenne pepper, salt, black pepper, and lime juice.",
+              "Add chicken to the marinade, tossing until evenly coated. Cover and refrigerate for 30 minutes (or up to overnight for more flavor).",
+              "Thinly slice the bell pepper, onion, and garlic.",
+              "Heat olive oil in a large skillet over medium-high heat. Add chicken and cook for 7 minutes per side or until cooked through.",
+              "Remove chicken from the skillet, let it rest, then slice it thinly. Set aside.",
+              "In the same skillet, add sliced bell pepper, onion, and garlic. Cook for about 5 minutes or until softened.",
+              "Add the cooked chicken back to the skillet with the vegetables, tossing to combine.",
+              "Divide rice into 4 bowls. Add a portion of chicken and vegetable mixture on top.",
+              "Add shredded lettuce, salsa, cheese, and sour cream (if using)."
+            ]
+          },
+          "attempts": 1,
+          "first_try_uses_avoided": false,
+          "seconds": 80.5
+        }
+      },
+      {
+        "craving": "thai green curry",
+        "avoid": "cilantro",
+        "baseline": {
+          "uses_avoided": [],
+          "spicy_ingredient": true,
+          "spicy": true,
+          "recipe": {
+            "name": "Thai Green Curry",
+            "ingredients": [
+              "2 tbsp Thai green curry paste",
+              "4 Chicken breasts, cut into bite-sized pieces",
+              "1 can Coconut milk (400 ml)",
+              "2 cups Thai basil leaves",
+              "1 cup Green beans, trimmed and halved",
+              "1 red bell pepper, sliced Red bell pepper",
+              "4 cloves Garlic, minced",
+              "1 onion, thinly sliced Onion",
+              "2-3 tbsp Fish sauce",
+              "2 tbsp Vegetable oil",
+              "1 tbsp Sugar"
+            ],
+            "steps": [
+              "Heat vegetable oil in a large pan over medium heat.",
+              "Add minced garlic and sliced onion, sauté until softened.",
+              "Add chicken pieces and cook until browned.",
+              "Stir in Thai green curry paste, cook for 2 minutes.",
+              "Pour coconut milk into the pan and stir well.",
+              "Add fish sauce and sugar. Stir until sugar dissolves.",
+              "Add green beans and red bell pepper, simmer for 10 minutes.",
+              "Stir in Thai basil leaves, remove from heat."
+            ]
+          },
+          "seconds": 53.8
+        },
+        "profile": {
+          "uses_avoided": [],
+          "spicy_ingredient": true,
+          "spicy": true,
+          "recipe": {
+            "name": "Thai Green Curry with Fresh Basil",
+            "ingredients": [
+              "2 tbsp Thai green curry paste",
+              "2 cups coconut milk",
+              "1 lb boneless, skinless chicken breasts",
+              "2 medium zucchinis",
+              "1 red bell pepper",
+              "1 onion",
+              "4 garlic cloves",
+              "2 tbsp fresh lime juice",
+              "1 tbsp fish sauce",
+              "1 tsp brown sugar",
+              "1/4 cup chopped fresh Thai basil",
+              "1/4 cup thinly sliced green onions",
+              "1 tsp crushed red pepper flakes"
+            ],
+            "steps": [
+              "Slice chicken into thin strips",
+              "Halve zucchinis lengthwise and slice thickly",
+              "Chop bell pepper, onion, and garlic",
+              "Heat curry paste in a large pan over medium heat for 1 minute",
+              "Add coconut milk, chicken, zucchinis, bell pepper, onion, and garlic. Simmer until chicken is cooked through (about 10-12 minutes)",
+              "Stir in lime juice, fish sauce, brown sugar, and red pepper flakes",
+              "Stir in basil leaves just before serving",
+              "Serve over steamed jasmine rice, garnished with green onions"
+            ]
+          },
+          "attempts": 1,
+          "first_try_uses_avoided": false,
+          "seconds": 130.2
+        }
+      },
+      {
+        "craving": "beef stroganoff",
+        "avoid": "mushrooms",
+        "baseline": {
+          "error": "RecipeGenerationError: Model output failed validation after 2 attempts",
+          "seconds": 107.2
+        },
+        "profile": {
+          "error": "RecipeGenerationError: Model output failed validation after 2 attempts",
+          "seconds": 88.1
+        }
+      },
+      {
+        "craving": "shrimp scampi",
+        "avoid": "garlic",
+        "baseline": {
+          "uses_avoided": [
+            "it uses 'garlic cloves, minced', and the cook avoids garlic"
+          ],
+          "spicy_ingredient": true,
+          "spicy": true,
+          "recipe": {
+            "name": "Classic Shrimp Scampi",
+            "ingredients": [
+              "1 lb shrimp, peeled and deveined",
+              "4 garlic cloves, minced",
+              "1/2 cup unsalted butter",
+              "1/2 cup white wine",
+              "1 tbsp lemon juice",
+              "1 tsp crushed red pepper flakes",
+              "1 lb linguine pasta, cooked according to package instructions",
+              "1/4 cup chopped fresh parsley",
+              "1/2 cup grated Parmesan cheese"
+            ],
+            "steps": [
+              "Melt butter in a large skillet over medium heat.",
+              "Add garlic and cook until fragrant.",
+              "Add shrimp to the skillet, cook for 2-3 minutes per side or until pink.",
+              "Pour white wine into the skillet, scraping any browned bits from the bottom of the pan.",
+              "Stir in lemon juice and red pepper flakes. Simmer for 5 minutes.",
+              "Toss cooked pasta with the shrimp mixture, parsley, and Parmesan cheese."
+            ]
+          },
+          "seconds": 85.4
+        },
+        "profile": {
+          "uses_avoided": [],
+          "spicy_ingredient": true,
+          "spicy": true,
+          "recipe": {
+            "name": "Spicy Shrimp Skewers with Lemon Herb Butter",
+            "ingredients": [
+              "1 lb large shrimp, peeled and deveined",
+              "2 tbsp extra virgin olive oil",
+              "1 tbsp crushed red pepper flakes",
+              "Juice of 2 lemons Lemons",
+              "1/4 cup chopped fresh parsley",
+              "1/4 cup chopped fresh basil",
+              "2 sticks unsalted butter, softened",
+              "2 tbsp lemon zest",
+              "Salt and pepper to taste Seasoning"
+            ],
+            "steps": [
+              "In a large bowl, combine shrimp, olive oil, red pepper flakes, juice of one lemon, half of the parsley, and half of the basil. Season with salt and pepper.",
+              "Cover and refrigerate for at least 30 minutes to marinate.",
+              "In a medium bowl, combine butter, lemon zest, remaining parsley, remaining basil, and a pinch of salt.",
+              "Mix until well combined.",
+              "Set aside at room temperature.",
+              "Thread marinated shrimp onto skewers.",
+              "Preheat a grill to medium-high heat. Cook shrimp for 2-3 minutes per side, or until opaque and cooked through.",
+              "Serve immediately with a dollop of lemon herb butter."
+            ]
+          },
+          "attempts": 1,
+          "first_try_uses_avoided": false,
+          "seconds": 52.2
+        }
+      },
+      {
+        "craving": "chicken caesar salad",
+        "avoid": "anchovies",
+        "baseline": {
+          "uses_avoided": [
+            "it uses 'Anchovy fillets (optional)', and the cook avoids anchovies"
+          ],
+          "spicy_ingredient": false,
+          "spicy": false,
+          "recipe": {
+            "name": "Classic Chicken Caesar Salad",
+            "ingredients": [
+              "1 Head of romaine lettuce",
+              "2 Cooked chicken breasts, sliced",
+              "1/2 Cup croutons",
+              "1/4 Cup grated Parmesan cheese",
+              "3 Anchovy fillets (optional)",
+              "1/2 Cup mayonnaise",
+              "2 Whole garlic cloves, minced",
+              "1 Lemon, juiced",
+              "3 Tablespoons Dijon mustard",
+              "4 Tablespoons Worcestershire sauce",
+              "2 Tablespoons olive oil",
+              "Salt To taste",
+              "Pepper To taste"
+            ],
+            "steps": [
+              "Mash anchovy fillets (if using) with a fork.",
+              "In a large bowl, combine mashed anchovies (or 1 tablespoon anchovy paste), minced garlic, lemon juice, Dijon mustard, Worcestershire sauce, mayonnaise, salt, and pepper. Whisk until smooth.",
+              "Slowly drizzle in olive oil while continuing to whisk until well combined.",
+              "Tear romaine lettuce into bite-sized pieces and add it to the dressing.",
+              "Add sliced cooked chicken, croutons, and half of the Parmesan cheese. Toss until evenly coated.",
+              "Divide the salad between two plates, and sprinkle the remaining Parmesan cheese on top."
+            ]
+          },
+          "seconds": 47.1
+        },
+        "profile": {
+          "uses_avoided": [],
+          "spicy_ingredient": true,
+          "spicy": true,
+          "recipe": {
+            "name": "Spicy Grilled Chicken Caesar Salad",
+            "ingredients": [
+              "1 Boneless, skinless chicken breasts",
+              "2 Romaine lettuce hearts",
+              "1/2 Cup croutons",
+              "1/2 Cup grated Parmesan cheese",
+              "1/3 Cup mayonnaise",
+              "2 Large egg yolks",
+              "2 Lemons, juiced",
+              "4 Garlic cloves, minced",
+              "1/2 Teaspoon Dijon mustard",
+              "3/4 Cup extra-virgin olive oil",
+              "2 Teaspoons Worcestershire sauce",
+              "1/2 Teaspoon hot sauce (optional)",
+              "Salt To taste",
+              "Pepper To taste",
+              "1 Head romaine lettuce, washed and chopped"
+            ],
+            "steps": [
+              "Preheat grill to medium-high heat.",
+              "Season chicken breasts with salt, pepper, and hot sauce (if using).",
+              "Grill the chicken for 5-7 minutes per side or until cooked through.",
+              "Let the chicken rest and then slice it.",
+              "In a large bowl, whisk together mayonnaise, egg yolks, minced garlic, lemon juice, Dijon mustard, Worcestershire sauce, and salt and pepper.",
+              "Slowly drizzle in olive oil while continuously whisking until the dressing is smooth.",
+              "Taste and adjust seasoning if necessary.",
+              "In a large salad bowl, combine chopped lettuce, croutons, sliced chicken, and half of the Parmesan cheese.",
+              "Drizzle the dressing over the salad and toss to coat.",
+              "Divide the salad among plates, sprinkle with remaining Parmesan cheese, and serve."
+            ]
+          },
+          "attempts": 1,
+          "first_try_uses_avoided": false,
+          "seconds": 57.6
+        }
+      },
+      {
+        "craving": "pad thai",
+        "avoid": "peanuts",
+        "baseline": {
+          "error": "RecipeGenerationError: Model output failed validation after 2 attempts",
+          "seconds": 105.2
+        },
+        "profile": {
+          "uses_avoided": [
+            "it uses 'Chopped unsalted roasted peanuts (optional for those with peanut allergies)', and the cook avoids peanuts"
+          ],
+          "spicy_ingredient": true,
+          "spicy": true,
+          "recipe": {
+            "name": "Spicy Shrimp Stir-Fry - Pad Thai Alternative",
+            "ingredients": [
+              "8 oz Medium shrimp, peeled and deveined",
+              "1 Medium-sized bell pepper (any color)",
+              "2 Medium zucchinis",
+              "4 Green onions",
+              "1/2 cup Beansprouts",
+              "3 cloves Garlic, minced",
+              "1 tbsp Fresh ginger, grated",
+              "4 tbsp Thai fish sauce",
+              "2 tbsp Lime juice",
+              "2 tbsp Soy sauce",
+              "2 tbsp Tamarind paste",
+              "1 tbsp Brown sugar",
+              "4 tbsp Vegetable oil",
+              "1/4 tsp Crushed red pepper flakes",
+              "Handful Chopped unsalted roasted peanuts (optional for those with peanut allergies)",
+              "2 tbsp Chopped fresh cilantro",
+              "1 lime Lime, cut into wedges"
+            ],
+            "steps": [
+              "Clean and slice the bell pepper, zucchinis, and green onions.",
+              "Rinse the beansprouts.",
+              "In a small bowl, whisk together fish sauce, lime juice, soy sauce, tamarind paste, brown sugar, and red pepper flakes.",
+              "Set aside.",
+              "In the same pan, heat another tbsp of oil over medium-high heat.",
+              "Add garlic and ginger, stir fry for 30 seconds until fragrant.",
+              "Add bell pepper and zucchinis, cook for about 5 minutes until slightly tender.",
+              "Add green onions and beansprouts, cook for another minute.",
+              "Return the shrimp to the pan, pour in the sauce, and stir to coat all ingredients evenly.",
+              "Cook for an additional 2 minutes.",
+              "Sprinkle with crushed peanuts (if using), cilantro, and lime wedges."
+            ]
+          },
+          "attempts": 2,
+          "first_try_uses_avoided": true,
+          "seconds": 209.3
+        }
+      },
+      {
+        "craving": "greek salad",
+        "avoid": "olives",
+        "baseline": {
+          "error": "RecipeGenerationError: Model output failed validation after 2 attempts",
+          "seconds": 101.6
+        },
+        "profile": {
+          "uses_avoided": [],
+          "spicy_ingredient": true,
+          "spicy": true,
+          "recipe": {
+            "name": "Greek-Inspired Feta & Cucumber Salad",
+            "ingredients": [
+              "1 medium Cucumber",
+              "1 medium Tomato",
+              "1/2 small Red onion",
+              "8 oz Feta cheese",
+              "1/4 cup Crumbled feta (for garnish)",
+              "1/4 cup Chopped fresh dill",
+              "1/4 cup Chopped fresh mint",
+              "2 tbsp Lemon juice",
+              "3 tbsp Olive oil",
+              "1 tsp Greek seasoning (or a mix of oregano, garlic powder, and black pepper)",
+              "1/2 tsp Red pepper flakes (optional)",
+              "Salt To taste"
+            ],
+            "steps": [
+              "Wash and dry the cucumber, tomato, red onion.",
+              "Chop the cucumber, tomato, and red onion into bite-sized pieces.",
+              "In a small bowl, whisk together lemon juice, olive oil, Greek seasoning, red pepper flakes (if using), and salt.",
+              "Taste and adjust seasonings as needed.",
+              "In a large salad bowl, combine the chopped cucumber, tomato, red onion, and crumbled feta cheese.",
+              "Pour the dressing over the salad and toss until evenly coated.",
+              "Garnish with additional crumbled feta, fresh dill, and mint."
+            ]
+          },
+          "attempts": 1,
+          "first_try_uses_avoided": false,
+          "seconds": 50.5
+        }
+      },
+      {
+        "craving": "chili con carne",
+        "avoid": "onion",
+        "baseline": {
+          "uses_avoided": [
+            "it uses 'large onion (diced)', and the cook avoids onion"
+          ],
+          "spicy_ingredient": true,
+          "spicy": true,
+          "recipe": {
+            "name": "Vegetarian Chili Con Carne",
+            "ingredients": [
+              "2 bell peppers (diced)",
+              "2 zucchinis (diced)",
+              "1 eggplant (diced)",
+              "400g black beans (drained and rinsed)",
+              "400g kidney beans (drained and rinsed)",
+              "1 large onion (diced)",
+              "6 garlic cloves (minced)",
+              "2 cans of crushed tomatoes",
+              "1 can of diced green chilies",
+              "2 tablespoons of olive oil",
+              "3 tablespoons of chili powder",
+              "2 teaspoons of ground cumin",
+              "1 teaspoon of smoked paprika",
+              "salt to taste",
+              "pepper to taste"
+            ],
+            "steps": [
+              "Heat the olive oil in a large pot over medium heat.",
+              "Add the onion, bell peppers, zucchinis, eggplant, and garlic. Cook until softened, about 10 minutes.",
+              "Stir in the chili powder, cumin, smoked paprika, salt, and pepper. Cook for another minute.",
+              "Add the crushed tomatoes, diced green chilies, black beans, kidney beans. Bring to a boil.",
+              "Reduce heat to low, cover and simmer for 45 minutes, stirring occasionally.",
+              "Serve hot with rice or cornbread."
+            ]
+          },
+          "seconds": 53.0
+        },
+        "profile": {
+          "uses_avoided": [],
+          "spicy_ingredient": true,
+          "spicy": true,
+          "recipe": {
+            "name": "Spicy Beef Chili Verde",
+            "ingredients": [
+              "3 lbs boneless beef chuck roast",
+              "2 cans green chilies",
+              "4 cloves garlic, minced",
+              "1 tbsp cumin",
+              "2 tbsp chili powder",
+              "2 tbsp crushed red pepper flakes",
+              "1 can diced tomatoes with green chilies",
+              "4 cups beef broth",
+              "Salt and pepper to taste Seasoning mix"
+            ],
+            "steps": [
+              "Trim excess fat from beef and cut into bite-sized pieces.",
+              "In a large pot over medium heat, sauté garlic until fragrant. Avoid browning.",
+              "Add cumin, chili powder, and red pepper flakes to the pot and stir for 30 seconds.",
+              "Add beef to the pot and brown on all sides. Season with salt and pepper.",
+              "Add green chilies, diced tomatoes, and beef broth. Stir well.",
+              "Reduce heat to low, cover the pot, and simmer for 1.5 hours, or until beef is tender.",
+              "Taste and adjust seasonings if necessary.",
+              "Serve hot with desired toppings such as sour cream, shredded cheese, chopped cilantro, or diced avocado."
+            ]
+          },
+          "attempts": 1,
+          "first_try_uses_avoided": false,
+          "seconds": 47.9
+        }
+      },
+      {
+        "craving": "vegetable fried rice",
+        "avoid": "eggs",
+        "baseline": {
+          "uses_avoided": [
+            "it uses 'Large Eggs', and the cook avoids eggs"
+          ],
+          "spicy_ingredient": false,
+          "spicy": false,
+          "recipe": {
+            "name": "Vegetable Fried Rice",
+            "ingredients": [
+              "1 Cooked Jasmine Rice",
+              "2 Large Eggs",
+              "2 Tbsp Vegetable Oil",
+              "1 Medium Onion, finely chopped",
+              "3 Cup Frozen Peas and Carrots mix",
+              "2 Cup Diced Bell Pepper",
+              "1/2 Cup Diced Cauliflower",
+              "3 Scallions, chopped",
+              "1 Tbsp Soy Sauce",
+              "1 Tbsp Oyster Sauce (optional)",
+              "1/2 Tsp Ground Ginger",
+              "Pinch Salt and Pepper, to taste"
+            ],
+            "steps": [
+              "Cook the rice according to package instructions.",
+              "Beat the eggs in a bowl and set aside.",
+              "Heat 1 tbsp oil in a large skillet over medium heat. Add onion, carrot-pea mix, bell pepper, and cauliflower. Cook until tender, about 5 minutes.",
+              "Push vegetables to one side of the pan, add remaining oil, then pour beaten eggs into the other side. Scramble eggs until set, breaking them up as they cook.",
+              "Stir cooked eggs into the vegetables and add cooked rice. Stir in soy sauce, oyster sauce (if using), ginger, salt, and pepper. Cook for another 3-4 minutes.",
+              "Remove from heat, sprinkle with scallions, and serve."
+            ]
+          },
+          "seconds": 93.6
+        },
+        "profile": {
+          "uses_avoided": [],
+          "spicy_ingredient": true,
+          "spicy": true,
+          "recipe": {
+            "name": "Spicy Vegetable Fried Rice (TVF)",
+            "ingredients": [
+              "2 cups Long grain rice",
+              "1 cup Broccoli florets",
+              "1 cup Carrots, julienned",
+              "1 cup Snap peas",
+              "1/2 cup Red bell pepper, diced",
+              "1/4 cup Green onions, chopped",
+              "3 tbsp Soy sauce",
+              "2 tbsp Sesame oil",
+              "2 tbsp Vegetable oil",
+              "1 tbsp Minced garlic",
+              "1 tbsp Ground ginger",
+              "1 tsp Crushed red pepper flakes",
+              "Salt To taste"
+            ],
+            "steps": [
+              "Cook rice according to package instructions and set aside.",
+              "Heat sesame oil in a large skillet over medium heat.",
+              "Add garlic, ginger, and red pepper flakes. Sauté for 1 minute until fragrant.",
+              "In the same skillet, add vegetables (broccoli, carrots, snap peas, and red bell pepper) in order of cooking time. Sauté for 8-10 minutes or until tender.",
+              "Add cooked rice to the skillet and stir well to combine with vegetables.",
+              "Stir in soy sauce and green onions. Season with salt.",
+              "Serve immediately."
+            ]
+          },
+          "attempts": 1,
+          "first_try_uses_avoided": false,
+          "seconds": 46.6
+        }
+      },
+      {
+        "craving": "creamy tomato basil pasta",
+        "avoid": "parmesan",
+        "baseline": {
+          "uses_avoided": [
+            "it uses 'Grated Parmesan cheese', and the cook avoids parmesan"
+          ],
+          "spicy_ingredient": false,
+          "spicy": false,
+          "recipe": {
+            "name": "Creamy Tomato Basil Pasta",
+            "ingredients": [
+              "1 lb Spaghetti pasta",
+              "2 tbsp Olive oil",
+              "4 Garlic cloves, minced",
+              "28 oz Crushed tomatoes",
+              "1 cup Heavy cream",
+              "1/2 cup Grated Parmesan cheese",
+              "2 tsp Sugar",
+              "4 Basil leaves, torn",
+              "Salt To taste",
+              "Black pepper To taste"
+            ],
+            "steps": [
+              "Boil water in a large pot. Add salt and cook the spaghetti according to package instructions.",
+              "Drain the cooked pasta, reserving 1 cup of pasta water.",
+              "In a large skillet, heat olive oil over medium heat. Add minced garlic and sauté until fragrant.",
+              "Add crushed tomatoes, sugar, salt, and black pepper. Simmer for 10 minutes.",
+              "Stir in heavy cream and simmer for another 5 minutes.",
+              "Remove the skillet from heat and stir in grated Parmesan cheese and torn basil leaves.",
+              "Add the cooked spaghetti to the skillet with the sauce. Toss well to combine.",
+              "If needed, add some of the reserved pasta water to thin the sauce."
+            ]
+          },
+          "seconds": 45.8
+        },
+        "profile": {
+          "uses_avoided": [],
+          "spicy_ingredient": true,
+          "spicy": true,
+          "recipe": {
+            "name": "Spicy Creamy Tomato Basil Pasta",
+            "ingredients": [
+              "1 lb Spaghetti pasta",
+              "2 tbsp Extra virgin olive oil",
+              "1 medium Onion, finely chopped",
+              "3 cloves Garlic, minced",
+              "1 tsp Red pepper flakes (adjust to taste)",
+              "28 oz Crushed tomatoes",
+              "1/4 cup Heavy cream",
+              "1 bunch Fresh basil, chopped",
+              "Salt to taste Salt",
+              "Black pepper to taste Black pepper"
+            ],
+            "steps": [
+              "Bring a large pot of salted water to a boil. Add the spaghetti and cook according to package instructions.",
+              "Drain the cooked pasta, reserving 1 cup of pasta water.",
+              "Heat the olive oil in a large skillet over medium heat.",
+              "Add the chopped onion and cook until softened, about 5 minutes.",
+              "Stir in the minced garlic and red pepper flakes. Cook for another minute.",
+              "Pour in the crushed tomatoes. Simmer for 10-15 minutes to allow flavors to meld.",
+              "Stir in the heavy cream, half of the chopped basil, salt, and black pepper.",
+              "Add the cooked spaghetti to the skillet with the sauce. Toss gently to coat.",
+              "If needed, add some of the reserved pasta water to thin the sauce.",
+              "Divide the pasta among plates or bowls.",
+              "Garnish with the remaining chopped basil."
+            ]
+          },
+          "attempts": 1,
+          "first_try_uses_avoided": false,
+          "seconds": 40.8
+        }
+      }
+    ]
+  }
+}

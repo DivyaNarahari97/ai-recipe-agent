@@ -4,8 +4,6 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 
-from app.models import Base
-
 load_dotenv()
 logger = logging.getLogger(__name__)
 

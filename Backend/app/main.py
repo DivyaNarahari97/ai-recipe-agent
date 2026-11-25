@@ -1,6 +1,5 @@
 import logging
 import os
-import re
 import time
 from typing import Optional
 
@@ -91,18 +90,6 @@ class IngredientsRequest(BaseModel):
     ingredients: list[str]
     filters: DietaryFilters = DietaryFilters()
     profile: TasteProfile = TasteProfile()
-
-
-def _extract_ingredient_names(ingredients: list) -> set[str]:
-    names: set[str] = set()
-    for item in ingredients or []:
-        if isinstance(item, dict):
-            name = str(item.get("name", "")).strip().lower()
-        else:
-            name = str(item).strip().lower()
-        if name:
-            names.add(name)
-    return names
 
 
 def _cache_key(ingredients: list[str], filters: DietaryFilters, profile: TasteProfile = TasteProfile()) -> tuple:
@@ -264,37 +251,9 @@ def assistant_logic(
     }
 
 
-
-
-
-def find_best_match(user_ingredients: list[str], db: Session):
-    logger.info("Finding best match", extra={"ingredient_count": len(user_ingredients)})
-    recipes = db.query(models.Recipe).all()
-
-    best_match = None
-    best_score = 0
-
-    user_set = extract_normalized_ingredient_tokens(user_ingredients)
-
-    for recipe in recipes:
-        recipe_set = extract_normalized_ingredient_tokens(recipe.ingredients)
-        if not recipe_set:
-            continue
-
-        intersection = user_set.intersection(recipe_set)
-        score = len(intersection) / len(recipe_set)
-
-        if score > best_score:
-            best_score = score
-            best_match = recipe
-
-    return best_match, best_score
-
-
 app = FastAPI()
 logger.info("FastAPI application initialized")
 
-# 🔥 ADD CORS RIGHT HERE
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:5173"],
@@ -302,7 +261,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-
 
 
 # =========================
